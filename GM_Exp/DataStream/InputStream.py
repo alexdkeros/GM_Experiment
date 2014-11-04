@@ -71,12 +71,17 @@ class InputStream:
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------          
                 
-                
 if __name__=="__main__":
     '''simple test'''
 
     streamInst=InputStream(0.5,0,5,1,1)
+    print('getattr test:')
+    print(getattr(streamInst, "getData"))
+    print('-----------------------------------')
     stream=streamInst.getData()
+    print(stream)
+    stream2=getattr(streamInst, "getData()")
+    print(stream2)
     for i in range(10):
         print('-------------------------')
         print('stream data:')
