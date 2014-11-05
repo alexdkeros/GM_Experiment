@@ -18,19 +18,25 @@ class Node:
     def getId(self):
         return self.id
     
-    def getV(self):
-        return self.v
-    
-    def getE(self):
-        return self.e
-    
     def send(self,target,msg,data):
+        '''
+            calls enviroment method "signal"
+            tuple (id, target id, message, data)
+        '''
+        if not isinstance(target, list):
+            target=[target]
+        if not isinstance(data, list):
+            data=[data]
         if len(target)==len(data):
-            for i in range(len(target)):
-                self.env.signal((self.id,target[i] , msg, data[i]))
+            for targ,dat in zip(target,data):
+                self.env.signal((self.id,targ , msg, dat))
         
     def rcv(self,data):
+        '''
+            data is tuple (sender id, target id , msg, data)
+        '''
         if data[1]==self.id:
-            getattr(self, data[2])(data[3],sender=data[0])
+            if data:
+                getattr(self, data[2])(data[3],sender=data[0])
         
         

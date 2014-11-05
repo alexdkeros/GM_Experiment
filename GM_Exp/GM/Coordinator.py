@@ -3,7 +3,6 @@
 '''
 from GM_Exp import Config
 from GM_Exp.GM.Node import Node
-from matplotlib.pyparsing import Empty
 
 
 class Coordinator(Node):
@@ -21,6 +20,3 @@ class Coordinator(Node):
         self.balancingSet=set()
         
         
-    def rep(self,data, sender):
-        self.balancingSet.add((sender,)+data)
-        self.balance()
