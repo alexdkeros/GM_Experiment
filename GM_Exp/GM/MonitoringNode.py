@@ -37,7 +37,7 @@ class MonitoringNode(Node):
             send signal "init" to Coordinator
         '''
         self.vLast=self.v
-        self.send("Coord", "init", (self.vLast,))
+        self.send("Coord", "init", (self.vLast,self.weight))
     
     def req(self,dat, sender):
         self.rep()
