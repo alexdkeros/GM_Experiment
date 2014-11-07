@@ -27,9 +27,8 @@ class Node:
             target=[target]
         if not isinstance(data, list):
             data=[data]
-        if len(target)==len(data):
-            for targ,dat in zip(target,data):
-                self.env.signal((self.id,targ , msg, dat))
+        for targ,dat in zip(target,len(target)==len(data) and data or data*len(target)): #to cover cases of multiple targets, one data | multiple targets, multiple data
+            self.env.signal((self.id,targ , msg, dat))
         
     def rcv(self,data):
         '''

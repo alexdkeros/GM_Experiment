@@ -1,6 +1,7 @@
 '''
 @author: ak
 '''
+import random
 from GM_Exp import Config
 from GM_Exp.GM.Node import Node
 
@@ -34,8 +35,8 @@ class Coordinator(Node):
                 self.newEst()
     
     def rep(self,dat, sender):
-        #TODO
-        pass
+        self.balancingSet.add((sender,)+dat)    #set containing tuples (nodeId,v,u)
+        self.balance()
     
     '''
     messages methods:
@@ -49,6 +50,53 @@ class Coordinator(Node):
         
     def adjSlk(self,nodeId,dat):   
         self.env.send(nodeId,"adjSlk",dat)
+        
+    def globalViolation(self):
+        self.env.send(self.nodes.keys(),"globalViolation",None)
+        
+    '''
+    other functions
+    '''
+    def balance(self):
+        b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
+        
+        
+        if self.monitoringFunction(b)<self.threshold:
+            #----------------------------------------------------------------
+            #SUCESSfull balancing
+            #----------------------------------------------------------------
+            dDelta=list((self.nodes[i]*b-self.nodes[i]*u) for i,v,u in self.balancingSet)
+            nodeIds=list(i for i,v,u in self.balancingSet)
+            
+            self.balancingSet.clear()
+
+            self.adjSlk(nodeIds, dDelta)
+                    
+        else:
+            #-----------------------------------------------------------------
+            #FAILed balancing
+            #-----------------------------------------------------------------
+            diffSet=set(self.nodes.keys()-set(i for i,v,u in self.balancingSet))
+            
+            if len(diffSet): #i.e. len(balancingSet)==len(nodes)
+                reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random
+                self.req(reqNodeId)
+            
+            else:
+                #----------------
+                #Global Violation
+                #----------------
+                vGl=sum(v*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)   #global stats vector
+                uGl=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                
+                self.e=vGl
+                
+                self.balancingSet.clear()
+                
+                #self.newEst()
+                
+                self.globalViolation()
+                
     
          
         
