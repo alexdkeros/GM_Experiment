@@ -7,16 +7,23 @@ from GM_Exp import Config
 
 class Node:
     
-    def __init__(self,env, id=uuid.uuid4(),threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
+    def __init__(self,env, id=uuid.uuid4(), weight=0, threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
         self.env=env
         self.id=id
         self.threshold=threshold
         self.monitoringFunction=monitoringFunction
+        self.weight=weight
         self.v=0    #statistics vector
         self.e=0    #estimate vector
         
+    def getWeight(self):
+        return self.weight
+    
     def getId(self):
         return self.id
+    
+    def run(self):
+        pass
     
     def send(self,target,msg,data):
         '''
@@ -36,6 +43,6 @@ class Node:
         '''
         if data[1]==self.id:
             if data:
-                getattr(self, data[2])(data[3],sender=data[0])
+                getattr(self, data[2])(data[3],data[0])
         
         

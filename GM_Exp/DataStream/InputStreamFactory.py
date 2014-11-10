@@ -10,7 +10,7 @@ class InputStreamFactory:
     '''
 
 
-    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, mean=Config.defMean, std=Config.defStd, interval=Config.defInterval):
+    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, mean=Config.defMean, std=Config.defStd):
         '''
         Constructor
         args:
@@ -18,13 +18,11 @@ class InputStreamFactory:
               @param initXData: initial InputStream data
               @param mean: mean of normal distribution
               @param std: standard deviation of normal distribution
-              @param interval: update interval in case of changing velocities
         '''
         self.lambdaVel=lambdaVel
         self.initXData=initXData
         self.mean=mean
         self.std=std
-        self.interval=interval
         
         self.inputStreams=[] #array of InputStreams created
         self.velocities=[]  #array of InputStream velocities
@@ -35,7 +33,7 @@ class InputStreamFactory:
         @return an InputStream instance
         '''
         while True:
-            newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.mean,std=self.std,interval=self.interval,factory=self)
+            newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.mean,std=self.std,factory=self)
             self.inputStreams.append(newStream)
             print('stream at generator function:')
             print(newStream)
@@ -72,9 +70,11 @@ class InputStreamFactory:
 #----------------------------------------------------------------------------
             
 if __name__=="__main__":
+    '''
     factory=InputStreamFactory(0.5,mean=3,std=1)
     streamFetcher=factory.getInputStream()
     print(factory)
+    print(streamFetcher)
     streams=[]
     dataFetchers=[]
     for i in range(10):
@@ -90,4 +90,19 @@ if __name__=="__main__":
         for i in range(len(streams)):
             print('stream %d, data %f'%(i, dataFetchers[i].next()))
         print('avgVel:%f'%factory.getAvgVelocity())
-        
+    '''
+    factory=InputStreamFactory(0.5,mean=3,std=1)
+    streamFetcher=factory.getInputStream()
+    print(factory)
+    print(streamFetcher)
+    l=[]
+    l.append(streamFetcher.next().getData())
+    print(l)
+    print(l[0].next())
+    print(l[0].next())
+    print(l[0].next())
+    l.append(streamFetcher.next().getData())
+    print(l)
+    for s in l:
+        print(s)
+        print("data is: %f"%s.next())

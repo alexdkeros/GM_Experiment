@@ -14,17 +14,13 @@ class MonitoringNode(Node):
         '''
         Constructor
         '''
-        Node.__init__(self, env, threshold, monitoringFunction)
+        Node.__init__(self, env,weight=weight, threshold=threshold, monitoringFunction=monitoringFunction)
         self.inputStream=inputStream
-        self.weight=weight
         self.v=initV
         self.vLast=0
         self.u=0
         self.delta=0
         
-        
-    def getWeight(self):
-        return self.weight
         
     '''
     messages methods:
@@ -48,7 +44,7 @@ class MonitoringNode(Node):
         self.u=self.u+(dDelta/self.weight)  #recalculate last drift vector value with new slack vector
         
     def newEst(self,dat,sender):
-        self.e=dat[0]
+        self.e=dat
         self.vLast=self.v
         self.delta=0
         
@@ -69,7 +65,7 @@ class MonitoringNode(Node):
         self.v=self.inputStream.next()
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
-        if self.monFunc(self.u)>=self.threshold:
+        if self.monitoringFunction(self.u)>=self.threshold:
             self.rep()
         
     

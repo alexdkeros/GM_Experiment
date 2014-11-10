@@ -16,7 +16,7 @@ class Coordinator(Node):
         '''
         Constructor
         '''
-        Node.__init__(self, env, id, threshold, monitoringFunction)
+        Node.__init__(self, env, id=id, weight=0, threshold=threshold, monitoringFunction=monitoringFunction)
         self.nodes=nodes    #dictionary {"id":weight,}
         self.balancingSet=set()
         self.sumW=sum(nodes.values())
@@ -26,6 +26,7 @@ class Coordinator(Node):
     incoming: methodName(self,data,sender) format
     '''
     def init(self,dat,sender):
+        if sender:
             self.balancingSet.add(sender)
             w=dat[1]
             v=dat[0]
@@ -43,16 +44,16 @@ class Coordinator(Node):
     outgoing: methodName(self) format
     '''
     def newEst(self):
-        self.env.send(self.nodes.keys(),"newEst",self.e)
+        self.send(self.nodes.keys(),"newEst",self.e)
         
     def req(self,nodeId):
-        self.env.send(nodeId,"req",None)
+        self.send(nodeId,"req",None)
         
     def adjSlk(self,nodeId,dat):   
-        self.env.send(nodeId,"adjSlk",dat)
+        self.send(nodeId,"adjSlk",dat)
         
     def globalViolation(self):
-        self.env.send(self.nodes.keys(),"globalViolation",None)
+        self.send(self.nodes.keys(),"globalViolation",None)
         
     '''
     other functions
@@ -76,7 +77,7 @@ class Coordinator(Node):
             #-----------------------------------------------------------------
             #FAILed balancing
             #-----------------------------------------------------------------
-            diffSet=set(self.nodes.keys()-set(i for i,v,u in self.balancingSet))
+            diffSet=set(self.nodes.keys())-set(i for i,v,u in self.balancingSet)
             
             if len(diffSet): #i.e. len(balancingSet)==len(nodes)
                 reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random

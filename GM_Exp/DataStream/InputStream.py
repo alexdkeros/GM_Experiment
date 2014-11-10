@@ -15,7 +15,7 @@ class InputStream:
     configuration via Config module
     '''
 
-    def __init__(self,lambdaVel ,initXData, mean, std, interval, factory=None):
+    def __init__(self,lambdaVel ,initXData, mean, std, factory=None):
         '''
         Constructor
         args:
@@ -23,7 +23,6 @@ class InputStream:
               @param initXData: initial stream data
               @param mean: mean of normal distribution
               @param std: standard deviation of normal distribution
-              @param interval: update interval in case of changing velocities
         '''
         if 0<=lambdaVel<=1:
             self.lambdaVel=lambdaVel
@@ -32,7 +31,6 @@ class InputStream:
         self.initXData=initXData
         self.mean=mean
         self.std=std
-        self.interval=interval
         self.velocity=0
         self.factory=factory
     

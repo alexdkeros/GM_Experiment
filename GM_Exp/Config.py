@@ -51,7 +51,7 @@ def config(type):
 
 #--------------default values---------------------
 #exp config
-defIterations=1 #30
+defRepeats=1 #30
 
 #runtime limit(in sec)
 timeLimit=5
@@ -59,7 +59,6 @@ timeLimit=5
 #default InputStream data
 lambdaVel=0.5
 defInitXData=0
-defInterval=1
 
 #default vel distribution params
 defMean=5
