@@ -1,6 +1,7 @@
 '''
 @author: ak
 '''
+import uuid
 from GM_Exp import Config
 from GM_Exp.GM.Node import Node
 
@@ -10,11 +11,11 @@ class MonitoringNode(Node):
     '''
 
 
-    def __init__(self, env, inputStream, weight=Config.defWeight, initV=Config.defV,threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
+    def __init__(self, env, inputStream,nid=uuid.uuid4(), weight=Config.defWeight, initV=Config.defV,threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
         '''
         Constructor
         '''
-        Node.__init__(self, env,weight=weight, threshold=threshold, monitoringFunction=monitoringFunction)
+        Node.__init__(self, env, nid=nid, weight=weight, threshold=threshold, monitoringFunction=monitoringFunction)
         self.inputStream=inputStream
         self.v=initV
         self.vLast=0
@@ -39,9 +40,18 @@ class MonitoringNode(Node):
         self.rep()
             
     def adjSlk(self,dat, sender):
-        dDelta=dat[0]
+        dDelta=dat
+        
+        #DBG - OK
+        #print("prev d:%f"%self.delta)
+        
         self.delta+=dDelta  #adjusting current slack vector
-        self.u=self.u+(dDelta/self.weight)  #recalculate last drift vector value with new slack vector
+        
+        #DBG - OK
+        #print("adj d:%f"%self.delta)     
+        
+        self.u=self.u+(dDelta/self.weight)  #recalculate last drift vector value with new slack vector(needed in case of "req" msg before run is called
+        
         
     def newEst(self,dat,sender):
         self.e=dat
@@ -61,12 +71,25 @@ class MonitoringNode(Node):
     '''
     monitoring operation
     '''
-    def run(self):
-        self.v=self.inputStream.next()
-        self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
+    def check(self):
         if self.monitoringFunction(self.u)>=self.threshold:
             self.rep()
+            
+    def run(self):
+        #DBG - OK
+        #print("before:")
+        #self.check()
+        
+        self.v=self.inputStream.next()
+        
+        self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
+        
+        #DBG
+        #print("after:")
+        
+        self.check()
+        
         
     
     

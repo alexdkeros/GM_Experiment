@@ -2,6 +2,7 @@
 @author: ak
 '''
 import time
+import uuid
 from GM_Exp import Config
 from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory 
 from GM_Exp.GM.MonitoringNode import MonitoringNode
@@ -28,36 +29,61 @@ class Enviroment():
 
         #creating nodes
         for i in range(nodeNum):
-            node=MonitoringNode(env=self,inputStream=self.inputStreamFetcher.next().getData(),threshold=threshold, monitoringFunction=monitoringFunction)
+            node=MonitoringNode(env=self, nid=uuid.uuid4(),inputStream=self.inputStreamFetcher.next().getData(),threshold=threshold, monitoringFunction=monitoringFunction)
             self.nodes[node.getId()]=node
             coordDict[node.getId()]=node.getWeight()
+            
+            #DBG - OK
+            #print("Creating node %d:"%i)
+            #print(node)
+            #print(self.nodes)
+        
 
         #creating coordinator
         coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction)
         self.nodes[coordinator.getId()]=coordinator
             
+        #DBG
+        print("Nodes:")
+        print(self.nodes)
             
             
     def signal(self,data): 
         '''
         data format: (sender id, target id, msg, data)
         '''
+        #DBG
+        print("SIGNAL:")
+        print(data)
+        
         self.nodes[data[1]].rcv(data)
         if data[2]=="globalViolation":
             self.globalViolationFlag=True
         
         
     def runSimulation(self,timeLimit=Config.timeLimit):
-        #initialize
+        #initialize nodes
         for nodeId in self.nodes.keys():
             self.signal((None, nodeId, "init", None))
             
+        iteration=0
         startTime=time.time()
         elapsedT=0
         
+        #run simulation
         while elapsedT<timeLimit and self.globalViolationFlag==False:
+            
+            iteration+=1
+            
+            #DBG
+            print("-----------------iteration %d----------------------"%iteration)
+            
             for node in self.nodes.values():
+                #DBG
+                print("-------node running:%s"%node.getId())
                 node.run()
+                if self.globalViolationFlag==True:
+                    break
             
             elapsedT=time.time()-startTime
             

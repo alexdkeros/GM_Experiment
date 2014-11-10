@@ -7,9 +7,9 @@ from GM_Exp import Config
 
 class Node:
     
-    def __init__(self,env, id=uuid.uuid4(), weight=0, threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
+    def __init__(self,env, nid=uuid.uuid4(), weight=0, threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
         self.env=env
-        self.id=id
+        self.id=nid
         self.threshold=threshold
         self.monitoringFunction=monitoringFunction
         self.weight=weight

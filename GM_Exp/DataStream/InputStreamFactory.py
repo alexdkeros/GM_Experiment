@@ -35,8 +35,11 @@ class InputStreamFactory:
         while True:
             newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.mean,std=self.std,factory=self)
             self.inputStreams.append(newStream)
-            print('stream at generator function:')
-            print(newStream)
+            
+            #DBG
+            #print('stream at generator function:')
+            #print(newStream)
+            
             yield newStream
     
     
@@ -55,11 +58,20 @@ class InputStreamFactory:
         normalizes true mean velocity of all created InputStreams to the specified mean
         '''
         self.velocities.append(vel)
-        print(self.velocities)
+        
+        #DBG
+        #print(self.velocities)
+        
         if len(self.velocities)==len(self.inputStreams):
-            print('!!!!normalizing!!!')
+            
+            #DBG
+            #print('!!!!normalizing!!!')
+            
             deltaV=self.mean-(sum(self.velocities)/float(len(self.velocities)))
-            print("--deltaV:%f"%deltaV)
+            
+            #DBG
+            #print("--deltaV:%f"%deltaV)
+            
             for stream in self.inputStreams:
                 stream.correctVelocity(deltaV)
             del self.velocities[:]
