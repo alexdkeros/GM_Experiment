@@ -81,7 +81,9 @@ class Enviroment():
             for node in self.nodes.values():
                 #DBG
                 print("-------node running:%s"%node.getId())
+                
                 node.run()
+                
                 if self.globalViolationFlag==True:
                     break
             

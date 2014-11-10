@@ -86,6 +86,9 @@ class MonitoringNode(Node):
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
         #DBG
+        print("node %s, v=%f, u=%f"%(self.id,self.v,self.u))
+        
+        #DBG - OK
         #print("after:")
         
         self.check()

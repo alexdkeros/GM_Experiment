@@ -65,12 +65,12 @@ defMean=5
 defStd=1
 
 #default Node values
-defNodeNum=4
+defNodeNum=10
 defV=0
 defWeight=1
 
 #default geometric monitoring params
-threshold=100 #1000
+threshold=1000 #1000
 defMonFunc= lambda x: x
 
 
