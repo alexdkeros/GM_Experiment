@@ -70,7 +70,7 @@ defV=0
 defWeight=1
 
 #default geometric monitoring params
-threshold=1000 #1000
+threshold=100 #1000
 defMonFunc= lambda x: x
 
 
