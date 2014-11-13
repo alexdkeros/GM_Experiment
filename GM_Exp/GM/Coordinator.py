@@ -78,6 +78,7 @@ class Coordinator(Node):
             #----------------------------------------------------------------
             #SUCESSfull balancing
             #----------------------------------------------------------------
+            
             dDelta=list((self.nodes[i]*b-self.nodes[i]*u) for i,v,u in self.balancingSet)
             nodeIds=list(i for i,v,u in self.balancingSet)
             
@@ -85,6 +86,9 @@ class Coordinator(Node):
             print("Coord: balance success")
             print("dDelta:")
             print(dDelta)
+            
+            #EXP - log balancing vector
+            self.send(None, "balancingVector", b)
             
             self.balancingSet.clear()
 
@@ -118,7 +122,6 @@ class Coordinator(Node):
                 
                 self.globalViolation()
                 
-    
          
         
         

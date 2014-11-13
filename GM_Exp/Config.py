@@ -57,7 +57,7 @@ defRepeats=1 #30
 timeLimit=5
 
 #default InputStream data
-lambdaVel=0.5
+lambdaVel=1 #1:static , 2:random
 defInitXData=0
 
 #default vel distribution params

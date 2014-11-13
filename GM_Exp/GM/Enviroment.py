@@ -18,6 +18,9 @@ class Enviroment():
         '''
         Constructor
         '''
+        self.monintoringFunction=monitoringFunction
+        self.threshold=threshold
+        
         #create a dictionary {"coord": coord instance, "node id #1":node instance, ...}
         self.inputStreamFactory=InputStreamFactory(lambdaVel=lambdaVel, mean=mean, std=std)
         self.inputStreamFetcher=self.inputStreamFactory.getInputStream()
@@ -53,7 +56,8 @@ class Enviroment():
         self.repMsgsPerIter=[]
         self.reqMsgsPerBal=[]
         self.lVsPerIter=[]
-        
+        self.balancingVectors=[]
+        self.remainingDist=[]
             
             
     def signal(self,data): 
@@ -65,9 +69,10 @@ class Enviroment():
         print(data)
         
         #EXP-sniff msg
-        self.newMsg(data[2])
+        self.newMsg(data[2],data[3])
         
-        self.nodes[data[1]].rcv(data)
+        if data[1]:
+            self.nodes[data[1]].rcv(data)
         
         if data[2]=="globalViolation":
             self.globalViolationFlag=True
@@ -127,7 +132,8 @@ class Enviroment():
         self.repMsgsPerIter=[]
         self.reqMsgsPerBal=[]
         self.lVsPerIter=[]
-        
+        self.balancingVectors=[]
+        self.remainingDist=[]
     
     def newIter(self):
         self.iterCounter+=1
@@ -135,7 +141,7 @@ class Enviroment():
         self.repMsgsPerIter.append(0)
         
         
-    def newMsg(self,msg):
+    def newMsg(self,msg,data):
         if msg=="req":
             self.reqMsgsPerIter[-1]+=1
             
@@ -151,15 +157,17 @@ class Enviroment():
         elif msg=="globalViolation":
             if self.reqMsgsPerBal[-1]==0:
                 self.reqMsgsPerBal[-1]=len(self.nodes)-1 #at last balancing(i.e.GV all nodes take place)
-
+        elif msg=="balancingVector":
+            self.balancingVectors.append(data)
                 
         
     def processExpRes(self):
         self.lVsPerIter=[i-j for i,j in zip(self.repMsgsPerIter,self.reqMsgsPerIter)]
         self.reqMsgsPerBal=[i-1 for i in self.reqMsgsPerBal] # the num of adjSlk msgs contain violating node, so remove it for correct computation of req msgs per balance
-    
+        self.remainingDist=[self.threshold-self.monintoringFunction(b) for b in self.balancingVectors]
+        
     def getExpRes(self):
-        return {"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal}
+        return {"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
