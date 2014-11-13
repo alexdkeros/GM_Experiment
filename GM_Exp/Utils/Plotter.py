@@ -16,7 +16,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
-def plot2d(rangeStart,rangeEnd,data,xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
+def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
     '''
     function plot2d:
     creates a 2d plot
@@ -43,6 +43,7 @@ def plot2d(rangeStart,rangeEnd,data,xLabel=None, yLabel=None, title=None, saveFl
     axes.set_xlim([rangeStart, rangeEnd])
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
+    axes.set_yscale(yScale) #for log use yScale='log'
     axes.set_title(title)
     fig.tight_layout()
     if saveFlag:
