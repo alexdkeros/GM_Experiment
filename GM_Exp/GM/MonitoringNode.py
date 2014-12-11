@@ -16,7 +16,8 @@ class MonitoringNode(Node):
         Constructor
         '''
         Node.__init__(self, env, nid=nid, weight=weight, threshold=threshold, monitoringFunction=monitoringFunction)
-        self.inputStream=inputStream
+        self.inputStreamInstance=inputStream
+        self.inputStream=inputStream.getData()
         self.v=initV
         self.vLast=0
         self.u=0
@@ -66,8 +67,14 @@ class MonitoringNode(Node):
     outgoing: methodName(self) format
     '''
     def rep(self):
+        f=getattr(self, Config.rep, self.classicRep)
+        return f()
+    
+    def classicRep(self):
         self.send("Coord", "rep", (self.v,self.u))
         
+    def heuristicRep(self):
+        self.send("Coord", "rep", (self.v,self.u,self.inputStreamInstance.getVelocity()))
     '''
     monitoring operation
     '''

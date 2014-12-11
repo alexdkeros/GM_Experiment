@@ -57,7 +57,7 @@ defRepeats=1 #30
 timeLimit=5
 
 #default InputStream data
-lambdaVel=1 #1:static , 2:random
+lambdaVel=1 #1:static , 0:random
 defInitXData=0
 
 #default vel distribution params
@@ -65,13 +65,24 @@ defMean=5
 defStd=1
 
 #default Node values
-defNodeNum=10
+defNodeNum=2
 defV=0
 defWeight=1
 
 #default geometric monitoring params
 threshold=100 #1000
 defMonFunc= lambda x: x
+
+#balancing
+balancing="heuristic"
+
+if balancing=="classic":
+    rep="classicRep"
+    balancingMethod="classicBalance"
+elif balancing=="heuristic":
+    rep="heuristicRep"
+    balancingMethod="heuristicBalance"
+    
 
 
         
