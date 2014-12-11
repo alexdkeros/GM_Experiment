@@ -41,9 +41,9 @@ def heuristicNLP(data,threshold, mean):
     r=p.maximize('ralg',plot=True)
 
     #DBG
-    print("!!!results")
+    print("-----------------!!!results!!!---------------------")
     print({v.name:r(v) for v in x})
-    
+    print("-----------------^^^^^^^^^^^^^---------------------")
     return {v.name:r(v) for v in x}
     
     

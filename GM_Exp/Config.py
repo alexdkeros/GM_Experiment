@@ -54,7 +54,7 @@ def config(type):
 defRepeats=1 #30
 
 #runtime limit(in sec)
-timeLimit=5
+timeLimit=50
 
 #default InputStream data
 lambdaVel=1 #1:static , 0:random
@@ -65,7 +65,7 @@ defMean=5
 defStd=1
 
 #default Node values
-defNodeNum=2
+defNodeNum=5
 defV=0
 defWeight=1
 
