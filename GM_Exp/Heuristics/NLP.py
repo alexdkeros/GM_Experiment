@@ -4,6 +4,8 @@
 from FuncDesigner import *
 from openopt import *
 import numpy as np
+from GM_Exp import Config
+
 
 
 def heuristicNLP(data,threshold, mean):
@@ -38,7 +40,7 @@ def heuristicNLP(data,threshold, mean):
     
     p=NLP(objective,startPoint,constraints=constraints)
     p.implicitBounds=[None,threshold]
-    r=p.maximize('ralg',plot=True)
+    r=p.maximize('ralg',plot=Config.NLPPlot)
 
     #DBG
     print("-----------------!!!results!!!---------------------")

@@ -7,12 +7,13 @@ from GM_Exp import Config
 
 class Node:
     
-    def __init__(self,env, nid=uuid.uuid4(), weight=0, threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
+    def __init__(self,env, nid=uuid.uuid4(), weight=0, threshold=Config.threshold,monitoringFunction=Config.defMonFunc,balancing=Config.balancing):
         self.env=env
         self.id=nid
         self.threshold=threshold
         self.monitoringFunction=monitoringFunction
         self.weight=weight
+        self.balancing=balancing
         self.v=0    #statistics vector
         self.e=0    #estimate vector
         

@@ -14,10 +14,11 @@ class Enviroment():
     '''
 
 
-    def __init__(self, nodeNum=Config.defNodeNum, threshold=Config.threshold, monitoringFunction=Config.defMonFunc, lambdaVel=Config.lambdaVel, mean=Config.defMean, std=Config.defStd):
+    def __init__(self,balancing=Config.balancing, nodeNum=Config.defNodeNum, threshold=Config.threshold, monitoringFunction=Config.defMonFunc, lambdaVel=Config.lambdaVel, mean=Config.defMean, std=Config.defStd):
         '''
         Constructor
         '''
+        self.balancing=balancing
         self.monintoringFunction=monitoringFunction
         self.threshold=threshold
         
@@ -32,7 +33,7 @@ class Enviroment():
 
         #creating nodes
         for i in range(nodeNum):
-            node=MonitoringNode(env=self, nid=uuid.uuid4(),inputStream=self.inputStreamFetcher.next(),threshold=threshold, monitoringFunction=monitoringFunction)
+            node = MonitoringNode(env=self, nid=uuid.uuid4(), inputStream=self.inputStreamFetcher.next(), threshold=threshold, monitoringFunction=monitoringFunction, balancing=balancing)
             self.nodes[node.getId()]=node
             coordDict[node.getId()]=node.getWeight()
             
@@ -43,7 +44,7 @@ class Enviroment():
         
 
         #creating coordinator
-        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction)
+        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing)
         self.nodes[coordinator.getId()]=coordinator
             
         #DBG - OK
@@ -52,6 +53,7 @@ class Enviroment():
         
         #experimental results
         self.iterCounter=0
+        self.avgReqsPerLv=0
         self.reqMsgsPerIter=[]
         self.repMsgsPerIter=[]
         self.reqMsgsPerBal=[]
@@ -128,6 +130,7 @@ class Enviroment():
     '''
     def resetExpRes(self):
         self.iterCounter=0
+        self.avgReqsPerLv=0
         self.reqMsgsPerIter=[]
         self.repMsgsPerIter=[]
         self.reqMsgsPerBal=[]
@@ -165,9 +168,10 @@ class Enviroment():
         self.lVsPerIter=[i-j for i,j in zip(self.repMsgsPerIter,self.reqMsgsPerIter)]
         self.reqMsgsPerBal=[i-1 for i in self.reqMsgsPerBal] # the num of adjSlk msgs contain violating node, so remove it for correct computation of req msgs per balance
         self.remainingDist=[self.threshold-self.monintoringFunction(b) for b in self.balancingVectors]
-        
+        self.avgReqsPerLv=float(sum(self.reqMsgsPerIter))/float(sum(self.lVsPerIter))
+    
     def getExpRes(self):
-        return {"nodes":len(self.nodes),"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
+        return {"avgReqsPerLv":self.avgReqsPerLv,"nodes":len(self.nodes),"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------

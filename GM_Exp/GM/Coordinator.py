@@ -17,11 +17,11 @@ class Coordinator(Node):
     '''
 
 
-    def __init__(self,env,nodes, nid="Coord",threshold=Config.threshold,monitoringFunction=Config.defMonFunc ):
+    def __init__(self,env,nodes, nid="Coord",threshold=Config.threshold,monitoringFunction=Config.defMonFunc,balancing=Config.balancing ):
         '''
         Constructor
         '''
-        Node.__init__(self, env, nid=nid, weight=0, threshold=threshold, monitoringFunction=monitoringFunction)
+        Node.__init__(self, env, nid=nid, weight=0, threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing)
         self.nodes=nodes    #dictionary {"id":weight,}
         self.balancingSet=set() #set containing tuples (nodeId,v,u) if classicBalance, (nodeId,v,u,vel) if heuristicBalance
         self.sumW=sum(nodes.values())
@@ -74,7 +74,7 @@ class Coordinator(Node):
     ---classic balance
     '''
     def balance(self):
-        f=getattr(self, Config.balancingMethod, self.classicBalance)
+        f=getattr(self, self.balancing+"Balance", self.classicBalance)
         return f()
     
     def classicBalance(self):

@@ -11,11 +11,11 @@ class MonitoringNode(Node):
     '''
 
 
-    def __init__(self, env, inputStream,nid=uuid.uuid4(), weight=Config.defWeight, initV=Config.defV,threshold=Config.threshold,monitoringFunction=Config.defMonFunc):
+    def __init__(self, env, inputStream,nid=uuid.uuid4(), weight=Config.defWeight, initV=Config.defV,threshold=Config.threshold,monitoringFunction=Config.defMonFunc,balancing=Config.balancing):
         '''
         Constructor
         '''
-        Node.__init__(self, env, nid=nid, weight=weight, threshold=threshold, monitoringFunction=monitoringFunction)
+        Node.__init__(self, env, nid=nid, weight=weight, threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing)
         self.inputStreamInstance=inputStream
         self.inputStream=inputStream.getData()
         self.v=initV
@@ -67,7 +67,7 @@ class MonitoringNode(Node):
     outgoing: methodName(self) format
     '''
     def rep(self):
-        f=getattr(self, Config.rep, self.classicRep)
+        f=getattr(self, self.balancing+"Rep", self.classicRep)
         return f()
     
     def classicRep(self):

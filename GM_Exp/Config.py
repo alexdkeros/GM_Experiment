@@ -7,29 +7,32 @@ import numpy as np
 
 #- NODE RANGE
 nodeStart=2 #2
-nodeEnd=50 #50
+nodeEnd=5 #50
 
 #- THRESHOLD RANGE
-thresStart=10
-thresEnd=300 #300
+thresStart=10 #10
+thresEnd=15 #300
 
 #- MEAN RANGE
-meanStart=0 #0
-meanEnd=30 #30
+meanStart=3 #0
+meanEnd=5 #30
 meanStep=0.5
-meanLvsPerIterPlotLim=500
-meanReqPerBalPlotLim=100
+
 
 #- STD RANGE
 stdStart=0.5
-stdEnd=10 #10
+stdEnd=1#10
 stdStep=0.2
-stdLvsPerIterPlotLim=500
-stdReqPerBalPlotLim=100
 
-expTypes=['Nodes', 'Threshold', 'Mean', 'Std']
+#- LAMBDA RANGE
+lambdaStart=1
+lambdaEnd=0
+lambdaStep=0.2
+
+expTypes=['Nodes', 'Threshold', 'Mean', 'Std','Lambda']
 expRangeStart=None
 expRangeEnd=None
+expRangeStep=1
 
 def config(type):
     global expRangeStart
@@ -37,15 +40,22 @@ def config(type):
     if type=='Nodes':
         expRangeStart=nodeStart
         expRangeEnd=nodeEnd
-    elif type=='Threshhold':
+        
+    elif type=='Threshold':
         expRangeStart=thresStart
         expRangeEnd=thresEnd
     elif type=='Mean':
         expRangeStart=meanStart
         expRangeEnd=meanEnd
+        expRangeStep=meanStep
     elif type=='Std':
         expRangeStart=stdStart
         expRangeEnd=stdEnd
+        expRangeStep=stdStep
+    elif type=='Lambda':
+        expRangeStart=lambdaStart
+        expRangeEnd=lambdaEnd
+        expRangeStep=lambdaStep
 
 
 
@@ -54,7 +64,7 @@ def config(type):
 defRepeats=1 #30
 
 #runtime limit(in sec)
-timeLimit=50
+timeLimit=30
 
 #default InputStream data
 lambdaVel=1 #1:static , 0:random
@@ -70,18 +80,17 @@ defV=0
 defWeight=1
 
 #default geometric monitoring params
-threshold=100 #1000
+threshold=50 #1000
 defMonFunc= lambda x: x
 
-#balancing
+#balancing - heuristic/classic
+balancingTypes=['classic','heuristic']
 balancing="heuristic"
 
-if balancing=="classic":
-    rep="classicRep"
-    balancingMethod="classicBalance"
-elif balancing=="heuristic":
-    rep="heuristicRep"
-    balancingMethod="heuristicBalance"
+
+#NLP
+NLPPlot=False
+
     
 
 
