@@ -115,24 +115,51 @@ if __name__ == '__main__':
         #remaining distance plot
         select=int(np.floor(np.average(range(len(totalResults["classic"]["remainingDist"])))))
         data1=totalResults["classic"]["remainingDist"][select]
+        #DBG
         print("DATA1")
         print(data1)
         data2=totalResults["heuristic"]["remainingDist"][select]
+        #DBG
         print("DATA2")
         print(data2)
-        Plotter.plots2d(1,len(data1),data1,"classic",\
-                        1,len(data2),data2,"heuristic",\
-                        yScale='log',\
-                        xLabel="Iterations",yLabel="Distance",title="Remaining Distance in "+t+" Range",\
-                        saveFlag=Config.saveFlag,filename="RemainingDistance"+t+"Compare",showFlag=Config.showFlag)
+        Plotter.plots2d(1,len(data1)+1,data1,"classic",\
+                        1,len(data2)+1,data2,"heuristic",\
+                        xLabel="Balances",yLabel="Distance",title="Remaining Distance in "+t+" Range,Value ="+str(select*Config.expRangeStep+Config.expRangeStart),\
+                        saveFlag=Config.saveFlag,filename="RemainingDistance"+t+"CompareValue"+str(select*Config.expRangeStep+Config.expRangeStart),showFlag=Config.showFlag)
         
+        if t=="Lambda":
+            data1=totalResults["classic"]["remainingDist"][0]
+            #DBG
+            print("DATA1")
+            print(data1)
+            data2=totalResults["heuristic"]["remainingDist"][0]
+            #DBG
+            print("DATA2")
+            print(data2)
+            Plotter.plots2d(1,len(data1)+1,data1,"classic",\
+                        1,len(data2)+1,data2,"heuristic",\
+                        xLabel="Balances",yLabel="Distance",title="Remaining Distance in "+t+" Range,Value =0",\
+                        saveFlag=Config.saveFlag,filename="RemainingDistance"+t+"CompareValue0",showFlag=Config.showFlag)
+        
+            data1=totalResults["classic"]["remainingDist"][-1]
+            #DBG
+            print("DATA1")
+            print(data1)
+            data2=totalResults["heuristic"]["remainingDist"][-1]
+            #DBG
+            print("DATA2")
+            print(data2)
+            Plotter.plots2d(1,len(data1)+1,data1,"classic",\
+                        1,len(data2)+1,data2,"heuristic",\
+                        xLabel="Balances",yLabel="Distance",title="Remaining Distance in "+t+" Range,Value =1.0",\
+                        saveFlag=Config.saveFlag,filename="RemainingDistance"+t+"CompareValue1",showFlag=Config.showFlag)
+            
         #--3D PLOTS
         for bal in Config.balancingTypes:
             
             #remaining distance 3d plot
             Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep, totalResults[bal]["remainingDist"],\
                            xLabel="Iterations", yLabel=t, zLabel="Distance", \
-                           zScale='log', \
                            title="Distance remaining per Iteration In "+t+" Range,"+bal, \
                            saveFlag=Config.saveFlag, filename=bal+"DistRemPerIterIn"+t+"Range3D", showFlag=Config.showFlag)
             

@@ -101,11 +101,11 @@ class Enviroment():
             
             
             #DBG
-            print("-----------------iteration %d----------------------"%self.iterCounter)
+            #print("-----------------iteration %d----------------------"%self.iterCounter)
             
             for node in self.nodes.values():
                 #DBG
-                print("-------node running:%s"%node.getId())
+                #print("-------node running:%s"%node.getId())
                 
                 node.run()
                 
