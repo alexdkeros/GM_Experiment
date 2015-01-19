@@ -67,8 +67,8 @@ class Enviroment():
         data format: (sender id, target id, msg, data)
         '''
         #DBG
-        print("SIGNAL:")
-        print(data)
+        #print("SIGNAL:")
+        #print(data)
         
         #EXP-sniff msg
         self.newMsg(data[2],data[3])
@@ -168,8 +168,11 @@ class Enviroment():
         self.lVsPerIter=[i-j for i,j in zip(self.repMsgsPerIter,self.reqMsgsPerIter)]
         self.reqMsgsPerBal=[i-1 for i in self.reqMsgsPerBal] # the num of adjSlk msgs contain violating node, so remove it for correct computation of req msgs per balance
         self.remainingDist=[self.threshold-self.monintoringFunction(b) for b in self.balancingVectors]
-        self.avgReqsPerLv=float(sum(self.reqMsgsPerIter))/float(sum(self.lVsPerIter))
-    
+        if self.lVsPerIter!=0:
+            self.avgReqsPerLv=float(sum(self.reqMsgsPerIter))/float(sum(self.lVsPerIter))
+        else:
+            self.avgReqsPerLv=0
+            
     def getExpRes(self):
         return {"avgReqsPerLv":self.avgReqsPerLv,"nodes":len(self.nodes),"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
 

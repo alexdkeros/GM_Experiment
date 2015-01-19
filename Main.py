@@ -48,7 +48,7 @@ if __name__ == '__main__':
             expRangeResults={"avgReqsPerLv":[],"nodes":[],"iters":[],"repMsgsPerIter":[], "reqMsgsPerIter":[], "lVsPerIter":[], "reqsPerBal":[], "balancingVectors":[], "remainingDist":[]}
             
             #iterating over range
-            for expVal in pl.arange(Config.expRangeStart,Config.expRangeEnd+1,Config.expRangeStep):
+            for expVal in pl.arange(Config.expRangeStart,Config.expRangeEnd+Config.expRangeStep,Config.expRangeStep):
                 
                 print("*---------------------------------- %s , %f--------------------------------*"%(t,expVal))
                 
@@ -89,37 +89,37 @@ if __name__ == '__main__':
             #collect total results for balancing scheme
             totalResults[bal]=expRangeResults
         
-        #print(totalResults)
+        print(totalResults)
         
         #print results - heuristic and classic balancing
         
         #--2D PLOTS
         
         #iters plot
-        Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd, totalResults["classic"]["iters"], "classic", \
-                        Config.expRangeStart,Config.expRangeEnd, totalResults["heuristic"]["iters"], "heuristic",\
+        Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep,totalResults["classic"]["iters"], "classic", \
+                        Config.expRangeStart,Config.expRangeEnd+Config.expRangeStep, totalResults["heuristic"]["iters"], "heuristic",\
                         xLabel=t, yLabel="iterations", title="Iterations in "+t+" Range",\
                         saveFlag=Config.saveFlag, filename="ItersIn"+t+"RangeCompare", showFlag=Config.showFlag)
         #lvs plot
-        Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd, [sum(l) for l in totalResults["classic"]["lVsPerIter"]], "classic", \
-                        Config.expRangeStart,Config.expRangeEnd, [sum(l) for l in totalResults["heuristic"]["lVsPerIter"]], "heuristic",\
+        Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep, [sum(l) for l in totalResults["classic"]["lVsPerIter"]], "classic", \
+                        Config.expRangeStart,Config.expRangeEnd+Config.expRangeStep, [sum(l) for l in totalResults["heuristic"]["lVsPerIter"]], "heuristic",\
                         xLabel=t, yLabel="Local Violations", title="Local Violations in "+t+" Range",\
                         saveFlag=Config.saveFlag, filename="LVsIn"+t+"RangeCompare", showFlag=Config.showFlag)
         
         #avgReqsPerLv plot
-        Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd, totalResults["classic"]["avgReqsPerLv"], "classic", \
-                        Config.expRangeStart,Config.expRangeEnd, totalResults["heuristic"]["avgReqsPerLv"], "heuristic",\
+        Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep, totalResults["classic"]["avgReqsPerLv"], "classic", \
+                        Config.expRangeStart,Config.expRangeEnd+Config.expRangeStep, totalResults["heuristic"]["avgReqsPerLv"], "heuristic",\
                         xLabel=t, yLabel="Requests", title="Average Requests in "+t+" Range",\
                         saveFlag=Config.saveFlag, filename="AvgReqsIn"+t+"RangeCompare", showFlag=Config.showFlag)
         
         #remaining distance plot
         select=int(np.floor(np.average(range(len(totalResults["classic"]["remainingDist"])))))
         data1=totalResults["classic"]["remainingDist"][select]
-        #print("DATA1")
-        #print(data1)
+        print("DATA1")
+        print(data1)
         data2=totalResults["heuristic"]["remainingDist"][select]
-        #print("DATA2")
-        #print(data2)
+        print("DATA2")
+        print(data2)
         Plotter.plots2d(1,len(data1),data1,"classic",\
                         1,len(data2),data2,"heuristic",\
                         yScale='log',\
@@ -130,20 +130,20 @@ if __name__ == '__main__':
         for bal in Config.balancingTypes:
             
             #remaining distance 3d plot
-            Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd, totalResults[bal]["remainingDist"],\
+            Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep, totalResults[bal]["remainingDist"],\
                            xLabel="Iterations", yLabel=t, zLabel="Distance", \
                            zScale='log', \
                            title="Distance remaining per Iteration In "+t+" Range,"+bal, \
                            saveFlag=Config.saveFlag, filename=bal+"DistRemPerIterIn"+t+"Range3D", showFlag=Config.showFlag)
             
             #lvs per iter 3d plot
-            Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd, totalResults[bal]["lVsPerIter"],\
+            Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep, totalResults[bal]["lVsPerIter"],\
                            xLabel="Iterations", yLabel=t, zLabel="Local Violations", \
                            title="LocalViolations Per Iterations In "+t+" Range,"+bal, \
                            saveFlag=Config.saveFlag, filename=bal+"lVsPerIterIn"+t+"Range3D", showFlag=Config.showFlag)
             
             #lvs per iter 3d plot
-            Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd, totalResults[bal]["reqsPerBal"],\
+            Plotter.plot3d(Config.expRangeStart, Config.expRangeEnd+Config.expRangeStep, totalResults[bal]["reqsPerBal"],\
                            xLabel="Balances", yLabel=t, zLabel="Requests", \
                            title="Requests Per Balance In "+t+" Range,"+bal, \
                            saveFlag=Config.saveFlag, filename=bal+"ReqsPerBalIn"+t+"Range3D", showFlag=Config.showFlag)

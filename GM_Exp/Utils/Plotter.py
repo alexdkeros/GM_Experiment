@@ -1,12 +1,12 @@
 '''
 @author: ak
 '''
+import matplotlib
+matplotlib.use('Agg')
 import time
 import random
 from GM_Exp.Utils import Utils
 import pylab as pl
-import matplotlib
-# matplotlib.use('Agg')
 from matplotlib import rc
 from matplotlib import cm
 from mpl_toolkits.mplot3d.axes3d import Axes3D
@@ -34,7 +34,7 @@ def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, ti
     '''
     
     #plot range
-    plotRange=pl.arange(rangeStart,rangeEnd+1)
+    plotRange=pl.arange(rangeStart,rangeEnd,float(rangeEnd-rangeStart)/float(len(data)))
     if (len(plotRange)!=len(data)):
         print('Range and Data lengths do not match')
         return
@@ -79,8 +79,8 @@ def plots2d(rangeStart,rangeEnd,data,label,rangeStart2,rangeEnd2,data2,label2,yS
     '''
     
     #plot range
-    plotRange=pl.arange(rangeStart,rangeEnd+1)
-    plotRange2=pl.arange(rangeStart2,rangeEnd2+1)
+    plotRange=pl.arange(rangeStart,rangeEnd,float(rangeEnd-rangeStart)/float(len(data)))
+    plotRange2=pl.arange(rangeStart2,rangeEnd2,float(rangeEnd2-rangeStart2)/float(len(data2)))
     if (len(plotRange)!=len(data)):
         print('Range and Data lengths do not match')
         return
@@ -127,9 +127,14 @@ def plot3d(rangeXStart, rangeXEnd, data, angleX=60, angleY=30, zScale='linear',x
     '''
     fig=pl.figure()
     axes=fig.add_subplot(1,1,1, projection='3d')
-    plotRangeX=range(rangeXStart, rangeXEnd+1)
-    plotRangeY=range(0, max(map(len, data)))
+    plotRangeX=pl.arange(rangeXStart, rangeXEnd,float(rangeXEnd-rangeXStart)/float(len(data)))
+    plotRangeY=pl.arange(0, max(map(len, data)))
     Y,X=pl.meshgrid(plotRangeX, plotRangeY)
+    #DBG
+    #print(Y.shape)
+    #print(X.shape)
+    #print(Utils.toNdArray(data).shape)
+    #print(Utils.toNdArray(data).transpose().shape)
     p=axes.plot_surface(X,Y,Utils.toNdArray(data).transpose(),rstride=1, cstride=1, cmap=cm.get_cmap('coolwarm', None), linewidth=0, antialiased=True)
     axes.view_init(angleX, angleY)
     cb=fig.colorbar(p,shrink=0.5)
@@ -149,9 +154,9 @@ def plot3d(rangeXStart, rangeXEnd, data, angleX=60, angleY=30, zScale='linear',x
         time.sleep(5)
         
 if __name__=="__main__":
-    plots2d(1, 10, [random.randint(0,1000) for r in xrange(10)] , "rand1", 10 , 19,[random.randint(0,1000) for r in xrange(10)] ,"rand2",showFlag=True)
+    #plots2d(1, 10, [random.randint(0,1000) for r in xrange(10)] , "rand1", 10 , 19,[random.randint(0,1000) for r in xrange(10)] ,"rand2",showFlag=True)
     
-    #l=[pl.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.]), pl.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  1.5,  2. ]), pl.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.5,  0. ,  1.5,  3. ,
-    #    1. ])]
-    #print(l)
-    #plot3d(2,4,l)
+    l=[pl.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.]), pl.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  1.5,  2. ]), pl.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.5,  0. ,  1.5,  3. ,
+        1. ])]
+    print(l)
+    plot3d(1,3,l)

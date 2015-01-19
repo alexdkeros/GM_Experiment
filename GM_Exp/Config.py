@@ -6,30 +6,31 @@ import math
 import numpy as np
 
 #- NODE RANGE
-nodeStart=2 #2
-nodeEnd=5 #50
+nodeStart=3 #2
+nodeEnd=6 #50
 
 #- THRESHOLD RANGE
 thresStart=10 #10
-thresEnd=15 #300
+thresEnd=30 #300
 
 #- MEAN RANGE
-meanStart=3 #0
+meanStart=2 #0
 meanEnd=5 #30
 meanStep=0.5
 
 
 #- STD RANGE
-stdStart=0.5
-stdEnd=1#10
-stdStep=0.2
+stdStart=3 #0.5
+stdEnd=10#10
+stdStep=0.5
 
 #- LAMBDA RANGE
-lambdaStart=1
-lambdaEnd=0
-lambdaStep=0.2
+lambdaStart=0
+lambdaEnd=1
+lambdaStep=0.1
 
-expTypes=['Nodes', 'Threshold', 'Mean', 'Std','Lambda']
+#expTypes=['Nodes', 'Threshold', 'Mean', 'Std','Lambda']
+expTypes=['Nodes']
 expRangeStart=None
 expRangeEnd=None
 expRangeStep=1
@@ -37,6 +38,7 @@ expRangeStep=1
 def config(type):
     global expRangeStart
     global expRangeEnd
+    global expRangeStep
     if type=='Nodes':
         expRangeStart=nodeStart
         expRangeEnd=nodeEnd
@@ -61,10 +63,10 @@ def config(type):
 
 #--------------default values---------------------
 #exp config
-defRepeats=1 #30
+defRepeats=2 #30
 
 #runtime limit(in sec)
-timeLimit=30
+timeLimit=60
 
 #default InputStream data
 lambdaVel=1 #1:static , 0:random
@@ -80,16 +82,21 @@ defV=0
 defWeight=1
 
 #default geometric monitoring params
-threshold=50 #1000
+threshold=100 #100
 defMonFunc= lambda x: x
 
 #balancing - heuristic/classic
 balancingTypes=['classic','heuristic']
+#balancingTypes=['classic']
 balancing="heuristic"
 
 
 #NLP
 NLPPlot=False
+
+#plotting
+showFlag=False
+saveFlag=True
 
     
 
