@@ -23,6 +23,9 @@ class Node:
     def getId(self):
         return self.id
     
+    def check(self):
+        pass
+        
     def run(self):
         pass
     

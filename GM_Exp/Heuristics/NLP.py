@@ -30,14 +30,15 @@ def heuristicNLP(data,threshold, mean):
         startPoint[x[i]]=mean
     
         #constraints
-        constraints.append(x[i]<threshold)
-        
+        constraints.append(Config.defMonFunc(x[i])<threshold)
+    
+    #min
     fmin=min(f)
     objective=fmin('maxmin_f')
     
     constraints.append(np.mean(x)==mean)
 
-    
+    #maxmin
     p=NLP(objective,startPoint,constraints=constraints)
     p.implicitBounds=[None,threshold]
     r=p.maximize('ralg',plot=Config.NLPPlot)
@@ -51,6 +52,10 @@ def heuristicNLP(data,threshold, mean):
     
      
 def func(var,u,threshold):
-    return (threshold-var)/u
+    return (threshold-Config.defMonFunc(var))/u
     
-   
+if __name__=='__main__':
+    data=[('one',3),('two',5)]
+    threshold=10
+    mean=8
+    heuristicNLP(data,threshold,mean)

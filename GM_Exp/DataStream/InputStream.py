@@ -15,7 +15,7 @@ class InputStream:
     configuration via Config module
     '''
 
-    def __init__(self,lambdaVel ,initXData, mean, std, factory=None):
+    def __init__(self,lambdaVel ,initXData, mean, std, normalize=True,  factory=None):
         '''
         Constructor
         args:
@@ -23,15 +23,16 @@ class InputStream:
               @param initXData: initial stream data
               @param mean: mean of normal distribution
               @param std: standard deviation of normal distribution
+              @param normalize: flag to allow velocity normalizing to mean
         '''
         if 0<=lambdaVel<=1:
             self.lambdaVel=lambdaVel
         else:
             self.lambdaVel=1
         self.initXData=initXData
-        self.mean=mean
-        self.std=std
+        self.velocityDistr=norm(mean,std)
         self.velocity=0
+        self.normalize=normalize
         self.factory=factory
     
     def getVelocity(self):
@@ -39,6 +40,12 @@ class InputStream:
         @return InputStream's velocity
         '''
         return self.velocity
+    
+    def getVelocityDistr(self):
+        '''
+        @return InputStream's velocity distribution, tuple (μ,σ)
+        '''
+        return ((self.mean,self.std))
     
     def correctVelocity(self,deltaV):  
         '''
@@ -51,15 +58,18 @@ class InputStream:
         data Generator
         @return new data based on velocity scheme
         '''
+        #initial values, stream initialization
         xData=self.initXData
-        self.velocity=norm.rvs(self.mean, self.std)
-        if self.factory:
+        self.velocity=self.velocityDistr.rvs()
+        if self.factory and self.normalize==True:
             self.factory.normalizeVelocities(self.velocity)
         yield xData
+        
+        #stream update
         while 1:
             xData=xData+self.velocity
-            self.velocity=self.lambdaVel*self.velocity+(1-self.lambdaVel)*norm.rvs(self.mean,self.std)
-            if self.factory:
+            self.velocity=self.lambdaVel*self.velocity+(1-self.lambdaVel)*self.velocityDistr.rvs()
+            if self.factory and self.normalize==True:
                 self.factory.normalizeVelocities(self.velocity)
             yield xData
         

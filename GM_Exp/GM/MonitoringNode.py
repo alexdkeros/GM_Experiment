@@ -97,9 +97,7 @@ class MonitoringNode(Node):
         
         #DBG - OK
         #print("after:")
-        
-        self.check()
-        
+        #self.check()
         
     
     

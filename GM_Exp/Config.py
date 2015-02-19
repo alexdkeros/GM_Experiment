@@ -71,10 +71,11 @@ timeLimit=60
 #default InputStream data
 lambdaVel=1 #1:static , 0:random
 defInitXData=0
+streamNormalizing=True
 
 #default vel distribution params
-defMean=5
-defStd=1
+defMeanN=(5,1)
+defStdN=(0,1)
 
 #default Node values
 defNodeNum=5
@@ -92,7 +93,7 @@ balancing="heuristic"
 
 
 #NLP
-NLPPlot=False
+NLPPlot=True
 
 #plotting
 showFlag=False

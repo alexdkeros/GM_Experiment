@@ -3,6 +3,8 @@
 '''
 from GM_Exp.DataStream.InputStream import InputStream
 from GM_Exp import Config
+from scipy.stats import norm
+
 
 class InputStreamFactory:
     '''
@@ -10,22 +12,27 @@ class InputStreamFactory:
     '''
 
 
-    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, mean=Config.defMean, std=Config.defStd):
+    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, velMeanNormalDistr=Config.defMeanN, velStdNormalDistr=Config.defStdN, normalize=Config.streamNormalizing):
         '''
         Constructor
         args:
               @param lambdaVel: velocity changing factor lambdaVel*u+(1-lambdaVel)u', where u: old velocity, u':new velocity, lambdaVel:[0,1]
               @param initXData: initial InputStream data
-              @param mean: mean of normal distribution
-              @param std: standard deviation of normal distribution
+              @param velocityMeanNormalDistr: N(μ,σ) of means of velocities, tuple
+              @param velocityStdNormalDistr: N(μ,σ) of stds of velocities, tuple
+              @param normalize: normalize velocity updates to specified mean, boolean
         '''
         self.lambdaVel=lambdaVel
         self.initXData=initXData
-        self.mean=mean
-        self.std=std
+        self.normalize=normalize
+        #create distributions
+        #each stream has different distr, the mean and std of each follow a central distribution
+        #statistical behavior of each stream's velocity is different
+        #BUT mean velocity for each iteration is exactly self.meanN.mean()
+        self.meanN=norm(velMeanNormalDistr[0],velMeanNormalDistr[1])
+        self.stdN=norm(velStdNormalDistr[0],velStdNormalDistr[1])
         
         self.inputStreams=[] #array of InputStreams created
-        self.velocities=[]  #array of InputStream velocities
                                     
     def getInputStream(self):
         '''
@@ -33,7 +40,7 @@ class InputStreamFactory:
         @return an InputStream instance
         '''
         while True:
-            newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.mean,std=self.std,factory=self)
+            newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.meanN.rvs(),std=self.stdN.rvs(),normalize=self.normalize,factory=self)
             self.inputStreams.append(newStream)
             
             #DBG
@@ -52,30 +59,26 @@ class InputStreamFactory:
         for stream in self.inputStreams:
             avgV+=stream.getVelocity()
         return avgV/len(self.inputStreams)
-    
+   
+   
+   
     def normalizeVelocities(self,vel):
         '''
         normalizes true mean velocity of all created InputStreams to the specified mean
         '''
         self.velocities.append(vel)
-        
-        #DBG
-        #print(self.velocities)
-        
-        if len(self.velocities)==len(self.inputStreams):
-            
-            #DBG
-            #print('!!!!normalizing!!!')
-            
-            deltaV=self.mean-(sum(self.velocities)/float(len(self.velocities)))
-            
-            #DBG
-            #print("--deltaV:%f"%deltaV)
-            
+        # DBG
+        # print(self.velocities)
+        if len(self.velocities) == len(self.inputStreams):
+            # DBG
+            # print('!!!!normalizing!!!')
+            deltaV = self.meanN.mean() - (sum(self.velocities) / float(len(self.velocities)))
+            # DBG
+            # print("--deltaV:%f"%deltaV)
             for stream in self.inputStreams:
                 stream.correctVelocity(deltaV)
             del self.velocities[:]
-
+    
    
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
