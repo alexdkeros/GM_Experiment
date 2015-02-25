@@ -5,8 +5,8 @@ import uuid
 import random
 from GM_Exp import Config
 from GM_Exp.GM.Node import Node
-from GM_Exp.Heuristics import NLP
-from GM_Exp.Heuristics.NLP import heuristicNLP
+from GM_Exp.Heuristics import NonLinearProgramming
+from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from types import StringType
 
 
