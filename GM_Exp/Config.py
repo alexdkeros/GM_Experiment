@@ -84,7 +84,7 @@ defWeight=1
 
 #default geometric monitoring params
 threshold=100 #100
-defMonFunc= lambda x: x
+defMonFunc= lambda x: x**2
 
 #balancing - heuristic/classic
 balancingTypes=['classic','heuristic']

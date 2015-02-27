@@ -168,7 +168,7 @@ class Coordinator(Node):
             
             bSetDict={str(id):u for id,v,u,vel in self.balancingSet}
             
-            results=heuristicNLP(list((str(id),vel) for id,v,u,vel in self.balancingSet),self.threshold,b)
+            results=heuristicNLP(list((str(id),vel) for id,v,u,vel in self.balancingSet),self.threshold,b,self.monitoringFunction)
             
             dDelta=[]
             nodeIds=[]

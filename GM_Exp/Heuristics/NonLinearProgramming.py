@@ -8,9 +8,13 @@ from GM_Exp import Config
 
 
 
-def heuristicNLP(data,threshold, mean):
+def heuristicNLP(data,threshold, mean,fu):
     '''
-    data are list of (id,velocity) tuples
+    inputs:
+    data : list of (id,velocity) tuples
+    threshold : monitoring threshold (of function)
+    mean : constrain of data
+    fu : monitoring function
     '''
     print(data)
     
@@ -24,23 +28,26 @@ def heuristicNLP(data,threshold, mean):
     
     for i in range(len(x)):
         #func
-        f.append(func(x[i],u[i],threshold))
+        f.append(func(x[i],u[i],threshold,fu))
         
         #point
         startPoint[x[i]]=mean
     
         #constraints
-        constraints.append(Config.defMonFunc(x[i])<threshold)
-    
+        constraints.append(fu(x[i])<threshold)
+        constraints.append(func(x[i],u[i],threshold,fu)>=0)
     #min
     fmin=min(f)
     objective=fmin('maxmin_f')
     
+    #!!! it runs without this constraint.
+    #TODO check results
     constraints.append(np.mean(x)==mean)
-
+    
     #maxmin
     p=NLP(objective,startPoint,constraints=constraints)
-    p.implicitBounds=[None,threshold]
+    #FIX wrong bounds
+    #p.implicitBounds=[None,threshold]
     r=p.maximize('ralg',plot=Config.NLPPlot)
 
     #DBG
@@ -51,11 +58,11 @@ def heuristicNLP(data,threshold, mean):
     
     
      
-def func(var,u,threshold):
-    return (threshold-Config.defMonFunc(var))/u
+def func(var,u,threshold,fu):
+    return (threshold-fu(var))/u
     
 if __name__=='__main__':
     data=[('one',3),('two',5)]
-    threshold=10
+    threshold=80
     mean=8
-    heuristicNLP(data,threshold,mean)
+    heuristicNLP(data,threshold,mean,Config.defMonFunc)
