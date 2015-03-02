@@ -58,6 +58,21 @@ def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, ti
         
         
 def multiplePlots2d(rangeLims, data, labels, yScale='linear',xLabel=None,yLabel=None, title=None, saveFlag=False, filename=None,showFlag=True):
+    '''
+    function multiplePlots2d:
+    creates a 2d plot of many data arrays
+    args:
+        @param rangeLims: array of tuples (rangeStart, rangeEnd) for each data array to plot
+        @param data: 2d array of data, array of data arrays to plot
+        @param labels: array of labels for each data element to plot
+        @param yScale: plotting scale 'linear' or 'log'
+        @param xLabel: label of x axis
+        @param yLabel: label of y axis
+        @param title: plot title
+        @param saveFlag: (boolean) save figure
+        @param filename: filename to save under (no .ext required)
+        @param showFlag: (boolean) show figure
+    '''
     if len(rangeLims)!=len(data):
         print('Range and Data mismatch')
         return
