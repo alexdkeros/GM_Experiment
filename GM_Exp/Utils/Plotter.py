@@ -57,6 +57,34 @@ def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, ti
         time.sleep(5)
         
         
+def multiplePlots2d(rangeLims, data, labels, yScale='linear',xLabel=None,yLabel=None, title=None, saveFlag=False, filename=None,showFlag=True):
+    if len(rangeLims)!=len(data):
+        print('Range and Data mismatch')
+        return
+    plRanges=[]
+    for i in range(len(data)):
+        plRanges.append(pl.arange(rangeLims[i][0],rangeLims[i][1],float(rangeLims[i][1]-rangeLims[i][0])/float(len(data[i]))))
+    fig,axes=pl.subplots()
+    for i in range(len(data)):
+        axes.plot(plRanges[i],data[i],label=labels[i])
+    axes.legend()
+    axes.grid(True)
+    axes.set_xlim([min(i for i,j in rangeLims),max(j for i,j in rangeLims)])
+    axes.set_xlabel(xLabel)
+    axes.set_ylabel(yLabel)
+    axes.set_yscale(yScale) #for log use yScale='log'
+    axes.set_title(title)
+    fig.tight_layout()
+    if saveFlag:
+        if filename:
+            fig.savefig(filename+'.png')
+        else:
+            print('No filename specified,not saving')
+    if showFlag:
+        fig.show()
+        time.sleep(5)
+        
+        
 def plots2d(rangeStart,rangeEnd,data,label,rangeStart2,rangeEnd2,data2,label2,yScale='linear',xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
     '''
     function plots2d:
