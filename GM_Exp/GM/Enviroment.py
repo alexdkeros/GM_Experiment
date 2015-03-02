@@ -14,11 +14,12 @@ class Enviroment():
     '''
 
 
-    def __init__(self,balancing=Config.balancing, nodeNum=Config.defNodeNum, threshold=Config.threshold, monitoringFunction=Config.defMonFunc, lambdaVel=Config.lambdaVel, mean=Config.defMean, std=Config.defStd):
+    def __init__(self,balancing=Config.balancing,cumulationFactor=Config.defCumulationFactor, nodeNum=Config.defNodeNum, threshold=Config.threshold, monitoringFunction=Config.defMonFunc, lambdaVel=Config.lambdaVel, mean=Config.defMeanN, std=Config.defStdN):
         '''
         Constructor
         '''
         self.balancing=balancing
+        self.cumulationFactor=cumulationFactor
         self.monintoringFunction=monitoringFunction
         self.threshold=threshold
         
@@ -44,7 +45,7 @@ class Enviroment():
         
 
         #creating coordinator
-        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing)
+        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing, cumulationFactor=cumulationFactor)
         self.nodes[coordinator.getId()]=coordinator
             
         #DBG - OK

@@ -87,10 +87,10 @@ threshold=100 #100
 defMonFunc= lambda x: x**2
 
 #balancing - heuristic/classic
-balancingTypes=['classic','heuristic']
+balancingTypes=['classic','heuristic','onceCumulative','staticCumulative','incrementalCumulative']
 #balancingTypes=['classic']
 balancing="heuristic"
-
+defCumulationFactor=defNodeNum/5
 
 #NLP
 NLPPlot=True
