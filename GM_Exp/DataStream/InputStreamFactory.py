@@ -4,6 +4,7 @@
 from GM_Exp.DataStream.InputStream import InputStream
 from GM_Exp import Config
 from scipy.stats import norm
+import pickle
 
 
 class InputStreamFactory:
@@ -12,7 +13,7 @@ class InputStreamFactory:
     '''
 
 
-    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, velMeanNormalDistr=Config.defMeanN, velStdNormalDistr=Config.defStdN, normalize=Config.streamNormalizing):
+    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, velMeanNormalDistr=Config.defMeanN, velStdNormalDistr=Config.defStdN, normalize=Config.streamNormalizing, dataSetfile=None):
         '''
         Constructor
         args:
@@ -33,21 +34,29 @@ class InputStreamFactory:
         self.stdN=norm(velStdNormalDistr[0],velStdNormalDistr[1])
         
         self.inputStreams=[] #array of InputStreams created
+        
+        if dataSetfile:
+            self.loadDataSet(dataSetfile)
                                     
     def getInputStream(self):
         '''
         InputStream generator
         @return an InputStream instance
         '''
-        while True:
-            newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.meanN.rvs(),std=self.stdN.rvs(),normalize=self.normalize,factory=self)
-            self.inputStreams.append(newStream)
+        if self.inputStreams:
+            for stream in self.inputStreams:
+                yield stream
+        
+        else:
+            while True:
+                newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.meanN.rvs(),std=self.stdN.rvs(),normalize=self.normalize,factory=self)
+                self.inputStreams.append(newStream)
             
-            #DBG
-            #print('stream at generator function:')
-            #print(newStream)
+                #DBG
+                #print('stream at generator function:')
+                #print(newStream)
             
-            yield newStream
+                yield newStream
     
     
     def getAvgVelocity(self):
@@ -79,7 +88,41 @@ class InputStreamFactory:
                 stream.correctVelocity(deltaV)
             del self.velocities[:]
     
-   
+    def getVelocityLogs(self):
+        velocitiesLogs=[]
+        for stream in self.inputStreams:
+            velocitiesLogs.append(stream.getVelocitiesLog())
+        return velocitiesLogs
+    
+    def getDataUpdateLogs(self):
+        dataUpdateLogs=[]
+        for stream in self.inputStreams:
+            dataUpdateLogs.append(stream.getDataUpdatesLog())
+        return dataUpdateLogs
+    
+    
+    def generateDataSet(self, iterations, streams, filename=None):
+        streamFetcher=self.getInputStream()
+        #creating Streams
+        streams=[]
+        for i in range(streams):
+            streams.append(streamFetcher.next().getData())
+        
+        #creating data
+        for i in range(iterations):
+            for stream in streams:
+                stream.next()
+        
+        if filename:
+            pickle.dump({"iterations":iterations, "streams":streams,"velocities":self.getVelocityLogs(),"updates":self.getDataUpdateLogs()}, open(filename+".p","wb"))
+        
+    
+        
+    def loadDataSet(self,dataSetfile):
+        dataSet=pickle.load(open(dataSetfile,"rb"))
+        for i in range(dataSet["streams"]):
+            self.inputStreams.append(InputStream(velocitiesDataSet=dataSet["velocities"][i], updatesDataSet=dataSet["updates"][i]))
+ 
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------

@@ -15,7 +15,7 @@ class InputStream:
     configuration via Config module
     '''
 
-    def __init__(self,lambdaVel ,initXData, mean, std, normalize=True,  factory=None):
+    def __init__(self,lambdaVel=1, initXData=0, mean=5, std=1, normalize=True,  factory=None, velocitiesDataSet=None, updatesDataSet=None):
         '''
         Constructor
         args:
@@ -24,7 +24,9 @@ class InputStream:
               @param mean: mean of normal distribution
               @param std: standard deviation of normal distribution
               @param normalize: flag to allow velocity normalizing to mean
+              @param factory: the factory it came from
         '''
+            
         if 0<=lambdaVel<=1:
             self.lambdaVel=lambdaVel
         else:
@@ -34,6 +36,27 @@ class InputStream:
         self.velocity=0
         self.normalize=normalize
         self.factory=factory
+        
+        #logging velocities and data updates
+        self.velocities=[]
+        self.dataUpdates=[]
+        
+        if velocitiesDataSet and updatesDataSet:
+            self.velocities=velocitiesDataSet
+            self.dataUpdates=updatesDataSet
+            
+        
+    def getVelocitiesLog(self):
+        '''
+        @return: logged velocities
+        '''
+        return self.velocities
+    
+    def getDataUpdatesLog(self):
+        '''
+        @return: logged data Updates
+        '''
+        return self.dataUpdates
     
     def getVelocity(self):
         '''
@@ -43,7 +66,7 @@ class InputStream:
     
     def getVelocityDistr(self):
         '''
-        @return InputStream's velocity distribution, tuple (μ,σ)
+        @return InputStream's velocity distribution, tuple (mean, std)
         '''
         return ((self.mean,self.std))
     
@@ -58,21 +81,35 @@ class InputStream:
         data Generator
         @return new data based on velocity scheme
         '''
-        #initial values, stream initialization
-        xData=self.initXData
-        self.velocity=self.velocityDistr.rvs()
-        if self.factory and self.normalize==True:
-            self.factory.normalizeVelocities(self.velocity)
-        yield xData
+        if self.velocities and self.dataUpdates:
+            for i in range(self.velocities):
+                self.velocity=self.velocities[i]
+                yield self.dataUpdates[i]
         
-        #stream update
-        while 1:
-            xData=xData+self.velocity
-            self.velocity=self.lambdaVel*self.velocity+(1-self.lambdaVel)*self.velocityDistr.rvs()
+        else:
+                
+            #initial values, stream initialization
+            xData=self.initXData
+            self.velocity=self.velocityDistr.rvs()
             if self.factory and self.normalize==True:
                 self.factory.normalizeVelocities(self.velocity)
             yield xData
-        
+            #LOG
+            self.dataUpdates.append(xData)
+            
+            #stream update
+            while 1:
+                xData=xData+self.velocity
+                #LOG
+                self.velocities.append(self.velocity)
+                
+                self.velocity=self.lambdaVel*self.velocity+(1-self.lambdaVel)*self.velocityDistr.rvs()
+                if self.factory and self.normalize==True:
+                    self.factory.normalizeVelocities(self.velocity)
+                
+                yield xData
+                #LOG
+                self.dataUpdates.append(xData)
                         
                 
 #----------------------------------------------------------------------------
@@ -82,7 +119,10 @@ class InputStream:
 if __name__=="__main__":
     '''simple test'''
 
-    streamInst=InputStream(0.5,0,5,1,1)
+    streamInst=InputStream(0.5,0,5,1,1).getData()
+    for i in range(10):
+        print streamInst.next()
+    '''
     print('getattr test:')
     print(getattr(streamInst, "getData"))
     print('-----------------------------------')
@@ -96,3 +136,4 @@ if __name__=="__main__":
         print(stream.next())
         print('stream velocity:')
         print(streamInst.getVelocity())
+    '''
