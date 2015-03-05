@@ -96,8 +96,8 @@ defCumulationFactor=defNodeNum/5
 NLPPlot=True
 
 #plotting
-showFlag=False
-saveFlag=True
+showFlag=True
+saveFlag=False
 
     
 

@@ -2,7 +2,7 @@
 @author: ak
 '''
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import time
 import random
 from GM_Exp.Utils import Utils
@@ -17,13 +17,12 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
-def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
+def plot2d(plotRange,data,yScale='linear',xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
     '''
     function plot2d:
     creates a 2d plot
     args:
-        @param rangeStart: starting point of x axis
-        @param rangeEnd: ending point of x axis
+        @param plotRange: x axis values
         @param data: 1d array of data to plot
         @param xLabel: label of x axis
         @param yLabel: label of y axis
@@ -31,17 +30,13 @@ def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, ti
         @param saveFlag: (boolean) save figure
         @param filename: filename to save under (no .ext required)
         @param showFlag: (boolean) show figure
+        
+    len(range) and len(data) must match, use linspace
     '''
-    
-    #plot range
-    plotRange=pl.arange(rangeStart,rangeEnd,float(rangeEnd-rangeStart)/float(len(data)))
-    if (len(plotRange)!=len(data)):
-        print('Range and Data lengths do not match')
-        return
     fig, axes=pl.subplots()
     axes.plot(plotRange, data, 'r')
     axes.grid(True)
-    axes.set_xlim([rangeStart, rangeEnd])
+    axes.set_xlim([plotRange[0], plotRange[-1]])
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
     axes.set_yscale(yScale) #for log use yScale='log'
@@ -57,12 +52,12 @@ def plot2d(rangeStart,rangeEnd,data,yScale='linear',xLabel=None, yLabel=None, ti
         time.sleep(5)
         
         
-def multiplePlots2d(rangeLims, data, labels, yScale='linear',xLabel=None,yLabel=None, title=None, saveFlag=False, filename=None,showFlag=True):
+def multiplePlots2d(plotRanges, data, labels=None, yScale='linear',xLabel=None,yLabel=None, title=None, saveFlag=False, filename=None,showFlag=True):
     '''
     function multiplePlots2d:
     creates a 2d plot of many data arrays
     args:
-        @param rangeLims: array of tuples (rangeStart, rangeEnd) for each data array to plot
+        @param plotRanges: array of ranges for each data array to plot
         @param data: 2d array of data, array of data arrays to plot
         @param labels: array of labels for each data element to plot
         @param yScale: plotting scale 'linear' or 'log'
@@ -73,18 +68,19 @@ def multiplePlots2d(rangeLims, data, labels, yScale='linear',xLabel=None,yLabel=
         @param filename: filename to save under (no .ext required)
         @param showFlag: (boolean) show figure
     '''
-    if len(rangeLims)!=len(data):
-        print('Range and Data mismatch')
-        return
-    plRanges=[]
-    for i in range(len(data)):
-        plRanges.append(pl.arange(rangeLims[i][0],rangeLims[i][1],float(rangeLims[i][1]-rangeLims[i][0])/float(len(data[i]))))
+    if not isinstance(plotRanges, list):
+        plotRanges=[plotRanges]
+    if not isinstance(data, list):
+        data=[data]
+    if labels and (not isinstance(labels, list)):
+        labels=[labels]
+        
     fig,axes=pl.subplots()
     for i in range(len(data)):
-        axes.plot(plRanges[i],data[i],label=labels[i])
+        axes.plot(plotRanges[i],data[i],label=(labels[i] if labels else None))
     axes.legend()
     axes.grid(True)
-    axes.set_xlim([min(i for i,j in rangeLims),max(j for i,j in rangeLims)])
+    axes.set_xlim([min(i[0] for i in plotRanges), max(i[-1] for i in plotRanges)])
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
     axes.set_yscale(yScale) #for log use yScale='log'
@@ -100,63 +96,13 @@ def multiplePlots2d(rangeLims, data, labels, yScale='linear',xLabel=None,yLabel=
         time.sleep(5)
         
         
-def plots2d(rangeStart,rangeEnd,data,label,rangeStart2,rangeEnd2,data2,label2,yScale='linear',xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
-    '''
-    function plots2d:
-    creates a 2d plot of two data arrays
-    args:
-        @param rangeStart: starting point of x axis
-        @param rangeEnd: ending point of x axis
-        @param data: 1d array of data to plot
-        @param label: label of first data
-        @param rangeStart2: starting point of x axis
-        @param rangeEnd2: ending point of x axis
-        @param data2: 1d array of data to plot
-        @param label2: label of second data
-        @param xLabel: label of x axis
-        @param yLabel: label of y axis
-        @param title: plot title
-        @param saveFlag: (boolean) save figure
-        @param filename: filename to save under (no .ext required)
-        @param showFlag: (boolean) show figure
-    '''
-    
-    #plot range
-    plotRange=pl.arange(rangeStart,rangeEnd,float(rangeEnd-rangeStart)/float(len(data)))
-    plotRange2=pl.arange(rangeStart2,rangeEnd2,float(rangeEnd2-rangeStart2)/float(len(data2)))
-    if (len(plotRange)!=len(data)):
-        print('Range and Data lengths do not match')
-        return
-    if (len(plotRange2)!=len(data2)):
-        print('Range2 and Data2 lengths do not match')
-        return
-    fig, axes=pl.subplots()
-    axes.plot(plotRange, data,'r',label=label,lw=2)
-    axes.plot(plotRange2, data2,'b',label=label2)
-    axes.legend()
-    axes.grid(True)
-    axes.set_xlim([min(rangeStart,rangeStart2), max(rangeEnd,rangeEnd2)])
-    axes.set_xlabel(xLabel)
-    axes.set_ylabel(yLabel)
-    axes.set_yscale(yScale) #for log use yScale='log'
-    axes.set_title(title)
-    fig.tight_layout()
-    if saveFlag:
-        if filename:
-            fig.savefig(filename+'.png')
-        else:
-            print('No filename specified,not saving')
-    if showFlag:
-        fig.show()
-        time.sleep(5)
-        
-def plot3d(rangeXStart, rangeXEnd, data, angleX=60, angleY=30, zScale='linear',xLabel=None, yLabel=None, zLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
+def plot3d(xRange, yRange, data, angleX=60, angleY=30, zScale='linear',xLabel=None, yLabel=None, zLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
     '''
     function plot3d:
     creates a 3d plot
     args:
-        @param rangeXStart: starting point of x axis
-        @param rangeXEnd: ending point of x axis
+        @param xRange: x axis range
+        @param yRange: y axis range
         @param data: 2d array of data to plot
         @param angleX: viewing angle
         @param angleY: viewing angle
@@ -167,21 +113,21 @@ def plot3d(rangeXStart, rangeXEnd, data, angleX=60, angleY=30, zScale='linear',x
         @param saveFlag: (boolean) save figure
         @param filename: filename to save under
         @param showFlag: (boolean) show figure
+        
+    to rotate change xRange/yRange to different order accordingly
+    to match maximum data length, use max(map(len,data))
     '''
     fig=pl.figure()
     axes=fig.add_subplot(1,1,1, projection='3d')
-    plotRangeX=pl.arange(rangeXStart, rangeXEnd,float(rangeXEnd-rangeXStart)/float(len(data)))
-    plotRangeY=pl.arange(0, max(map(len, data)))
-    Y,X=pl.meshgrid(plotRangeX, plotRangeY)
-    #DBG
-    #print(Y.shape)
-    #print(X.shape)
-    #print(Utils.toNdArray(data).shape)
-    #print(Utils.toNdArray(data).transpose().shape)
+    Y,X=pl.meshgrid(yRange, xRange)
     p=axes.plot_surface(X,Y,Utils.toNdArray(data).transpose(),rstride=1, cstride=1, cmap=cm.get_cmap('coolwarm', None), linewidth=0, antialiased=True)
     axes.view_init(angleX, angleY)
     cb=fig.colorbar(p,shrink=0.5)
-    axes.set_ylim3d(rangeXStart, rangeXEnd)
+    axes.set_ylim3d(yRange[0], yRange[-1])
+    
+    #FIX if left > right shows wrong graph orientation and x axis labels 
+    #axes.set_xlim3d(xRange[0], xRange[-1]) 
+    
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
     axes.set_zlabel(zLabel)
@@ -197,9 +143,28 @@ def plot3d(rangeXStart, rangeXEnd, data, angleX=60, angleY=30, zScale='linear',x
         time.sleep(5)
         
 if __name__=="__main__":
-    #plots2d(1, 10, [random.randint(0,1000) for r in xrange(10)] , "rand1", 10 , 19,[random.randint(0,1000) for r in xrange(10)] ,"rand2",showFlag=True)
+    #testing simple 2d plot - OK
+    '''
+    start=0
+    end=3000
+    data=pl.arange(0,1000)
+    plotRange=pl.linspace(start,end,len(data))
+    multiplePlots2d(plotRange,data,yScale='log',xLabel='x',yLabel='y', title='test')
+    '''
     
-    l=[pl.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.]), pl.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  1.5,  2. ]), pl.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.5,  0. ,  1.5,  3. ,
-        1. ])]
-    print(l)
-    plot3d(1,3,l)
+    #testing multiple 2d Plots - OK
+    '''
+    data=[range(10), range(40,100), pl.arange(.1,1,.1)]
+    plotRanges=[]
+    labels=[]
+    for dat in data:
+        plotRanges.append(pl.linspace(dat[3],dat[-5],len(dat)))
+        labels.append("test"+str(dat[0]))
+    multiplePlots2d(plotRanges, data, labels)
+    '''
+    
+    #testing 3d plots - mostly OK
+    data=[range(10), range(40,100), pl.arange(.1,1,.1)]
+    yRange=pl.arange(0,3)
+    xRange=pl.linspace(100,0,max(map(len,data)))
+    plot3d(xRange, yRange, data)
