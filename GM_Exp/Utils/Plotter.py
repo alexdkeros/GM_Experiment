@@ -114,7 +114,7 @@ def plot3d(xRange, yRange, data, angleX=60, angleY=30, zScale='linear',xLabel=No
         @param filename: filename to save under
         @param showFlag: (boolean) show figure
         
-    to rotate change xRange/yRange to different order accordingly
+    to rotate change viewing angle, angleX is up/down, angleY is left/right
     to match maximum data length, use max(map(len,data))
     '''
     fig=pl.figure()
@@ -124,10 +124,7 @@ def plot3d(xRange, yRange, data, angleX=60, angleY=30, zScale='linear',xLabel=No
     axes.view_init(angleX, angleY)
     cb=fig.colorbar(p,shrink=0.5)
     axes.set_ylim3d(yRange[0], yRange[-1])
-    
-    #FIX if left > right shows wrong graph orientation and x axis labels 
-    #axes.set_xlim3d(xRange[0], xRange[-1]) 
-    
+    axes.set_xlim3d(xRange[0], xRange[-1]) 
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
     axes.set_zlabel(zLabel)
@@ -144,16 +141,13 @@ def plot3d(xRange, yRange, data, angleX=60, angleY=30, zScale='linear',xLabel=No
         
 if __name__=="__main__":
     #testing simple 2d plot - OK
-    '''
     start=0
     end=3000
     data=pl.arange(0,1000)
     plotRange=pl.linspace(start,end,len(data))
     multiplePlots2d(plotRange,data,yScale='log',xLabel='x',yLabel='y', title='test')
-    '''
     
     #testing multiple 2d Plots - OK
-    '''
     data=[range(10), range(40,100), pl.arange(.1,1,.1)]
     plotRanges=[]
     labels=[]
@@ -161,10 +155,9 @@ if __name__=="__main__":
         plotRanges.append(pl.linspace(dat[3],dat[-5],len(dat)))
         labels.append("test"+str(dat[0]))
     multiplePlots2d(plotRanges, data, labels)
-    '''
     
-    #testing 3d plots - mostly OK
+    #testing 3d plots - OK
     data=[range(10), range(40,100), pl.arange(.1,1,.1)]
     yRange=pl.arange(0,3)
-    xRange=pl.linspace(100,0,max(map(len,data)))
+    xRange=pl.linspace(0,100,max(map(len,data)))
     plot3d(xRange, yRange, data)
