@@ -7,6 +7,7 @@ from scipy.stats import norm
 import numpy as np
 import pickle
 import sys
+from GM_Exp.Utils.Plotter import multiplePlots2d
 
 
 class InputStreamFactory:
@@ -81,7 +82,7 @@ class InputStreamFactory:
         computes and returns the average velocity of all created InputStreams
         @return the average velocity of all created InputStreams
         '''
-        return np.mean(stream.getVelocity() for stream in self.inputStreams)
+        return np.mean(list(stream.getVelocity() for stream in self.inputStreams))
    
    
     def normalizeVelocities(self):
@@ -175,21 +176,35 @@ if __name__=="__main__":
             print("Velocity:%f"%stream.getVelocity())
     '''
     
-    #dataset generating test
+    #dataset generating test - vals seem OK
     l=0
     initX=0
-    velMeanDist=(5,1+sys.float_info.min)
-    velStdDist=(0,1+sys.float_info.min)
+    velMeanDist=(5,5+sys.float_info.min)
+    velStdDist=(10,10+sys.float_info.min)
     factory=InputStreamFactory(lambdaVel=l, initXData=initX, velMeanNormalDistr=velMeanDist, velStdNormalDistr=velStdDist)
-    ds=factory.generateDataSet(10, 2, False)
-    print(ds['iterations'])
-    print(ds['streams'])
-    print(np.mean(ds['velocities'][1]))
-    print(ds['updates'])
+    ds=factory.generateDataSet(50, 2, normalize=False)
+    v0=ds['velocities'][0]
+    v1=ds['velocities'][1]
     
+    print(np.mean(v0))
+    print(np.std(v0))
+    print(v0)
 
+    print(np.mean(v1))
+    print(np.std(v1))
+    print(v1)
+    
+    m=[]
+    for i in range(len(v0)):
+        print np.mean([v0[i],v1[i]])
+        m.append(np.mean([v0[i],v1[i]]))
+    print("mean of means is:%f"%np.mean(m))
 
-
+    from GM_Exp.Utils import Plotter
+    ranges=[np.arange(1,51),np.arange(1,51)]
+    multiplePlots2d(ranges,[v0,v1],['one','two'],title="vels")
+    multiplePlots2d(ranges, ds['updates'], ['one','two'],title='updates')
+    
 
 
 
