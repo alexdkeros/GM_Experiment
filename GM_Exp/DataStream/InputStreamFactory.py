@@ -4,7 +4,9 @@
 from GM_Exp.DataStream.InputStream import InputStream
 from GM_Exp import Config
 from scipy.stats import norm
+import numpy as np
 import pickle
+import sys
 
 
 class InputStreamFactory:
@@ -13,27 +15,34 @@ class InputStreamFactory:
     '''
 
 
-    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, velMeanNormalDistr=Config.defMeanN, velStdNormalDistr=Config.defStdN, normalize=Config.streamNormalizing, dataSetfile=None):
+    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, velMeanNormalDistr=Config.defMeanN, velStdNormalDistr=Config.defStdN, dataSetfile=None):
         '''
         Constructor
         args:
               @param lambdaVel: velocity changing factor lambdaVel*u+(1-lambdaVel)u', where u: old velocity, u':new velocity, lambdaVel:[0,1]
               @param initXData: initial InputStream data
-              @param velocityMeanNormalDistr: N(μ,σ) of means of velocities, tuple
-              @param velocityStdNormalDistr: N(μ,σ) of stds of velocities, tuple
-              @param normalize: normalize velocity updates to specified mean, boolean
+              @param velocityMeanNormalDistr: N(mean,std) of means of velocities, tuple
+              @param velocityStdNormalDistr: N(mean,std) of stds of velocities, tuple
+              @param dataSetFile: file to load dataset from. Must be a pickle file containing dictionary {"iterations": ,"streams": , "velocities":, "updates": } 
+              @raise ValueError: std of Mean distribution or Std distribution less or equal to zero
         '''
+        
+        if velMeanNormalDistr[1]==0 or velStdNormalDistr[1]==0:
+            raise ValueError('std must be greater than zero. Can add sys.float_info.min')
+        
         self.lambdaVel=lambdaVel
         self.initXData=initXData
-        self.normalize=normalize
+        
         #create distributions
         #each stream has different distr, the mean and std of each follow a central distribution
         #statistical behavior of each stream's velocity is different
         #BUT mean velocity for each iteration is exactly self.meanN.mean()
+        
         self.meanN=norm(velMeanNormalDistr[0],velMeanNormalDistr[1])
         self.stdN=norm(velStdNormalDistr[0],velStdNormalDistr[1])
         
         self.inputStreams=[] #array of InputStreams created
+        self.dataSetFlag=False
         
         if dataSetfile:
             self.loadDataSet(dataSetfile)
@@ -42,125 +51,146 @@ class InputStreamFactory:
         '''
         InputStream generator
         @return an InputStream instance
+        @raise StopIteration: if Dataset is loaded and no more streams remaining
         '''
-        if self.inputStreams:
+        #------------------------------------------------------------------------
+        # DataSet loaded
+        #------------------------------------------------------------------------
+        if self.dataSetFlag:
             for stream in self.inputStreams:
                 yield stream
         
+        #------------------------------------------------------------------------
+        # no DataSet, create streams
+        #------------------------------------------------------------------------
         else:
+            
             while True:
-                newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.meanN.rvs(),std=self.stdN.rvs(),normalize=self.normalize,factory=self)
+                newStream=InputStream(lambdaVel=self.lambdaVel,initXData=self.initXData,mean=self.meanN.rvs(),std=abs(self.stdN.rvs())+sys.float_info.min) #avoid <=0 std
                 self.inputStreams.append(newStream)
-            
-                #DBG
-                #print('stream at generator function:')
-                #print(newStream)
-            
                 yield newStream
     
+    def getInputStreams(self):
+        '''
+        @return: array of created InputStreams
+        '''
+        return self.inputStreams
     
     def getAvgVelocity(self):
         '''
         computes and returns the average velocity of all created InputStreams
         @return the average velocity of all created InputStreams
         '''
-        avgV=0
-        for stream in self.inputStreams:
-            avgV+=stream.getVelocity()
-        return avgV/len(self.inputStreams)
+        return np.mean(stream.getVelocity() for stream in self.inputStreams)
    
    
-   
-    def normalizeVelocities(self,vel):
+    def normalizeVelocities(self):
         '''
         normalizes true mean velocity of all created InputStreams to the specified mean
         '''
-        self.velocities.append(vel)
-        # DBG
-        # print(self.velocities)
-        if len(self.velocities) == len(self.inputStreams):
-            # DBG
-            # print('!!!!normalizing!!!')
-            deltaV = self.meanN.mean() - (sum(self.velocities) / float(len(self.velocities)))
-            # DBG
-            # print("--deltaV:%f"%deltaV)
-            for stream in self.inputStreams:
-                stream.correctVelocity(deltaV)
-            del self.velocities[:]
-    
+        deltaV = self.meanN.mean() - self.getAvgVelocity()
+        for stream in self.inputStreams:
+            stream.correctVelocity(deltaV)
+            
+            
     def getVelocityLogs(self):
+        '''
+        @return: array of velocities of each stream
+        '''
         velocitiesLogs=[]
         for stream in self.inputStreams:
             velocitiesLogs.append(stream.getVelocitiesLog())
         return velocitiesLogs
     
     def getDataUpdateLogs(self):
+        '''
+        @return: array of updates of each stream
+        '''
         dataUpdateLogs=[]
         for stream in self.inputStreams:
             dataUpdateLogs.append(stream.getDataUpdatesLog())
         return dataUpdateLogs
     
     
-    def generateDataSet(self, iterations, streams, filename=None):
+    def generateDataSet(self, iterations, streamsNum, normalize=False, filename=None):
+        '''
+        creates synthetic Dataset
+        @param iterations: number of iterations for simulation to run
+        @param streams: number of streams
+        @param normalize: mean steam velocities to specified mean
+        @param filename: filename to save DataSet
+        @return: created Dataset
+        '''
         streamFetcher=self.getInputStream()
         #creating Streams
         streams=[]
-        for i in range(streams):
+        for i in range(streamsNum):
             streams.append(streamFetcher.next().getData())
         
         #creating data
-        for i in range(iterations):
+        for i in range(iterations+1):
+            if normalize:
+                self.normalizeVelocities()
             for stream in streams:
                 stream.next()
         
+        dataset={"iterations":iterations, "streams":len(streams),"velocities":self.getVelocityLogs(),"updates":self.getDataUpdateLogs()}
         if filename:
-            pickle.dump({"iterations":iterations, "streams":streams,"velocities":self.getVelocityLogs(),"updates":self.getDataUpdateLogs()}, open(filename+".p","wb"))
-        
+            pickle.dump(dataset, open(filename+".p","wb"))
+        return dataset
     
         
     def loadDataSet(self,dataSetfile):
+        '''
+        load created dataset
+        '''
         dataSet=pickle.load(open(dataSetfile,"rb"))
         for i in range(dataSet["streams"]):
             self.inputStreams.append(InputStream(velocitiesDataSet=dataSet["velocities"][i], updatesDataSet=dataSet["updates"][i]))
- 
+        self.dataSetFlag=True
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------
             
 if __name__=="__main__":
+    #stream fetching test - OK
     '''
-    factory=InputStreamFactory(0.5,mean=3,std=1)
-    streamFetcher=factory.getInputStream()
+    l=0
+    initX=0
+    velMeanDist=(5,1+sys.float_info.min)
+    velStdDist=(0,1+sys.float_info.min)
+    factory=InputStreamFactory(lambdaVel=l, initXData=initX, velMeanNormalDistr=velMeanDist, velStdNormalDistr=velStdDist)
+    fetcher=factory.getInputStream()
     print(factory)
-    print(streamFetcher)
-    streams=[]
-    dataFetchers=[]
-    for i in range(10):
-        streams.append(streamFetcher.next())
-    for stre in streams:
-        d=stre.getData()
-        print(d)
-        dataFetchers.append(d)
+    print(fetcher)
+    for i in range(2):
+        fetcher.next()
+    streams=factory.getInputStreams()
+    for stream in streams:
+        print(stream)
+        print(stream.getVelocityDistr())
+        st=stream.getData()
+        for i in range(10):
+            print("Data:%f"%st.next())
+            print("Velocity:%f"%stream.getVelocity())
+    '''
     
-    for iter in range(10):
-        print('-----------iter:%d----------------'%(iter))
-        print('avgVel:%f'%factory.getAvgVelocity())
-        for i in range(len(streams)):
-            print('stream %d, data %f'%(i, dataFetchers[i].next()))
-        print('avgVel:%f'%factory.getAvgVelocity())
-    '''
-    factory=InputStreamFactory(0.5,mean=3,std=1)
-    streamFetcher=factory.getInputStream()
-    print(factory)
-    print(streamFetcher)
-    l=[]
-    l.append(streamFetcher.next().getData())
-    print(l)
-    print(l[0].next())
-    print(l[0].next())
-    print(l[0].next())
-    l.append(streamFetcher.next().getData())
-    print(l)
-    for s in l:
-        print(s)
-        print("data is: %f"%s.next())
+    #dataset generating test
+    l=0
+    initX=0
+    velMeanDist=(5,1+sys.float_info.min)
+    velStdDist=(0,1+sys.float_info.min)
+    factory=InputStreamFactory(lambdaVel=l, initXData=initX, velMeanNormalDistr=velMeanDist, velStdNormalDistr=velStdDist)
+    ds=factory.generateDataSet(10, 2, False)
+    print(ds['iterations'])
+    print(ds['streams'])
+    print(np.mean(ds['velocities'][1]))
+    print(ds['updates'])
+    
+
+
+
+
+
+
+

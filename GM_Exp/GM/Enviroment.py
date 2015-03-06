@@ -100,6 +100,8 @@ class Enviroment():
             #EXP
             self.newIter()
             
+            #TODO - normalize velocities here
+            
             
             #DBG
             #print("-----------------iteration %d----------------------"%self.iterCounter)
