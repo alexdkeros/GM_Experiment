@@ -6,9 +6,8 @@ import random
 from math import log
 from GM_Exp import Config
 from GM_Exp.GM.Node import Node
-from GM_Exp.Heuristics import NonLinearProgramming
-from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from types import StringType
+from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 
 
 
@@ -18,7 +17,12 @@ class Coordinator(Node):
     '''
 
 
-    def __init__(self,env,nodes, nid="Coord",threshold=Config.threshold,monitoringFunction=Config.defMonFunc,balancing=Config.balancing,cumulationFactor=Config.defCumulationFactor):
+    def __init__(self, env, nodes, 
+                 nid="Coord", 
+                 threshold=Config.threshold, 
+                 monitoringFunction=Config.defMonFunc, 
+                 balancing=Config.balancing, 
+                 cumulationFactor=Config.defCumulationFactor):
         '''
         Constructor
         '''
@@ -191,9 +195,9 @@ class Coordinator(Node):
             #SUCESSfull balancing
             #----------------------------------------------------------------
             
-            bSetDict={str(id):u for id,v,u,vel in self.balancingSet}
+            bSetDict={str(nid):u for nid,v,u,vel in self.balancingSet}
             
-            results=heuristicNLP(list((str(id),vel) for id,v,u,vel in self.balancingSet),self.threshold,b,self.monitoringFunction)
+            results=heuristicNLP(list((str(nid),vel) for nid,v,u,vel in self.balancingSet),self.threshold,b,self.monitoringFunction)
             
             dDelta=[]
             nodeIds=[]

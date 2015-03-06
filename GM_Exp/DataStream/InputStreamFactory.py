@@ -16,7 +16,12 @@ class InputStreamFactory:
     '''
 
 
-    def __init__(self, lambdaVel=Config.lambdaVel,initXData=Config.defInitXData, velMeanNormalDistr=Config.defMeanN, velStdNormalDistr=Config.defStdN, dataSetfile=None):
+    def __init__(self, 
+                 lambdaVel=Config.lambdaVel, 
+                 initXData=Config.defInitXData, 
+                 velMeanNormalDistr=Config.defMeanN, 
+                 velStdNormalDistr=Config.defStdN, 
+                 dataSetFile=None):
         '''
         Constructor
         args:
@@ -45,8 +50,8 @@ class InputStreamFactory:
         self.inputStreams=[] #array of InputStreams created
         self.dataSetFlag=False
         
-        if dataSetfile:
-            self.loadDataSet(dataSetfile)
+        if dataSetFile:
+            self.loadDataSet(dataSetFile)
                                     
     def getInputStream(self):
         '''
@@ -141,11 +146,11 @@ class InputStreamFactory:
         return dataset
     
         
-    def loadDataSet(self,dataSetfile):
+    def loadDataSet(self,dataSetFile):
         '''
         load created dataset
         '''
-        dataSet=pickle.load(open(dataSetfile,"rb"))
+        dataSet=pickle.load(open(dataSetFile,"rb"))
         #DBG
         for i in range(dataSet["streams"]):
             self.inputStreams.append(InputStream(velocitiesDataSet=dataSet["velocities"][i], updatesDataSet=dataSet["updates"][i]))
@@ -178,7 +183,7 @@ if __name__=="__main__":
     '''
     
     #dataset generating test - OK
-    
+    '''
     l=0
     initX=0
     velMeanDist=(5,5+sys.float_info.min)
@@ -192,6 +197,7 @@ if __name__=="__main__":
     print(np.mean(v0))
     print(np.std(v0))
     print(v0)
+    print(ds['updates'][0])
 
     print(np.mean(v1))
     print(np.std(v1))
@@ -214,7 +220,7 @@ if __name__=="__main__":
     
     print('---LOADING DATASET---')
     
-    factory2=InputStreamFactory(dataSetfile='datasetTest.p')
+    factory2=InputStreamFactory(dataSetFile='datasetTest.p')
     fetcher2=factory2.getInputStream()
     print(factory2)
     print(fetcher2)
@@ -230,5 +236,5 @@ if __name__=="__main__":
             print("Velocity:%f"%stream.getVelocity())
 
     multiplePlots2d(ranges, factory2.getDataUpdateLogs())
-    
+    '''
 

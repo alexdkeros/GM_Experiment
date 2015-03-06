@@ -7,52 +7,55 @@ from GM_Exp import Config
 from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory 
 from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.Coordinator import Coordinator
+from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 
 class Enviroment():
     '''
-    classdocs
+    simulation enviroment, responsible for running/coordinanting the simulation
     '''
 
 
-    def __init__(self,balancing=Config.balancing,cumulationFactor=Config.defCumulationFactor, nodeNum=Config.defNodeNum, threshold=Config.threshold, monitoringFunction=Config.defMonFunc, lambdaVel=Config.lambdaVel, mean=Config.defMeanN, std=Config.defStdN):
+    def __init__(self, 
+                 balancing=Config.balancing, 
+                 cumulationFactor=Config.defCumulationFactor, 
+                 nodeNum=Config.defNodeNum, 
+                 threshold=Config.threshold, 
+                 monitoringFunction=Config.defMonFunc, 
+                 lambdaVel=Config.lambdaVel, 
+                 meanDistr=Config.defMeanN, 
+                 stdDistr=Config.defStdN, 
+                 dataSetFile=Config.dataSetFile, 
+                 streamNormalizing=Config.streamNormalizing):
         '''
         Constructor
+        ---geometric monitoring parameters
+        @param nodeNum: number of monitoring nodes
+        @param threshold: monitoring threshold
+        @param monitoringFunction: arbitrary monitoring function 
+        
+        ---balancing parameters, see GM_Exp.GM.Coordinator
+        @param balancing: selected balancing method, choices: classic, heuristic, onceCumulative, staticCumulative, incrementalCumulative
+        @param cumulationFactor: if *Cumulative balance selected, must specify cumulation factor
+        
+        ---stream parameters, see GM_Exp.DataStream.InputStreamFactory
+        @param lambdaVel: velocity changing factor lambdaVel*u+(1-lambdaVel)u', where u: old velocity, u':new velocity, lambdaVel:[0,1]
+        @param meanDistr: distribution of inputStreams velocities' means, tuple (mean,std) 
+        @param stdDistr: distribution of inputStreams velocities' stds, tuple (mean, std)
+        @param dataSetFile: filename containing synthetic dataset to load
+        @param streamNormalizing: boolean, normalize streams velocities to specified mean
         '''
+        
         self.balancing=balancing
         self.cumulationFactor=cumulationFactor
         self.monintoringFunction=monitoringFunction
         self.threshold=threshold
-        
-        #create a dictionary {"coord": coord instance, "node id #1":node instance, ...}
-        self.inputStreamFactory=InputStreamFactory(lambdaVel=lambdaVel, mean=mean, std=std)
-        self.inputStreamFetcher=self.inputStreamFactory.getInputStream()
-        
-        self.nodes={}
-        coordDict={}
-        
+        self.streamNormalizing=streamNormalizing
         self.globalViolationFlag=False
-
-        #creating nodes
-        for i in range(nodeNum):
-            node = MonitoringNode(env=self, nid=uuid.uuid4(), inputStream=self.inputStreamFetcher.next(), threshold=threshold, monitoringFunction=monitoringFunction, balancing=balancing)
-            self.nodes[node.getId()]=node
-            coordDict[node.getId()]=node.getWeight()
-            
-            #DBG - OK
-            #print("Creating node %d:"%i)
-            #print(node)
-            #print(self.nodes)
         
 
-        #creating coordinator
-        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing, cumulationFactor=cumulationFactor)
-        self.nodes[coordinator.getId()]=coordinator
-            
-        #DBG - OK
-        #print("Nodes:")
-        #print(self.nodes)
-        
-        #experimental results
+        #--------------------------------------------------------------------------------------------------------------------
+        # experimental results
+        #--------------------------------------------------------------------------------------------------------------------
         self.iterCounter=0
         self.avgReqsPerLv=0
         self.reqMsgsPerIter=[]
@@ -61,16 +64,38 @@ class Enviroment():
         self.lVsPerIter=[]
         self.balancingVectors=[]
         self.remainingDist=[]
+        
+        
+        #--------------------------------------------------------------------------------------------------------------------
+        # creating Inputstreams
+        #--------------------------------------------------------------------------------------------------------------------
+        self.inputStreamFactory=InputStreamFactory(lambdaVel=lambdaVel, velMeanNormalDistr=meanDistr, velStdNormalDistr=stdDistr, dataSetFile=dataSetFile)
+        self.inputStreamFetcher=self.inputStreamFactory.getInputStream()
+        
+        self.nodes={}
+        coordDict={}
+        
+        #--------------------------------------------------------------------------------------------------------------------
+        # creating Nodes
+        #--------------------------------------------------------------------------------------------------------------------
+        for i in range(nodeNum):
+            node = MonitoringNode(env=self, nid=uuid.uuid4(), inputStream=self.inputStreamFetcher.next(), threshold=threshold, monitoringFunction=monitoringFunction, balancing=balancing)
+            self.nodes[node.getId()]=node
+            coordDict[node.getId()]=node.getWeight()
+        
+        #--------------------------------------------------------------------------------------------------------------------
+        # creating coordinator
+        #--------------------------------------------------------------------------------------------------------------------
+        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing, cumulationFactor=cumulationFactor)
+        self.nodes[coordinator.getId()]=coordinator
+        
             
             
     def signal(self,data): 
         '''
-        data format: (sender id, target id, msg, data)
+        simulate signal transaction
+        @param (sender id, target id, msg, data)
         '''
-        #DBG
-        #print("SIGNAL:")
-        #print(data)
-        
         #EXP-sniff msg
         self.newMsg(data[2],data[3])
         
@@ -83,10 +108,15 @@ class Enviroment():
         
         
     def runSimulation(self,timeLimit=Config.timeLimit):
-        #initialize nodes
-        for nodeId in self.nodes.keys():
-            self.signal((None, nodeId, "init", None))
-            
+        '''
+        main enviroment method simulating geometric monitoring
+        @param timeLimit: time limited simulation
+        '''   
+        #----------------------------------------------------------------------------
+        # initializing simulation
+        #----------------------------------------------------------------------------
+        
+        #initialize timer 
         startTime=time.time()
         elapsedT=0
         
@@ -94,28 +124,41 @@ class Enviroment():
         self.resetExpRes()
         
         
-        #run simulation
-        while elapsedT<timeLimit and self.globalViolationFlag==False:
+        #----------------------------------------------------------------------------
+        # running simulation
+        #----------------------------------------------------------------------------
+        
+        #initialize nodes
+        for nodeId in self.nodes.keys():
+            self.signal((None, nodeId, "init", None))
+        
+        #simulation
+        while (elapsedT<timeLimit if timeLimit else True) and self.globalViolationFlag==False:
+            
+            #----------------------------------------------------------------------------
+            # new iteration
+            #----------------------------------------------------------------------------
             
             #EXP
             self.newIter()
             
-            #TODO - normalize velocities here
-            
-            
             #DBG
             #print("-----------------iteration %d----------------------"%self.iterCounter)
             
+            #normalizing velocities before new stream update
+            if self.streamNormalizing:
+                self.inputStreamFactory.normalizeVelocities()
+            
             for node in self.nodes.values():
                 #DBG
-                
                 print("-------node running:%s"%node.getId())
+                
                 node.run()
             
             for node in self.nodes.values():
                 #DBG
-                
                 print("-------node checking:%s"%node.getId())
+                
                 node.check()
                 
                 if self.globalViolationFlag==True:
@@ -124,12 +167,16 @@ class Enviroment():
             elapsedT=time.time()-startTime
             
         
-        #DBG    
-        if elapsedT>=timeLimit:
+        #DBG
+        if (elapsedT>=timeLimit if timeLimit else False):
             print("TIMEOUT")
         if self.globalViolationFlag:
             print("GLOBAL VIOLATION")
-            
+         
+        #----------------------------------------------------------------------------
+        # finalizing simulation, collecting results
+        #----------------------------------------------------------------------------
+           
         #EXP - process experimental results
         self.processExpRes()
             
@@ -177,7 +224,7 @@ class Enviroment():
         self.lVsPerIter=[i-j for i,j in zip(self.repMsgsPerIter,self.reqMsgsPerIter)]
         self.reqMsgsPerBal=[i-1 for i in self.reqMsgsPerBal] # the num of adjSlk msgs contain violating node, so remove it for correct computation of req msgs per balance
         self.remainingDist=[self.threshold-self.monintoringFunction(b) for b in self.balancingVectors]
-        if self.lVsPerIter!=0:
+        if not self.lVsPerIter:
             self.avgReqsPerLv=float(sum(self.reqMsgsPerIter))/float(sum(self.lVsPerIter))
         else:
             self.avgReqsPerLv=0

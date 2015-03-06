@@ -1,9 +1,7 @@
 '''
 @author: ak
 '''
-from __future__ import division
-import math
-import numpy as np
+import sys
 
 #- NODE RANGE
 nodeStart=3 #2
@@ -35,26 +33,26 @@ expRangeStart=None
 expRangeEnd=None
 expRangeStep=1
 
-def config(type):
+def config(exptype):
     global expRangeStart
     global expRangeEnd
     global expRangeStep
-    if type=='Nodes':
+    if exptype=='Nodes':
         expRangeStart=nodeStart
         expRangeEnd=nodeEnd
         
-    elif type=='Threshold':
+    elif exptype=='Threshold':
         expRangeStart=thresStart
         expRangeEnd=thresEnd
-    elif type=='Mean':
+    elif exptype=='Mean':
         expRangeStart=meanStart
         expRangeEnd=meanEnd
         expRangeStep=meanStep
-    elif type=='Std':
+    elif exptype=='Std':
         expRangeStart=stdStart
         expRangeEnd=stdEnd
         expRangeStep=stdStep
-    elif type=='Lambda':
+    elif exptype=='Lambda':
         expRangeStart=lambdaStart
         expRangeEnd=lambdaEnd
         expRangeStep=lambdaStep
@@ -72,10 +70,11 @@ timeLimit=60
 lambdaVel=1 #1:static , 0:random
 defInitXData=0
 streamNormalizing=True
+dataSetFile=None
 
 #default vel distribution params
-defMeanN=(5,1)
-defStdN=(0,1)
+defMeanN=(5,1+sys.float_info.min)
+defStdN=(0,1+sys.float_info.min)
 
 #default Node values
 defNodeNum=5
