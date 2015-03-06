@@ -146,6 +146,7 @@ class InputStreamFactory:
         load created dataset
         '''
         dataSet=pickle.load(open(dataSetfile,"rb"))
+        #DBG
         for i in range(dataSet["streams"]):
             self.inputStreams.append(InputStream(velocitiesDataSet=dataSet["velocities"][i], updatesDataSet=dataSet["updates"][i]))
         self.dataSetFlag=True
@@ -176,15 +177,17 @@ if __name__=="__main__":
             print("Velocity:%f"%stream.getVelocity())
     '''
     
-    #dataset generating test - vals seem OK
+    #dataset generating test - OK
+    
     l=0
     initX=0
     velMeanDist=(5,5+sys.float_info.min)
     velStdDist=(10,10+sys.float_info.min)
     factory=InputStreamFactory(lambdaVel=l, initXData=initX, velMeanNormalDistr=velMeanDist, velStdNormalDistr=velStdDist)
-    ds=factory.generateDataSet(50, 2, normalize=False)
+    ds=factory.generateDataSet(50, 3, normalize=True, filename='datasetTest')
     v0=ds['velocities'][0]
     v1=ds['velocities'][1]
+    v2=ds['velocities'][2]
     
     print(np.mean(v0))
     print(np.std(v0))
@@ -193,19 +196,39 @@ if __name__=="__main__":
     print(np.mean(v1))
     print(np.std(v1))
     print(v1)
-    
+
+    print(np.mean(v2))
+    print(np.std(v2))
+    print(v2)
+        
     m=[]
     for i in range(len(v0)):
-        print np.mean([v0[i],v1[i]])
-        m.append(np.mean([v0[i],v1[i]]))
+        print np.mean([v0[i],v1[i],v2[i]])
+        m.append(np.mean([v0[i],v1[i],v2[i]]))
     print("mean of means is:%f"%np.mean(m))
 
     from GM_Exp.Utils import Plotter
-    ranges=[np.arange(1,51),np.arange(1,51)]
-    multiplePlots2d(ranges,[v0,v1],['one','two'],title="vels")
-    multiplePlots2d(ranges, ds['updates'], ['one','two'],title='updates')
+    ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
+    multiplePlots2d(ranges,[v0,v1,v2],['one','two','three'],title="vels")
+    multiplePlots2d(ranges, ds['updates'], ['one','two','three'],title='updates')
     
+    print('---LOADING DATASET---')
+    
+    factory2=InputStreamFactory(dataSetfile='datasetTest.p')
+    fetcher2=factory2.getInputStream()
+    print(factory2)
+    print(fetcher2)
+    for i in range(3):
+        print(fetcher2.next())
+    streams=factory2.getInputStreams()
+    for stream in streams:
+        print(stream)
+        print(stream.getVelocityDistr())
+        st=stream.getData()
+        for i in range(10):
+            print("Data:%f"%st.next())
+            print("Velocity:%f"%stream.getVelocity())
 
-
-
+    multiplePlots2d(ranges, factory2.getDataUpdateLogs())
+    
 
