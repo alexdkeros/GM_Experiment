@@ -8,8 +8,9 @@ from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory
 from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
+from GM_Exp.Config import dataSetFile
 
-class Enviroment():
+class Enviroment:
     '''
     simulation enviroment, responsible for running/coordinanting the simulation
     '''
@@ -76,9 +77,9 @@ class Enviroment():
         coordDict={}
         
         #--------------------------------------------------------------------------------------------------------------------
-        # creating Nodes
+        # creating Nodes (from scratch or from loaded dataset)
         #--------------------------------------------------------------------------------------------------------------------
-        for i in range(nodeNum):
+        for i in range(nodeNum if not dataSetFile else self.inputStreamFactory.getInputStreamPopulation()):
             node = MonitoringNode(env=self, nid=uuid.uuid4(), inputStream=self.inputStreamFetcher.next(), threshold=threshold, monitoringFunction=monitoringFunction, balancing=balancing)
             self.nodes[node.getId()]=node
             coordDict[node.getId()]=node.getWeight()
@@ -237,7 +238,18 @@ class Enviroment():
 #----------------------------------------------------------------------------
             
 if __name__=="__main__":
-    env=Enviroment()
+    #running test and heuristic test - OK
+    '''
+    import sys
+    
+    env=Enviroment(balancing="heuristic", 
+                   nodeNum=2, 
+                   threshold=10, 
+                   monitoringFunction=lambda x: x,
+                    lambdaVel=1,
+                    meanDistr=(2,2),
+                    stdDistr=(0,0+sys.float_info.min),
+                    streamNormalizing=True)
     env.runSimulation()
     res=env.getExpRes()
     print(res)
@@ -246,3 +258,13 @@ if __name__=="__main__":
     print(len(res["reqMsgsPerIter"]))
     print(len(res["lVsPerIter"]))
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
+    '''
+    #dataset import test - OK
+    
+    env=Enviroment(balancing='heuristic',
+                   threshold=100,
+                   monitoringFunction=lambda x:x**2,
+                   dataSetFile='/home/ak/git/GM_Experiment/GM_Exp/DataStream/datasetTest.p')
+    env.runSimulation(None)
+    print(env.getExpRes())
+    

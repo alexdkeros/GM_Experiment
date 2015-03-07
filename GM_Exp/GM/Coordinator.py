@@ -26,11 +26,15 @@ class Coordinator(Node):
         '''
         Constructor
         '''
-        Node.__init__(self, env, nid=nid, weight=0, threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing)
+        Node.__init__(self, env, nid=nid, weight=0)
         self.nodes=nodes    #dictionary {"id":weight,}
         self.balancingSet=set() #set containing tuples (nodeId,v,u) if classicBalance, (nodeId,v,u,vel) if heuristicBalance
         self.sumW=sum(nodes.values())
         self.cumulationFactor=cumulationFactor
+        self.threshold=threshold
+        self.monitoringFunction=monitoringFunction
+        self.balancing=balancing
+        self.e=0
         #DBG - OK
         #print("Coord: node dict")
         #print(self.nodes)
@@ -112,7 +116,8 @@ class Coordinator(Node):
         else:
             print("balancing set is:")
             print(self.balancingSet)
-        print("Coord: balance vector is: %f, threshold is %f"%(b,self.threshold))
+            
+        print("Coord: balance vector is: %f,f(b)= %f, threshold is %f"%(b,self.monitoringFunction(b),self.threshold))
         
         if self.monitoringFunction(b)<self.threshold:
             #----------------------------------------------------------------
@@ -188,7 +193,8 @@ class Coordinator(Node):
         else:
             print("balancing set is:")
             print(self.balancingSet)
-        print("Coord: balance vector is: %f, threshold is %f"%(b,self.threshold))
+        
+        print("Coord: balance vector is: %f,f(b)= %f, threshold is %f"%(b,self.monitoringFunction(b),self.threshold))
         
         if self.monitoringFunction(b)<self.threshold:
             #----------------------------------------------------------------

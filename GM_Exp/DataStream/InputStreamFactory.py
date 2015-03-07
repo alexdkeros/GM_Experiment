@@ -76,11 +76,18 @@ class InputStreamFactory:
                 self.inputStreams.append(newStream)
                 yield newStream
     
+    
     def getInputStreams(self):
         '''
         @return: array of created InputStreams
         '''
         return self.inputStreams
+    
+    def getInputStreamPopulation(self):
+        '''
+        @return: number of active streams
+        '''
+        return len(self.inputStreams)
     
     def getAvgVelocity(self):
         '''
@@ -217,7 +224,7 @@ if __name__=="__main__":
     ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
     multiplePlots2d(ranges,[v0,v1,v2],['one','two','three'],title="vels")
     multiplePlots2d(ranges, ds['updates'], ['one','two','three'],title='updates')
-    
+    '''
     print('---LOADING DATASET---')
     
     factory2=InputStreamFactory(dataSetFile='datasetTest.p')
@@ -234,7 +241,6 @@ if __name__=="__main__":
         for i in range(10):
             print("Data:%f"%st.next())
             print("Velocity:%f"%stream.getVelocity())
-
+    ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
     multiplePlots2d(ranges, factory2.getDataUpdateLogs())
-    '''
 
