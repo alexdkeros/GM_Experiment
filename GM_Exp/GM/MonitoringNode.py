@@ -49,8 +49,10 @@ class MonitoringNode(Node):
         self.inputStream=inputStream.getData()
         
     '''
+    ----------------------------------------------------------------------
     messages methods:
     incoming: methodName(self,data,sender) format
+    ----------------------------------------------------------------------
     '''
         
     def init(self,dat,sender):
@@ -69,6 +71,10 @@ class MonitoringNode(Node):
         self.rep()
             
     def adjSlk(self,dat, sender):
+        '''
+            "adjSlk" signal
+            "adjSlk" msg received from  Coord
+        '''
         dDelta=dat
         
         self.delta+=dDelta  #adjusting current slack vector
@@ -77,46 +83,75 @@ class MonitoringNode(Node):
         
         
     def newEst(self,dat,sender):
+        '''
+            "newEst" signal
+            "newEst" msg received from Coord
+        '''
         self.e=dat
         self.vLast=self.v
         self.delta=0
         
     def globalViolation(self,dat,sender):
+        '''
+            "globalViolation" signal
+            "globalViolation" msg (not in original Geometric Monitoring method) received from Coord
+        '''
         pass
         
+        
     '''
+    ----------------------------------------------------------------------
     messages methods:
     outgoing: methodName(self) format
+              see Node.send() method
+    ----------------------------------------------------------------------
     '''
     def rep(self):
+        '''
+            "rep" signal
+            "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
+        '''
         f=getattr(self, self.balancing+"Rep", self.classicRep)
         return f()
     
+    #-------------------CLASSIC BALANCING--------------------------------
     def classicRep(self):
+        '''
+            "rep" signal
+            "rep" msg for CLASSIC balancing scheme
+                data is (v,u)
+        '''
         self.send("Coord", "rep", (self.v,self.u))
-        
+    
+    #-------------------HEURISTIC BALANCING-------------------------------    
     def heuristicRep(self):
+        '''
+            "rep" signal
+            "rep" msg for HEURISTIC balancing scheme
+                data is (v,u,velocity)
+        '''
         self.send("Coord", "rep", (self.v,self.u,self.inputStreamInstance.getVelocity()))
     
     '''
+    ----------------------------------------------------------------------
     monitoring operation
+    ----------------------------------------------------------------------
     '''    
     def check(self):
-        #DBG
-        print("-checking node %s , u:%f"%(self.id,self.u))
-        
+        '''
+        performs threshold check of drift vector's function value: f(u)
+        '''
         if self.monitoringFunction(self.u)>=self.threshold:
             self.rep()
             
     def run(self):
-        
+        '''
+        main Monitoring Node function
+        receive, process updates
+        '''
         self.v=self.inputStream.next()
         
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
-        
-        #DBG
-        print("-running node %s, v=%f, u=%f"%(self.id,self.v,self.u))
-        
         
     
     

@@ -8,7 +8,7 @@ from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory
 from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
-from GM_Exp.Config import dataSetFile
+from GM_Exp.Config import dataSetFile, lambdaVel, streamNormalizing
 
 class Enviroment:
     '''
@@ -225,7 +225,7 @@ class Enviroment:
         self.lVsPerIter=[i-j for i,j in zip(self.repMsgsPerIter,self.reqMsgsPerIter)]
         self.reqMsgsPerBal=[i-1 for i in self.reqMsgsPerBal] # the num of adjSlk msgs contain violating node, so remove it for correct computation of req msgs per balance
         self.remainingDist=[self.threshold-self.monintoringFunction(b) for b in self.balancingVectors]
-        if not self.lVsPerIter:
+        if self.lVsPerIter:
             self.avgReqsPerLv=float(sum(self.reqMsgsPerIter))/float(sum(self.lVsPerIter))
         else:
             self.avgReqsPerLv=0
@@ -260,11 +260,67 @@ if __name__=="__main__":
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
     '''
     #dataset import test - OK
-    
+    '''
     env=Enviroment(balancing='heuristic',
                    threshold=100,
                    monitoringFunction=lambda x:x**2,
                    dataSetFile='/home/ak/git/GM_Experiment/GM_Exp/DataStream/datasetTest.p')
     env.runSimulation(None)
     print(env.getExpRes())
+    '''
     
+    #cumulative balances tests
+    
+    threshold=10
+    monitoringFunction=lambda x:x
+    lambdaVel=0
+    meanDistr=(5,1)
+    stdDistr=(4,1)
+    streamNormalizing=True
+    #once cumulative balance test - OK
+    '''
+    nodeNum=6
+    env=Enviroment(balancing='onceCumulative',
+                   cumulationFactor=3,
+                   nodeNum=nodeNum,
+                   threshold=threshold,
+                   monitoringFunction=monitoringFunction,
+                   lambdaVel=lambdaVel,
+                   meanDistr=meanDistr,
+                   stdDistr=stdDistr,
+                   streamNormalizing=streamNormalizing)
+    env.runSimulation()
+    print('----------------------------results-----------------------------------')
+    print(env.getExpRes())
+    '''
+    #static cumulative balance test - OK
+    '''
+    nodeNum=9
+    env=Enviroment(balancing='staticCumulative',
+                   cumulationFactor=3,
+                   nodeNum=nodeNum,
+                   threshold=threshold,
+                   monitoringFunction=monitoringFunction,
+                   lambdaVel=lambdaVel,
+                   meanDistr=meanDistr,
+                   stdDistr=stdDistr,
+                   streamNormalizing=streamNormalizing)
+    env.runSimulation()
+    print('----------------------------results-----------------------------------')
+    print(env.getExpRes())
+    '''
+    #incremental cumulative balance test - OK
+    '''
+    nodeNum=20
+    env=Enviroment(balancing='incrementalCumulative',
+                   nodeNum=nodeNum,
+                   threshold=threshold,
+                   monitoringFunction=monitoringFunction,
+                   lambdaVel=lambdaVel,
+                   meanDistr=meanDistr,
+                   stdDistr=stdDistr,
+                   streamNormalizing=streamNormalizing)
+    env.runSimulation()
+    print('----------------------------results-----------------------------------')
+    print(env.getExpRes())
+    '''

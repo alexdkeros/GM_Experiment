@@ -224,7 +224,7 @@ if __name__=="__main__":
     ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
     multiplePlots2d(ranges,[v0,v1,v2],['one','two','three'],title="vels")
     multiplePlots2d(ranges, ds['updates'], ['one','two','three'],title='updates')
-    '''
+    
     print('---LOADING DATASET---')
     
     factory2=InputStreamFactory(dataSetFile='datasetTest.p')
@@ -243,4 +243,4 @@ if __name__=="__main__":
             print("Velocity:%f"%stream.getVelocity())
     ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
     multiplePlots2d(ranges, factory2.getDataUpdateLogs())
-
+    '''

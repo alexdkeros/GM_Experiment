@@ -13,7 +13,7 @@ from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 
 class Coordinator(Node):
     '''
-    classdocs
+    geometric monitoring, Coordinator node
     '''
 
 
@@ -25,25 +25,43 @@ class Coordinator(Node):
                  cumulationFactor=Config.defCumulationFactor):
         '''
         Constructor
+        args:
+             ------node params
+            @param nid: unique node id - "Coord"
+            ------geometric monitoring params
+            @param env: networking/monitoring enviroment creating Coordinator
+            @param threshold: monitoring threshold
+            @param monitoringFunction: monitoring function
+            @param balancing: the balancing scheme
+            @param cumulationFactor: parameter of cumulative Balancing methods (non-classic), number of requests
+                                     for (first/all) balancing
         '''
         Node.__init__(self, env, nid=nid, weight=0)
-        self.nodes=nodes    #dictionary {"id":weight,}
-        self.balancingSet=set() #set containing tuples (nodeId,v,u) if classicBalance, (nodeId,v,u,vel) if heuristicBalance
-        self.sumW=sum(nodes.values())
-        self.cumulationFactor=cumulationFactor
+        
         self.threshold=threshold
         self.monitoringFunction=monitoringFunction
         self.balancing=balancing
+        self.cumulationFactor=cumulationFactor
+
+        self.nodes=nodes    #dictionary {"id":weight,}
+        self.balancingSet=set() #set containing tuples (nodeId,v,u) if classicBalance, (nodeId,v,u,vel) if heuristicBalance
+        self.sumW=sum(nodes.values())
+        
         self.e=0
-        #DBG - OK
-        #print("Coord: node dict")
-        #print(self.nodes)
+        
         
     '''
+    ----------------------------------------------------------------------
     messages methods:
     incoming: methodName(self,data,sender) format
+    ----------------------------------------------------------------------
+
     '''
     def init(self,dat,sender):
+        '''
+            "init" signal
+            "init" msg sent by all nodes for monitoring initialization
+        '''
         if sender:
             self.balancingSet.add(sender)
             w=dat[1]
@@ -55,49 +73,73 @@ class Coordinator(Node):
     
     def rep(self,dat, sender):
         '''
-        dispatch to appropriate rep method
+            "rep" signal
+            "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
         '''
         f=getattr(self, self.balancing+"Rep", self.classicRep)
         return f(dat, sender)
     
     
     '''
+    ----------------------------------------------------------------------
     messages methods:
     outgoing: methodName(self) format
+    ----------------------------------------------------------------------
     '''
     def newEst(self):
+        '''
+            "newEst" signal
+            "newEst" mgs sent to nodes at monitoring initialization/global Violation occurence
+        '''
         self.send(self.nodes.keys(),"newEst",self.e)
         
     def req(self,nodeId):
+        '''
+            "req" signal
+            "req" msg sent to nodeId to request data for balancing
+        '''
         self.send(nodeId,"req",None)
         
-    def adjSlk(self,nodeId,dat):   
+    def adjSlk(self,nodeId,dat):
+        '''
+            "adjSlk" signal
+            "adjSlk" msg sent at balance success
+        '''
         self.send(nodeId,"adjSlk",dat)
         
     def globalViolation(self):
+        '''
+            "globalViolation" signal
+            "globalViolation" msg (not in original Geometric Monitoring method) sent at global violation occurence
+        '''
         self.send(self.nodes.keys(),"globalViolation",None)
         
         
         
     '''
-    other functions
+    ----------------------------------------------------------------------------------------------------------------
+    ********************************************BALANCING FUNCTIONS*************************************************
+    ----------------------------------------------------------------------------------------------------------------
+
     '''
-        
-    '''
-    ---------------------------------------------------BALANCING METHODS-------------------------------------------------------
-    selection via Config file
-    '''
-    
     def balance(self):
+        '''
+        balancing handler
+        dispaches to selected balancing scheme method
+        '''
         f=getattr(self, self.balancing+"Balance", self.classicBalance)
         return f()
     
     
     '''
-    ---classic balance
+    -----------------------------------------CLASSIC balance-------------------------------------------------------
     '''
     
     def classicRep(self,dat,sender):
+        '''
+            "rep" signal for classic balancing
+            at each "rep" msg initiate balancing process
+        '''
         self.balancingSet.add((sender,)+dat)    
         self.balance()
     
@@ -108,7 +150,6 @@ class Coordinator(Node):
         balance method based on original paper
         '''
         b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
-        
         
         #DBG
         if len(self.balancingSet)==1:
@@ -171,12 +212,16 @@ class Coordinator(Node):
                 self.globalViolation()
                 
                 
-                
+    
     '''
-    ---heuristic balance
-    '''  
+    -----------------------------------------HEURISTIC balance-------------------------------------------------------
+    '''
                 
     def heuristicRep(self,dat,sender):
+        '''
+            "rep" signal for heuristic balancing
+            at each "rep" msg initiate balancing process
+        '''
         self.balancingSet.add((sender,)+dat)    
         self.balance()
         
@@ -252,13 +297,18 @@ class Coordinator(Node):
                 self.globalViolation()
                 
     
-                
+    
     '''
-    ---once cumulative balance
+    -----------------------------------------ONCE CUMULATIVE balance------------------------------------------------
     '''
     
     def onceCumulativeRep(self,dat,sender):
-        self.balancingSet.add((sender,)+dat)    
+        '''
+            "rep" signal for once cumulative balancing
+            an Coordinator's node request for balancing collect self.cumulativeFactor nodes the first time of each LV
+                resolution, then one at a time
+        '''
+        self.balancingSet.add((sender,)+dat)  
         if not (1<len(self.balancingSet)<self.cumulationFactor+1) or len(self.balancingSet)==len(self.nodes):
             self.balance()
     
@@ -313,6 +363,7 @@ class Coordinator(Node):
                     reqNodeId=random.sample(diffSet,self.cumulationFactor)
                 else:
                     reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random
+                
                 self.req(reqNodeId)
             
             else:
@@ -333,12 +384,17 @@ class Coordinator(Node):
                 
                 self.globalViolation()
                 
-                
+     
     '''
-    ---static cumulative balance
+    -----------------------------------------STATIC CUMULATIVE balance----------------------------------------------
     '''
     
+    
     def staticCumulativeRep(self,dat,sender):
+        '''
+            "rep" signal for static cumulative balancing
+            at each Coordinator's request for balancing collect self.cumulativeFactor nodes at once
+        '''
         self.balancingSet.add((sender,)+dat)    
         if len(self.balancingSet)%self.cumulationFactor==1 or len(self.balancingSet)==len(self.nodes):
             self.balance()
@@ -393,6 +449,7 @@ class Coordinator(Node):
                     reqNodeId=random.sample(diffSet,self.cumulationFactor)
                 else:
                     reqNodeId=random.sample(diffSet,len(diffSet))
+            
                 self.req(reqNodeId)
             
             else:
@@ -414,20 +471,33 @@ class Coordinator(Node):
                 self.globalViolation()
                 
                 
+    
     '''
-    ---incremental cumulative balance
+    -----------------------------------------INCREMENTAL CUMULATIVE balance-----------------------------------------
     '''
     
     def incrementalCumulativeRep(self,dat,sender):
+        '''
+            "rep" signal for incremental cumulative balancing
+            at each Coordinator's request for balancing collect 2x nodes each time
+        '''
         self.balancingSet.add((sender,)+dat)
+        
+        #DBG
+        print('------COORDBAL:adding node %s to bal set, length: %d'%(str(sender),len(self.balancingSet)))
+        
         if log(len(self.balancingSet),2).is_integer() or len(self.balancingSet)==len(self.nodes):   
+            
+            #DBG
+            print('------COORDBAL:balancing...bal set length:%d'%len(self.balancingSet))
+            
             self.balance()
     
     
     
     def incrementalCumulativeBalance(self):
         '''
-        balance method based on original paper
+        balance method requesting 2x nodes each time for balancing
         '''
         b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
         
@@ -474,6 +544,11 @@ class Coordinator(Node):
                     reqNodeId=random.sample(diffSet,len(self.balancingSet))
                 else:
                     reqNodeId=random.sample(diffSet,len(diffSet))
+                
+                
+                #DBG
+                print('------COORDBAL:requesting %d nodes'%(len(reqNodeId) if isinstance(reqNodeId,list) else 1))
+                
                 self.req(reqNodeId)
             
             else:
@@ -493,3 +568,10 @@ class Coordinator(Node):
                 #self.newEst()
                 
                 self.globalViolation()
+
+
+#----------------------------------------------------------------------------
+#---------------------------------TEST---------------------------------------
+#----------------------------------------------------------------------------
+         
+#see Enviroment module
