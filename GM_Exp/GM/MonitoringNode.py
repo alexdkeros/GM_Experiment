@@ -48,6 +48,9 @@ class MonitoringNode(Node):
         self.inputStreamInstance=inputStream
         self.inputStream=inputStream.getData()
         
+        #EXP
+        self.uLog=[]
+        
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -131,6 +134,19 @@ class MonitoringNode(Node):
                 data is (v,u,velocity)
         '''
         self.send("Coord", "rep", (self.v,self.u,self.inputStreamInstance.getVelocity()))
+        
+    
+    '''
+    ----------------------------------------------------------------------
+    other functions
+    ----------------------------------------------------------------------
+    '''
+    def getuLog(self):
+        '''
+            returns u's throught monitoring process
+            @return: array of u values
+        '''
+        return self.uLog
     
     '''
     ----------------------------------------------------------------------
@@ -141,6 +157,12 @@ class MonitoringNode(Node):
         '''
         performs threshold check of drift vector's function value: f(u)
         '''
+        #EXP
+        self.uLog.append(self.u)
+        
+        #DBG
+        print('--Node %s reporting u: %f'%(self.id,self.u))
+        
         if self.monitoringFunction(self.u)>=self.threshold:
             self.rep()
             

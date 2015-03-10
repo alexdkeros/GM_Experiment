@@ -27,8 +27,8 @@ lambdaStart=0
 lambdaEnd=1
 lambdaStep=0.1
 
-#expTypes=['Nodes', 'Threshold', 'Mean', 'Std','Lambda']
-expTypes=['Lambda']
+expTypes=['Nodes', 'Threshold', 'Mean', 'Std','Lambda']
+#expTypes=['Lambda']
 expRangeStart=None
 expRangeEnd=None
 expRangeStep=1

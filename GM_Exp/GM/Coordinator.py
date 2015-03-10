@@ -482,15 +482,7 @@ class Coordinator(Node):
             at each Coordinator's request for balancing collect 2x nodes each time
         '''
         self.balancingSet.add((sender,)+dat)
-        
-        #DBG
-        print('------COORDBAL:adding node %s to bal set, length: %d'%(str(sender),len(self.balancingSet)))
-        
         if log(len(self.balancingSet),2).is_integer() or len(self.balancingSet)==len(self.nodes):   
-            
-            #DBG
-            print('------COORDBAL:balancing...bal set length:%d'%len(self.balancingSet))
-            
             self.balance()
     
     
@@ -544,10 +536,6 @@ class Coordinator(Node):
                     reqNodeId=random.sample(diffSet,len(self.balancingSet))
                 else:
                     reqNodeId=random.sample(diffSet,len(diffSet))
-                
-                
-                #DBG
-                print('------COORDBAL:requesting %d nodes'%(len(reqNodeId) if isinstance(reqNodeId,list) else 1))
                 
                 self.req(reqNodeId)
             

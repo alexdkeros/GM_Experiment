@@ -65,7 +65,7 @@ class Enviroment:
         self.lVsPerIter=[]
         self.balancingVectors=[]
         self.remainingDist=[]
-        
+        self.uLogs=[]
         
         #--------------------------------------------------------------------------------------------------------------------
         # creating Inputstreams
@@ -229,9 +229,12 @@ class Enviroment:
             self.avgReqsPerLv=float(sum(self.reqMsgsPerIter))/float(sum(self.lVsPerIter))
         else:
             self.avgReqsPerLv=0
+        for node in self.nodes.values():
+            if node.getId()!="Coord":
+                self.uLogs.append(node.getuLog())
             
     def getExpRes(self):
-        return {"avgReqsPerLv":self.avgReqsPerLv,"nodes":len(self.nodes),"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
+        return {"driftVectors":self.uLogs,"avgReqsPerLv":self.avgReqsPerLv,"nodes":len(self.nodes),"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
@@ -310,8 +313,8 @@ if __name__=="__main__":
     print(env.getExpRes())
     '''
     #incremental cumulative balance test - OK
-    '''
-    nodeNum=20
+    
+    nodeNum=5
     env=Enviroment(balancing='incrementalCumulative',
                    nodeNum=nodeNum,
                    threshold=threshold,
@@ -323,4 +326,4 @@ if __name__=="__main__":
     env.runSimulation()
     print('----------------------------results-----------------------------------')
     print(env.getExpRes())
-    '''
+    
