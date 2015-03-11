@@ -27,8 +27,8 @@ class InputStreamFactory:
         args:
               @param lambdaVel: velocity changing factor lambdaVel*u+(1-lambdaVel)u', where u: old velocity, u':new velocity, lambdaVel:[0,1]
               @param initXData: initial InputStream data
-              @param velocityMeanNormalDistr: N(mean,std) of means of velocities, tuple
-              @param velocityStdNormalDistr: N(mean,std) of stds of velocities, tuple
+              @param velMeanNormalDistr: N(mean,std) of means of velocities, tuple
+              @param velStdNormalDistr: N(mean,std) of stds of velocities, tuple
               @param dataSetFile: file to load dataset from. Must be a pickle file containing dictionary {"iterations": ,"streams": , "velocities":, "updates": } 
               @raise ValueError: std of Mean distribution or Std distribution less or equal to zero
         '''
@@ -132,7 +132,7 @@ class InputStreamFactory:
         @param streams: number of streams
         @param normalize: mean steam velocities to specified mean
         @param filename: filename to save DataSet
-        @return: created Dataset
+        @return: created Dataset, dict {"iterations":, "streams":, "velocities":, "updates":}
         '''
         streamFetcher=self.getInputStream()
         #creating Streams

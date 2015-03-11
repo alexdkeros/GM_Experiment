@@ -96,6 +96,7 @@ if __name__ == '__main__':
         #--2D PLOTS
         
         #iters plot
+        '''
         Plotter.plots2d(Config.expRangeStart, Config.expRangeEnd, totalResults["classic"]["iters"], "classic", \
                         Config.expRangeStart,Config.expRangeEnd, totalResults["heuristic"]["iters"], "heuristic",\
                         xLabel=t, yLabel="iterations", title="Iterations in "+t+" Range",\
@@ -125,7 +126,7 @@ if __name__ == '__main__':
                         yScale='log',\
                         xLabel="Iterations",yLabel="Distance",title="Remaining Distance in "+t+" Range",\
                         saveFlag=Config.saveFlag,filename="RemainingDistance"+t+"Compare",showFlag=Config.showFlag)
-        
+        '''
         #--3D PLOTS
         for bal in Config.balancingTypes:
             
