@@ -52,7 +52,16 @@ def plot2d(plotRange,data,yScale='linear',xLabel=None, yLabel=None, title=None, 
         time.sleep(5)
         
         
-def multiplePlots2d(plotRanges, data, labels=None, yScale='linear',xLabel=None,yLabel=None, title=None, saveFlag=False, filename=None,showFlag=True):
+def multiplePlots2d(plotRanges, data, 
+                    labels=None, 
+                    yScale='linear',
+                    styles=None,
+                    xLabel=None,
+                    yLabel=None,
+                    title=None, 
+                    saveFlag=False, 
+                    filename=None,
+                    showFlag=True):
     '''
     function multiplePlots2d:
     creates a 2d plot of many data arrays
@@ -61,6 +70,7 @@ def multiplePlots2d(plotRanges, data, labels=None, yScale='linear',xLabel=None,y
         @param data: 2d array of data, array of data arrays to plot
         @param labels: array of labels for each data element to plot
         @param yScale: plotting scale 'linear' or 'log'
+        @param styles: array of line styles
         @param xLabel: label of x axis
         @param yLabel: label of y axis
         @param title: plot title
@@ -77,7 +87,10 @@ def multiplePlots2d(plotRanges, data, labels=None, yScale='linear',xLabel=None,y
         
     fig,axes=pl.subplots()
     for i in range(len(data)):
-        axes.plot(plotRanges[i],data[i],label=(labels[i] if labels else None))
+        if styles:
+            axes.plot(plotRanges[i],data[i],styles[i],label=(labels[i] if labels else None))
+        else:
+            axes.plot(plotRanges[i],data[i],label=(labels[i] if labels else None))
     axes.legend()
     axes.grid(True)
     axes.set_xlim([min(i[0] for i in plotRanges), max(i[-1] for i in plotRanges)])
@@ -146,23 +159,29 @@ def plot3d(xRange, yRange, data, angleX=60, angleY=30, zScale='linear',xLabel=No
 
 if __name__=="__main__":
     #testing simple 2d plot - OK
+    '''
     start=0
     end=3000
     data=pl.arange(0,1000)
     plotRange=pl.linspace(start,end,len(data))
     multiplePlots2d(plotRange,data,yScale='log',xLabel='x',yLabel='y', title='test')
-    
+    '''
     #testing multiple 2d Plots - OK
+    '''
     data=[range(10), range(40,100), pl.arange(.1,1,.1)]
     plotRanges=[]
     labels=[]
+    styles=[]
     for dat in data:
         plotRanges.append(pl.linspace(dat[3],dat[-5],len(dat)))
         labels.append("test"+str(dat[0]))
-    multiplePlots2d(plotRanges, data, labels)
-    
+        styles.append('-')
+    multiplePlots2d(plotRanges, data, labels=labels, styles=styles)
+    '''
     #testing 3d plots - OK
+    '''
     data=[range(10), range(40,100), pl.arange(.1,1,.1)]
     yRange=pl.arange(0,3)
     xRange=pl.linspace(0,100,max(map(len,data)))
     plot3d(xRange, yRange, data)
+    '''
