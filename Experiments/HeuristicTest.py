@@ -13,13 +13,13 @@ def __heuristicTester(data,threshold,b,fu,comment):
     
     #running heuristic
     res=heuristicNLP(data, threshold,b,fu,False)
-    
+    #------------------------u's-----------------------------------
     #formulating plot
     val=0.
-    plotData=[[threshold],[b]]
-    ranges=[[np.zeros_like(threshold)+val],[np.zeros_like(b)+val]]
-    labels=['threshold:'+str(threshold),'b:'+str(b)]
-    styles=['|','*']
+    plotData=[[b]]
+    ranges=[[np.zeros_like(b)+val]]
+    labels=['b:'+str(b)]
+    styles=['*']
     #appending data previous
     for d in data:
         plotData.append([d[1]])
@@ -42,10 +42,38 @@ def __heuristicTester(data,threshold,b,fu,comment):
                     title='NLP heuristic '+comment,
                     grid=False,
                     saveFlag=True,
-                    filename='b-'+str(b)+'_optimization_'+comment,
+                    filename='u_b-'+str(b)+'_optimization_'+comment,
                     showFlag=True)
     
-    
+    #----------------------------f(u)'s--------------------------------
+    plotData=[[threshold],[fu(b)]]
+    ranges=[[np.zeros_like(threshold)+val],[np.zeros_like(fu(b))+val]]
+    labels=['threshold:'+str(threshold),'f(b):'+str(fu(b))]
+    styles=['|','*']
+    #appending data previous
+    for d in data:
+        plotData.append([fu(d[1])])
+        ranges.append([np.zeros_like(fu(d[1]))+val])
+        labels.append('f('+d[0]+') prev:'+str(fu(d[1])))
+        styles.append('x')
+    #appending data after
+    for d in res:
+        plotData.append([fu(res[d])])
+        ranges.append([np.zeros_like(fu(res[d]))+val])
+        labels.append('f('+d+') after:'+str(fu(res[d])))
+        styles.append('x')
+        
+    #plotting
+    multiplePlots2d(plotRanges=plotData,
+                    data=ranges,
+                    styles=styles,
+                    labels=labels,
+                    xLabel='optimization axis',
+                    title='NLP heuristic f(u)'+comment,
+                    grid=False,
+                    saveFlag=True,
+                    filename='fu_b-'+str(b)+'_optimization_'+comment,
+                    showFlag=True)
 if __name__ == '__main__':
     
 
