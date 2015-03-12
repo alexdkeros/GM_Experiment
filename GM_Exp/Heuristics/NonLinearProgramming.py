@@ -8,13 +8,14 @@ from GM_Exp import Config
 
 
 
-def heuristicNLP(data,threshold, mean,fu):
+def heuristicNLP(data,threshold, mean,fu,plot=Config.NLPPlot):
     '''
     inputs:
-    data : list of (id,velocity) tuples
-    threshold : monitoring threshold (of function)
-    mean : constrain of data
-    fu : monitoring function
+    @param data : list of (id,velocity) tuples
+    @param threshold : monitoring threshold (of function)
+    @param mean : constrain of data
+    @param fu : monitoring function
+    @return: dict {id:optimizedVal,}
     '''
     print(data)
     
@@ -40,15 +41,14 @@ def heuristicNLP(data,threshold, mean,fu):
     fmin=min(f)
     objective=fmin('maxmin_f')
     
-    #!!! it runs without this constraint.
-    #TODO check results
     constraints.append(np.mean(x)==mean)
     
     #maxmin
     p=NLP(objective,startPoint,constraints=constraints)
+    
     #FIX wrong bounds
     #p.implicitBounds=[None,threshold]
-    r=p.maximize('ralg',plot=Config.NLPPlot)
+    r=p.maximize('ralg',plot=plot)
 
     #DBG
     print("-----------------!!!results!!!---------------------")

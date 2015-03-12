@@ -17,7 +17,14 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
-def plot2d(plotRange,data,yScale='linear',xLabel=None, yLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
+def plot2d(plotRange,data,
+           yScale='linear',
+           xLabel=None, 
+           yLabel=None, 
+           title=None, 
+           saveFlag=False, 
+           filename=None, 
+           showFlag=True):
     '''
     function plot2d:
     creates a 2d plot
@@ -59,6 +66,7 @@ def multiplePlots2d(plotRanges, data,
                     xLabel=None,
                     yLabel=None,
                     title=None, 
+                    grid=True,
                     saveFlag=False, 
                     filename=None,
                     showFlag=True):
@@ -74,6 +82,7 @@ def multiplePlots2d(plotRanges, data,
         @param xLabel: label of x axis
         @param yLabel: label of y axis
         @param title: plot title
+        @param grid: plot grid
         @param saveFlag: (boolean) save figure
         @param filename: filename to save under (no .ext required)
         @param showFlag: (boolean) show figure
@@ -92,7 +101,7 @@ def multiplePlots2d(plotRanges, data,
         else:
             axes.plot(plotRanges[i],data[i],label=(labels[i] if labels else None))
     axes.legend()
-    axes.grid(True)
+    axes.grid(grid)
     axes.set_xlim([min(i[0] for i in plotRanges), max(i[-1] for i in plotRanges)])
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
@@ -109,7 +118,17 @@ def multiplePlots2d(plotRanges, data,
         time.sleep(5)
         
         
-def plot3d(xRange, yRange, data, angleX=60, angleY=30, zScale='linear',xLabel=None, yLabel=None, zLabel=None, title=None, saveFlag=False, filename=None, showFlag=True):
+def plot3d(xRange, yRange, data, 
+           angleX=60, 
+           angleY=30, 
+           zScale='linear',
+           xLabel=None, 
+           yLabel=None, 
+           zLabel=None, 
+           title=None, 
+           saveFlag=False, 
+           filename=None, 
+           showFlag=True):
     '''
     function plot3d:
     creates a 3d plot
