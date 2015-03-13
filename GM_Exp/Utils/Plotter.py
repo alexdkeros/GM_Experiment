@@ -5,13 +5,16 @@ import matplotlib
 #matplotlib.use('Agg')
 import time
 import random
+import itertools
 from GM_Exp.Utils import Utils
 import pylab as pl
+import numpy as np
 from matplotlib import rc
 from matplotlib import cm
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+from mpl_toolkits.axisartist.axis_artist import Ticks
 
-
+colors = itertools.cycle(['r','b','g','c', 'm', 'y', 'k'])
 
 #plotting settings
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
@@ -87,12 +90,14 @@ def multiplePlots2d(plotRanges, data,
         @param filename: filename to save under (no .ext required)
         @param showFlag: (boolean) show figure
     '''
-    if not isinstance(plotRanges, list):
+    if not any((isinstance(k,list) or isinstance(k,pl.ndarray)) for k in plotRanges):
         plotRanges=[plotRanges]
-    if not isinstance(data, list):
+    if not any((isinstance(k,list) or isinstance(k,pl.ndarray)) for k in data):
         data=[data]
     if labels and (not isinstance(labels, list)):
         labels=[labels]
+    if styles and (not isinstance(styles, list)):
+        styles=[styles]
         
     fig,axes=pl.subplots()
     for i in range(len(data)):
@@ -172,6 +177,83 @@ def plot3d(xRange, yRange, data,
         time.sleep(5)
         
         
+def __autolabel(rects,axes):
+    # attach some text labels
+        for rect in rects:
+            height = rect.get_height()
+            axes.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
+                    ha='center', va='bottom')        
+        
+def barChart(data,
+             labels=None,
+             xLabel=None,
+             yLabel=None,
+             title=None,
+             xticks=None,
+             saveFlag=False,
+             filename=None,
+             showFlag=True):
+    '''
+    function barChart:
+    creates simple bar chart
+    args:
+        @param data: array, columns=#data groups, rows=#of bars for each group
+        @param labels: data labels
+        @param xLabel: label of x axis
+        @param yLabel: label of y axis
+        @param title: plot title
+        @param saveFlag: (boolean) save figure
+        @param filename: filename to save under (no .ext required)
+        @param showFlag: (boolean) show figure
+    '''
+    if not any((isinstance(k,list) or isinstance(k,pl.ndarray)) for k in data):
+        data=[data]
+    data=pl.array(data)
+        
+    if labels and (not isinstance(labels, list)):
+        labels=[labels]
+        
+    bars=data.shape[0]
+    
+    fig, axes = pl.subplots()
+    
+    bar_width = 0.60/bars
+    
+    maxIndex=[]
+    
+    opacity = 0.4
+    
+    for i in range(bars):
+        index=pl.arange(len(data[i]))
+        maxIndex=(index if len(index)>len(maxIndex) else maxIndex)
+        rect=pl.bar(index+i*bar_width, 
+                    data[i], 
+                    bar_width,
+                    alpha=opacity,
+                    color=next(colors),
+                    label=None if i>=len(labels) else labels[i])
+        __autolabel(rect,axes)
+    
+    axes.set_ylim([0,max(max(k) for k in data)+1])
+    axes.set_xlabel(xLabel)
+    axes.set_ylabel(yLabel)
+    axes.set_title(title)
+    axes.set_xticks(maxIndex + bar_width)
+    axes.set_xticklabels(xticks)
+    axes.legend()
+
+    fig.tight_layout()
+    
+    if saveFlag:
+        if filename:
+            fig.savefig(filename+'.png')
+        else:
+            print('No filename specified,not saving')
+    if showFlag:
+        fig.show()
+        time.sleep(5)
+    
+    
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------          
@@ -187,7 +269,7 @@ if __name__=="__main__":
     '''
     #testing multiple 2d Plots - OK
     '''
-    data=[range(10), range(40,100), pl.arange(.1,1,.1)]
+    data=[pl.arange(10), pl.arange(40,100), pl.arange(.1,1,.1)]
     plotRanges=[]
     labels=[]
     styles=[]
@@ -195,7 +277,18 @@ if __name__=="__main__":
         plotRanges.append(pl.linspace(dat[3],dat[-5],len(dat)))
         labels.append("test"+str(dat[0]))
         styles.append('-')
-    multiplePlots2d(plotRanges, data, labels=labels, styles=styles)
+    print(data)
+    print(plotRanges)
+    print(labels)
+    print(styles)
+    multiplePlots2d(plotRanges, data, labels=labels,styles=styles)
+
+    '''
+    '''
+    data=range(10)
+    plotRanges=range(10)
+    labels='vlakas'
+    multiplePlots2d(plotRanges, data, labels=labels)
     '''
     #testing 3d plots - OK
     '''
@@ -203,4 +296,12 @@ if __name__=="__main__":
     yRange=pl.arange(0,3)
     xRange=pl.linspace(0,100,max(map(len,data)))
     plot3d(xRange, yRange, data)
+    '''
+    
+    #testing bar chart - OK
+    '''
+    data=[1,3,4,5]
+    labels=['two']
+    xticks=['A','B','C','D']
+    barChart(data, labels=labels,xticks=xticks)
     '''
