@@ -59,6 +59,7 @@ class Enviroment:
         #--------------------------------------------------------------------------------------------------------------------
         self.iterCounter=0
         self.avgReqsPerLv=0
+        self.totalMsgs=0
         self.reqMsgsPerIter=[]
         self.repMsgsPerIter=[]
         self.reqMsgsPerBal=[]
@@ -203,6 +204,8 @@ class Enviroment:
         
     def newMsg(self,msg,data):
         if msg=="req":
+            self.totalMsgs+=1
+            
             self.reqMsgsPerIter[-1]+=1
             
             if self.reqMsgsPerBal and self.reqMsgsPerBal[-1]==0:
@@ -211,8 +214,12 @@ class Enviroment:
                 self.reqMsgsPerBal.append(0)
                 
         elif msg=="rep":
+            self.totalMsgs+=1
+            
             self.repMsgsPerIter[-1]+=1
         elif msg=="adjSlk":
+            self.totalMsgs+=1
+            
             self.reqMsgsPerBal[-1]+=1 #counting reqsPerBalance by the num of adjSlk msgs sent
         elif msg=="globalViolation":
             if self.reqMsgsPerBal[-1]==0:
@@ -234,8 +241,17 @@ class Enviroment:
                 self.uLogs.append(node.getuLog())
             
     def getExpRes(self):
-        return {"driftVectors":self.uLogs,"avgReqsPerLv":self.avgReqsPerLv,"nodes":len(self.nodes),"iters":self.iterCounter,"repMsgsPerIter":self.repMsgsPerIter, "reqMsgsPerIter":self.reqMsgsPerIter, "lVsPerIter":self.lVsPerIter, "reqsPerBal":self.reqMsgsPerBal, "balancingVectors":self.balancingVectors, "remainingDist":self.remainingDist}
-
+        return {"driftVectors":self.uLogs,  #list of nodes lists
+                "avgReqsPerLv":self.avgReqsPerLv,   #float
+                "nodes":len(self.nodes)-1,    #int
+                "iters":self.iterCounter,   #int
+                "repMsgsPerIter":self.repMsgsPerIter,   #list of iters length 
+                "reqMsgsPerIter":self.reqMsgsPerIter,   #list of iters length
+                "lVsPerIter":self.lVsPerIter,   #list of iters length 
+                "reqsPerBal":self.reqMsgsPerBal,    #list 
+                "balancingVectors":self.balancingVectors,   #list of total LVs -1 length
+                "remainingDist":self.remainingDist, #list of total LVs -1 length
+                "totalMsgs":self.totalMsgs} #int
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------
@@ -313,7 +329,7 @@ if __name__=="__main__":
     print(env.getExpRes())
     '''
     #incremental cumulative balance test - OK
-    
+    '''
     nodeNum=5
     env=Enviroment(balancing='incrementalCumulative',
                    nodeNum=nodeNum,
@@ -326,4 +342,4 @@ if __name__=="__main__":
     env.runSimulation()
     print('----------------------------results-----------------------------------')
     print(env.getExpRes())
-    
+    '''

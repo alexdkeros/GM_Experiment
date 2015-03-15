@@ -132,7 +132,7 @@ class InputStreamFactory:
         @param streams: number of streams
         @param normalize: mean steam velocities to specified mean
         @param filename: filename to save DataSet
-        @return: created Dataset, dict {"iterations":, "streams":, "velocities":, "updates":}
+        @return: created Dataset, dict {"normalize":,"iterations":, "streams":, "velocities":, "updates":,"lambdaVel":, "meanDistr":, "stdDistr":}
         '''
         streamFetcher=self.getInputStream()
         #creating Streams
@@ -147,7 +147,14 @@ class InputStreamFactory:
             for stream in streams:
                 stream.next()
         
-        dataset={"iterations":iterations, "streams":len(streams),"velocities":self.getVelocityLogs(),"updates":self.getDataUpdateLogs()}
+        dataset={"iterations":iterations, 
+                 "streams":len(streams),
+                 "velocities":self.getVelocityLogs(),
+                 "updates":self.getDataUpdateLogs(),
+                 "lambdaVel":self.lambdaVel,
+                 "meanDistr":(self.meanN.mean(),self.meanN.std()),
+                 "stdDistr":(self.stdN.mean(),self.stdN.std()),
+                 "normalizing":normalize}
         if filename:
             pickle.dump(dataset, open(filename+".p","wb"))
         return dataset

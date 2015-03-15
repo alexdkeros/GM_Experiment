@@ -60,7 +60,7 @@ def plot2d(plotRange,data,
     if showFlag:
         fig.show()
         time.sleep(5)
-        
+    pl.close()
         
 def multiplePlots2d(plotRanges, data, 
                     labels=None, 
@@ -121,7 +121,7 @@ def multiplePlots2d(plotRanges, data,
     if showFlag:
         fig.show()
         time.sleep(5)
-        
+    pl.close()
         
 def plot3d(xRange, yRange, data, 
            angleX=60, 
@@ -175,7 +175,7 @@ def plot3d(xRange, yRange, data,
     if showFlag:
         fig.show()
         time.sleep(5)
-        
+    pl.close()
         
 def __autolabel(rects,axes):
     # attach some text labels
@@ -252,7 +252,7 @@ def barChart(data,
     if showFlag:
         fig.show()
         time.sleep(5)
-    
+    pl.close()
     
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
@@ -299,9 +299,9 @@ if __name__=="__main__":
     '''
     
     #testing bar chart - OK
-    '''
+    
     data=[1,3,4,5]
     labels=['two']
     xticks=['A','B','C','D']
     barChart(data, labels=labels,xticks=xticks)
-    '''
+    

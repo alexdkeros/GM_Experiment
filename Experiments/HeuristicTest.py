@@ -41,7 +41,7 @@ def __heuristicTester(data,threshold,b,fu,comment):
                     xLabel='optimization axis',
                     title='NLP heuristic '+comment,
                     grid=False,
-                    saveFlag=True,
+                    saveFlag=False,
                     filename='u_b-'+str(b)+'_optimization_'+comment,
                     showFlag=True)
     
