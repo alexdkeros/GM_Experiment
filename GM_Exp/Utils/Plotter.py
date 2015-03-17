@@ -202,6 +202,7 @@ def barChart(data,
         @param xLabel: label of x axis
         @param yLabel: label of y axis
         @param title: plot title
+        @param xticks: x axis ticks
         @param saveFlag: (boolean) save figure
         @param filename: filename to save under (no .ext required)
         @param showFlag: (boolean) show figure

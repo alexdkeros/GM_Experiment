@@ -60,6 +60,7 @@ class Enviroment:
         self.iterCounter=0
         self.avgReqsPerLv=0
         self.totalMsgs=0
+        self.totalLVs=0
         self.reqMsgsPerIter=[]
         self.repMsgsPerIter=[]
         self.reqMsgsPerBal=[]
@@ -239,7 +240,8 @@ class Enviroment:
         for node in self.nodes.values():
             if node.getId()!="Coord":
                 self.uLogs.append(node.getuLog())
-            
+        self.totalLVs=sum(self.lVsPerIter)
+        
     def getExpRes(self):
         return {"driftVectors":self.uLogs,  #list of nodes lists
                 "avgReqsPerLv":self.avgReqsPerLv,   #float
@@ -251,7 +253,8 @@ class Enviroment:
                 "reqsPerBal":self.reqMsgsPerBal,    #list 
                 "balancingVectors":self.balancingVectors,   #list of total LVs -1 length
                 "remainingDist":self.remainingDist, #list of total LVs -1 length
-                "totalMsgs":self.totalMsgs} #int
+                "totalMsgs":self.totalMsgs, #int
+                "totalLVs":self.totalLVs}   #int
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------
