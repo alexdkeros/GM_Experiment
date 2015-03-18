@@ -102,7 +102,7 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
     barChart([classicRes,heuristicRes],
              labels=["classic","heuristic"],
              xLabel="datasets",
-             yLabel="messages",
+             yLabel=plotVal,
              title=plotVal,
              xticks=keys,
              saveFlag=saveFlag,
@@ -152,10 +152,6 @@ if __name__ == '__main__':
                 
                 
                 
-                
-                
-                
-                
                 #plotting dataset specific experiments
                 
                 #drift vectors plot
@@ -163,9 +159,9 @@ if __name__ == '__main__':
                                 res["classic"]["driftVectors"],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
-                                title="drift vectors of classic balance for f="+functionNames[i]+" thresh="+threshold,
+                                title="drift vectors of classic balance for f="+functionNames[i]+" thresh="+str(threshold),
                                 saveFlag=conf.saveFlag,
-                                filename="./"+pureName+"/"+"classic_drifts_f-"+functionNames[i]+"_thresh-"+threshold,
+                                filename="./"+pureName+"/"+"classic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
                 multiplePlots2d([np.arange(res["heuristic"]["iters"])]*res["heuristic"]["nodes"],

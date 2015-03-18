@@ -92,7 +92,7 @@ balancing="heuristic"
 defCumulationFactor=defNodeNum/5
 
 #NLP
-NLPPlot=True
+NLPPlot=False
 
 #plotting
 showFlag=True
