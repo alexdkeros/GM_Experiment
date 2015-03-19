@@ -216,9 +216,9 @@ def barChart(data,
         
     bars=data.shape[0]
     
-    fig, axes = pl.subplots()
+    fig, axes = pl.subplots(figsize=(16,14))
     
-    bar_width = 0.60/bars
+    bar_width = 0.85/bars
     
     maxIndex=[]
     
@@ -240,7 +240,7 @@ def barChart(data,
     axes.set_ylabel(yLabel)
     axes.set_title(title)
     axes.set_xticks(maxIndex + bar_width)
-    axes.set_xticklabels(xticks)
+    axes.set_xticklabels(xticks,rotation=75)
     axes.legend()
 
     fig.tight_layout()

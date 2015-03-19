@@ -115,9 +115,10 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
     
 if __name__ == '__main__':
     #params
-    thresholds=[100]
-    monitoringFunctions=[lambda x:x]#, lambda x:x**2]
-    functionNames=["x"]#, "x2"]
+    thresholds=conf.thresholds
+    monitoringFunctions=conf.monitoringFunctions
+    functionNames=conf.functionNames
+    
     
     #load dataset
     print("---LOADING DATASETS---")
@@ -135,7 +136,7 @@ if __name__ == '__main__':
                       pureName,
                       conf.saveFlag,
                       conf.showFlag)
-        
+     
         
     #running experiments
     for threshold in thresholds:
@@ -197,36 +198,37 @@ if __name__ == '__main__':
                 
                 
             
-        #plotting experiments
-        #datasetRes={"dataset":{"classic":{},"heuristic":{}}
+            #plotting experiments
+            #datasetRes={"dataset":{"classic":{},"heuristic":{}}
+                
+            if not os.path.exists(functionNames[i]):
+                os.makedirs(functionNames[i]) 
             
-        if not os.path.exists(functionNames[i]):
-            os.makedirs(functionNames[i]) 
-        
-        #total messages bar chart
-        __barChartPlots(datasetRes,
-                        "totalMsgs",
-                        "./"+functionNames[i]+"/totalMsgs_thresh-"+str(threshold),
-                        conf.saveFlag,
-                        conf.showFlag)
-        
-        #total LVs bar chart
-        __barChartPlots(datasetRes,
-                        "totalLVs",
-                        "./"+functionNames[i]+"/totalLVs_thresh-"+str(threshold),
-                        conf.saveFlag,
-                        conf.showFlag)
-        
-        #avgReqsPerLV bar chart
-        __barChartPlots(datasetRes,
-                        "avgReqsPerLv",
-                        "./"+functionNames[i]+"/avgReqsPerLv_thresh-"+str(threshold),
-                        conf.saveFlag,
-                        conf.showFlag)
-        
-        #iters bar chart
-        __barChartPlots(datasetRes,
-                        "iters",
-                        "./"+functionNames[i]+"/iters_thresh-"+str(threshold),
-                        conf.saveFlag,
-                        conf.showFlag)
+            
+            #total messages bar chart
+            __barChartPlots(datasetRes,
+                            "totalMsgs",
+                            "./"+functionNames[i]+"/totalMsgs_thresh-"+str(threshold),
+                            conf.saveFlag,
+                            conf.showFlag)
+            
+            #total LVs bar chart
+            __barChartPlots(datasetRes,
+                            "totalLVs",
+                            "./"+functionNames[i]+"/totalLVs_thresh-"+str(threshold),
+                            conf.saveFlag,
+                            conf.showFlag)
+            
+            #avgReqsPerLV bar chart
+            __barChartPlots(datasetRes,
+                            "avgReqsPerLv",
+                            "./"+functionNames[i]+"/avgReqsPerLv_thresh-"+str(threshold),
+                            conf.saveFlag,
+                            conf.showFlag)
+            
+            #iters bar chart
+            __barChartPlots(datasetRes,
+                            "iters",
+                            "./"+functionNames[i]+"/iters_thresh-"+str(threshold),
+                            conf.saveFlag,
+                            conf.showFlag)
