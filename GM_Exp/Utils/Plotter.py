@@ -235,7 +235,7 @@ def barChart(data,
                     label=None if i>=len(labels) else labels[i])
         __autolabel(rect,axes)
     
-    axes.set_ylim([0,max(max(k) for k in data)+1])
+    axes.set_ylim([0,max(max(k) for k in data)*1.5])
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
     axes.set_title(title)

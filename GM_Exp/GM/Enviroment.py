@@ -300,7 +300,7 @@ if __name__=="__main__":
     stdDistr=(4,1)
     streamNormalizing=True
     #once cumulative balance test - OK
-    '''
+    
     nodeNum=6
     env=Enviroment(balancing='onceCumulative',
                    cumulationFactor=3,
@@ -314,7 +314,7 @@ if __name__=="__main__":
     env.runSimulation()
     print('----------------------------results-----------------------------------')
     print(env.getExpRes())
-    '''
+    
     #static cumulative balance test - OK
     '''
     nodeNum=9

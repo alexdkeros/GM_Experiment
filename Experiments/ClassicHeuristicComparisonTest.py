@@ -96,6 +96,7 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
         @param saveFlag: boolean
         @param showFlag: boolean
     '''
+
     keys=datasetRes.keys()
     classicRes=[datasetRes[key]["classic"][plotVal] for key in keys]
     heuristicRes=[datasetRes[key]["heuristic"][plotVal] for key in keys]
@@ -104,7 +105,7 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
              xLabel="datasets",
              yLabel=plotVal,
              title=plotVal,
-             xticks=keys,
+             xticks=[key.replace("_"," ") for key in keys],
              saveFlag=saveFlag,
              filename=filename,
              showFlag=showFlag
@@ -115,8 +116,8 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
 if __name__ == '__main__':
     #params
     thresholds=[100]
-    monitoringFunctions=[lambda x:x, lambda x:x**2]
-    functionNames=["x", "x2"]
+    monitoringFunctions=[lambda x:x]#, lambda x:x**2]
+    functionNames=["x"]#, "x2"]
     
     #load dataset
     print("---LOADING DATASETS---")
@@ -128,12 +129,13 @@ if __name__ == '__main__':
         pureName=os.path.splitext(dataset)[0]
         if not os.path.exists(pureName):
             os.makedirs(pureName)    
+        
         __viewDataset(conf.dataSetFolder+"/"+dataset,
                       "./"+pureName+"/",
                       pureName,
                       conf.saveFlag,
                       conf.showFlag)
-       
+        
         
     #running experiments
     for threshold in thresholds:
@@ -150,12 +152,10 @@ if __name__ == '__main__':
                                               monitoringFunctions[i])
                 datasetRes[pureName]=res
                 
-                
-                
                 #plotting dataset specific experiments
                 
                 #drift vectors plot
-                multiplePlots2d([np.arange(res["classic"]["iters"])]*res["classic"]["nodes"],
+                multiplePlots2d([np.arange(len(ar)) for ar in res["classic"]["driftVectors"]],
                                 res["classic"]["driftVectors"],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
@@ -164,24 +164,24 @@ if __name__ == '__main__':
                                 filename="./"+pureName+"/"+"classic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
-                multiplePlots2d([np.arange(res["heuristic"]["iters"])]*res["heuristic"]["nodes"],
+                multiplePlots2d([np.arange(len(ar)) for ar in res["heuristic"]["driftVectors"]],
                                 res["heuristic"]["driftVectors"],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
-                                title="drift vectors of heuristic balance for f="+functionNames[i]+" thresh="+threshold,
+                                title="drift vectors of heuristic balance for f="+functionNames[i]+" thresh="+str(threshold),
                                 saveFlag=conf.saveFlag,
-                                filename="./"+pureName+"/"+"heuristic_drifts_f-"+functionNames[i]+"_thresh-"+threshold,
+                                filename="./"+pureName+"/"+"heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
                 #remaining distance plot
-                multiplePlots2d([np.arange(res["classic"]["iters"]),np.arange(res["heuristic"]["iters"])],
+                multiplePlots2d([np.arange(res["classic"]["totalLVs"]),np.arange(res["heuristic"]["totalLVs"])],
                                 [res["classic"]["remainingDist"],res["heuristic"]["remainingDist"]],
                                 labels=["classic","heuristic"],
-                                xLabel="iterations",
-                                yLable="distance",
-                                title="remaining distance for f="+functionNames[i]+" thresh="+threshold,
+                                xLabel="local violations",
+                                yLabel="distance",
+                                title="remaining distance for f="+functionNames[i]+" thresh="+str(threshold),
                                 saveFlag=conf.saveFlag,
-                                filename="./"+pureName+"/"+"rem_dist_f-"+functionNames[i]+"_thresh-"+threshold,
+                                filename="./"+pureName+"/"+"rem_dist_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
                 #lvs per iter plot
@@ -189,10 +189,10 @@ if __name__ == '__main__':
                                 [res["classic"]["lVsPerIter"],res["heuristic"]["lVsPerIter"]],
                                 labels=["classic","heuristic"],
                                 xLabel="iterations",
-                                yLable="local violations",
-                                title="local violations per iteration for f="+functionNames[i]+" thresh="+threshold,
+                                yLabel="local violations",
+                                title="local violations per iteration for f="+functionNames[i]+" thresh="+str(threshold),
                                 saveFlag=conf.saveFlag,
-                                filename="./"+pureName+"/"+"lvs_per_iter_f-"+functionNames[i]+"_thresh-"+threshold,
+                                filename="./"+pureName+"/"+"lvs_per_iter_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
                 
@@ -206,28 +206,27 @@ if __name__ == '__main__':
         #total messages bar chart
         __barChartPlots(datasetRes,
                         "totalMsgs",
-                        "./"+functionNames[i]+"/totalMsgs_thresh-"+threshold,
+                        "./"+functionNames[i]+"/totalMsgs_thresh-"+str(threshold),
                         conf.saveFlag,
                         conf.showFlag)
         
         #total LVs bar chart
         __barChartPlots(datasetRes,
                         "totalLVs",
-                        "./"+functionNames[i]+"/totalLVs_thresh-"+threshold,
+                        "./"+functionNames[i]+"/totalLVs_thresh-"+str(threshold),
                         conf.saveFlag,
                         conf.showFlag)
         
         #avgReqsPerLV bar chart
         __barChartPlots(datasetRes,
                         "avgReqsPerLv",
-                        "./"+functionNames[i]+"/avgReqsPerLv_thresh-"+threshold,
+                        "./"+functionNames[i]+"/avgReqsPerLv_thresh-"+str(threshold),
                         conf.saveFlag,
                         conf.showFlag)
         
         #iters bar chart
         __barChartPlots(datasetRes,
                         "iters",
-                        "./"+functionNames[i]+"/iters_thresh-"+threshold,
+                        "./"+functionNames[i]+"/iters_thresh-"+str(threshold),
                         conf.saveFlag,
                         conf.showFlag)
-        

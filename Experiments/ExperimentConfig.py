@@ -5,6 +5,6 @@ Experiments configuration parameters
 '''
 
 #classic heuristic comparison test
-saveFlag=False
-showFlag=True
+saveFlag=True
+showFlag=False
 dataSetFolder="./test_datasets"
