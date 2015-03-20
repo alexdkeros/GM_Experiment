@@ -282,14 +282,16 @@ if __name__=="__main__":
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
     '''
     #dataset import test - OK
-    '''
-    env=Enviroment(balancing='heuristic',
+    
+    
+    env=Enviroment(balancing='staticCumulative',
+                   cumulationFactor=10,
                    threshold=100,
-                   monitoringFunction=lambda x:x**2,
-                   dataSetFile='/home/ak/git/GM_Experiment/GM_Exp/DataStream/datasetTest.p')
+                   monitoringFunction=lambda x:x,
+                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-30_m-10_std-10.p')
     env.runSimulation(None)
     print(env.getExpRes())
-    '''
+    
     
     #cumulative balances tests
     
@@ -300,7 +302,7 @@ if __name__=="__main__":
     stdDistr=(4,1)
     streamNormalizing=True
     #once cumulative balance test - OK
-    
+    '''
     nodeNum=6
     env=Enviroment(balancing='onceCumulative',
                    cumulationFactor=3,
@@ -314,7 +316,7 @@ if __name__=="__main__":
     env.runSimulation()
     print('----------------------------results-----------------------------------')
     print(env.getExpRes())
-    
+    '''
     #static cumulative balance test - OK
     '''
     nodeNum=9

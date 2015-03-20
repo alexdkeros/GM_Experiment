@@ -405,7 +405,7 @@ class Coordinator(Node):
             at each Coordinator's request for balancing collect self.cumulativeFactor nodes at once
         '''
         self.balancingSet.add((sender,)+dat)    
-        if len(self.balancingSet)%self.cumulationFactor==1 or len(self.balancingSet)==len(self.nodes):
+        if len(self.balancingSet)%self.cumulationFactor==1 or len(self.balancingSet)==len(self.nodes) or self.cumulationFactor==1:
             self.balance()
     
     

@@ -7,11 +7,11 @@ from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory
 
 if __name__ == '__main__':
     
-    iterations=10000
+    iterations=20000
     
     datal=[0,0.5,1] #lambda
-    dataNodes=[2,3,5,10,20,30] #nodes
-    dataMeanDist=[(1,1),(10,10)] #mean distribution
+    dataNodes=[20,30] #nodes 2,3,5,10,
+    dataMeanDist=[(2,1),(10,10)] #mean distribution
     dataStdDist=[(0,1),(10,10)] #std distribution
     
     for l in datal:
