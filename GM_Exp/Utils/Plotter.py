@@ -261,10 +261,11 @@ def barChart(data,
 
 if __name__=="__main__":
     #testing simple 2d plot - OK
-    
-    range=[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8]
-    dataa=[1,1,2,2,3,3,4,5,7,7,8,8,9,14,34,34,35,35]
-    plot2d(range, dataa,saveFlag=False, showFlag=True)
+    import decimal
+    range=map(decimal.Decimal,map(str,[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8]))
+    dataa=map(decimal.Decimal,map(str,[1,1,2,2,3,3,4,5,7,7,8,8,9,14,34,34,35,35]))
+    #plot2d(range, dataa,saveFlag=False, showFlag=True)
+    plot2d(map(float,range), map(float,dataa),saveFlag=False, showFlag=True)
     
     '''
     start=0

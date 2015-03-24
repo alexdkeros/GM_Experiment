@@ -3,6 +3,7 @@
 '''
 from __future__ import division
 import numpy as np
+import decimal
 
 
 def avgListsOverIters(array2d):
@@ -34,32 +35,77 @@ def toNdArray(array2d):
     else:
         return array2d
 
+def dec(data):
+    '''
+    @param data: data to convert to decimal
+    @return decimal representation of data
+    '''
+    if isinstance(data, list) or isinstance(data,np.ndarray):
+        return list(dec(d) for d in data) if isinstance(data,list) else np.array([dec(d) for d in data]) 
+    else:
+        return decimal.Decimal(str(data))
+        
 
-if __name__=='__main__':
-    l=[[5,543,3,2],[5]]
-    print(l)
-    #l=[np.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.]), np.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  1.5,  2. ]), np.array([ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.5,  0. ,  1.5,  3. ,
-    #    1. ])]
-    print(avgListsOverIters(l))
-    #l=[range(10),range(5,16),range(20,30)]
-    ##print(l)
-    #f=avgListsOverIters(l)
-    #print(np.shape(f))
-    ##print(f)
-    #print("----------")
-    #g=[[0, 0, 0, 0, 0, 0, 0,0,0, 0, 4], [0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2]]
-    #print(g)
-    #h=avgListsOverIters(g)
-    #print(np.shape(h))
-    #print(h)
-    #print("------------")
-    #print(toNdArray(l))
-    #print(toNdArray(g))
-    # print(toNdArray(l))
-    # print('------------')
-    # print(np.shape(l))
-    # print(np.array(l))
-    # f=avgListsOverIters(l)
-    # print(np.shape(f))
-    # print(f)
+def deDec(data):
+    '''
+    @param data: data to de-convert from decimal
+    @return decoded data, float
+    '''
+    if isinstance(data, list) or isinstance(data,np.ndarray):
+        return list(deDec(d) for d in data) if isinstance(data,list) else np.array([deDec(d) for d in data]) 
+    else:
+        if isinstance(data,decimal.Decimal):
+            return float(data)
+        else:
+            return data
+        
     
+if __name__=='__main__':
+    #dec function test
+    dat=4.3
+    print(dec(dat))
+    print(isinstance(dec(dat),decimal.Decimal))
+    
+    print(deDec(dec(dat)))
+    print(isinstance(deDec(dec(dat)),float))
+    
+    
+    dat=[4.3,6.5,7.3]
+    dat_dec=dec(dat)
+    print(dat_dec)
+    print([isinstance(d,decimal.Decimal) for d in dat_dec])
+    
+    print(deDec(dat_dec))
+    print([isinstance(d,float) for d in deDec(dat_dec)])
+    
+    
+    dat=np.array([4.3,6.5,7.3])
+    dat_dec=dec(dat)
+    print(dat_dec)
+    print(isinstance(dat_dec,np.ndarray))
+    print(dat_dec.shape)
+    
+    print(deDec(dat_dec))
+    
+    dat=[[4.3,6.5,7.3],[5.4,[6.7,1.2]],[44,4.3]]
+    dat_dec=dec(dat)
+    print(dat_dec)
+
+    print(deDec(dat_dec))
+    
+    dat=np.array([[4.3,6.5,7.3],[5.4,[6.7,1.2]],[44,4.3]])
+    dat_dec=dec(dat)
+    print(dat_dec)
+    print(isinstance(dat_dec,np.ndarray))
+    print(dat_dec.shape)
+    
+    print(deDec(dat_dec))
+    print(isinstance(deDec(dat_dec),np.ndarray))
+
+    dat=np.array([[4.3,6.5,7.3],[5.4,6.7,1.2],[44,4.3,0.1]])
+    dat_dec=dec(dat)
+    print(dat_dec)
+    print(isinstance(dat_dec,np.ndarray))
+    print(dat_dec.shape)
+    print(deDec(dat_dec))
+    print(isinstance(deDec(dat_dec),np.ndarray))
