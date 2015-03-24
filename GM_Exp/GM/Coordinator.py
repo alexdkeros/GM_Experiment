@@ -8,6 +8,7 @@ from GM_Exp import Config
 from GM_Exp.GM.Node import Node
 from types import StringType
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
+from GM_Exp.Utils.Utils import dec,deDec
 
 
 
@@ -49,6 +50,11 @@ class Coordinator(Node):
         
         self.e=0
         
+        #converting to decimals
+        self.threshold=dec(self.threshold)
+        self.sumW=dec(self.sumW)
+        self.e=dec(self.e)
+        
         
     '''
     ----------------------------------------------------------------------
@@ -64,8 +70,8 @@ class Coordinator(Node):
         '''
         if sender:
             self.balancingSet.add(sender)
-            w=dat[1]
-            v=dat[0]
+            w=dec(dat[1])
+            v=dec(dat[0])
             self.e+=(w*v)/self.sumW
             if len(self.balancingSet)==len(self.nodes):
                 self.balancingSet.clear()
@@ -251,13 +257,13 @@ class Coordinator(Node):
             
             bSetDict={str(nid):u for nid,v,u,vel in self.balancingSet}
             
-            results=heuristicNLP(list((str(nid),vel) for nid,v,u,vel in self.balancingSet),self.threshold,b,self.monitoringFunction)
+            results=heuristicNLP(list((str(nid),deDec(vel)) for nid,v,u,vel in self.balancingSet),deDec(self.threshold),deDec(b),self.monitoringFunction)
             
             dDelta=[]
             nodeIds=[]
             for i in results.keys():
                 nodeIds.append(uuid.UUID(i))
-                dDelta.append(self.nodes[uuid.UUID(i)]*results[i]-self.nodes[uuid.UUID(i)]*bSetDict[i])
+                dDelta.append(self.nodes[uuid.UUID(i)]*dec(results[i])-self.nodes[uuid.UUID(i)]*bSetDict[i])
                 
             #DBG
             print("Coord: balance success")

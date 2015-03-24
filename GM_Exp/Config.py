@@ -98,7 +98,9 @@ NLPPlot=False
 showFlag=True
 saveFlag=False
 
-    
+#decimal
+prec=8
+rounding="ROUND_HALF_DOWN"
 
 
         

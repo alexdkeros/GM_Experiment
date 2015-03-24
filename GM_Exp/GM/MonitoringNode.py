@@ -4,6 +4,7 @@
 import uuid
 from GM_Exp import Config
 from GM_Exp.GM.Node import Node
+from GM_Exp.Utils.Utils import dec,deDec
 
 class MonitoringNode(Node):
     '''
@@ -51,6 +52,15 @@ class MonitoringNode(Node):
         #EXP
         self.uLog=[0]
         
+        #convert to decimals
+        self.threshold=dec(self.threshold)
+        self.v=dec(self.v)
+        self.vLast=dec(self.vLast)
+        self.u=dec(self.u)
+        self.delta=dec(self.delta)
+        self.e=dec(self.e)
+        self.uLog=dec(self.uLog)
+        
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -78,7 +88,7 @@ class MonitoringNode(Node):
             "adjSlk" signal
             "adjSlk" msg received from  Coord
         '''
-        dDelta=dat
+        dDelta=dec(dat)
         
         self.delta+=dDelta  #adjusting current slack vector
         
@@ -90,7 +100,7 @@ class MonitoringNode(Node):
             "newEst" signal
             "newEst" msg received from Coord
         '''
-        self.e=dat
+        self.e=dec(dat)
         self.vLast=self.v
         self.delta=0
         
@@ -169,7 +179,7 @@ class MonitoringNode(Node):
         main Monitoring Node function
         receive, process updates
         '''
-        self.v=self.inputStream.next()
+        self.v=dec(self.inputStream.next())
         
         #EXP
         self.uLog.append(self.u)

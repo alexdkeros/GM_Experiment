@@ -8,7 +8,7 @@ import numpy as np
 import pickle
 import sys
 from GM_Exp.Utils.Plotter import multiplePlots2d
-
+from GM_Exp.Utils.Utils import dec,deDec
 
 class InputStreamFactory:
     '''
@@ -52,7 +52,11 @@ class InputStreamFactory:
         
         if dataSetFile:
             self.loadDataSet(dataSetFile)
-                                    
+        
+        #convert to decimal
+        self.lambdaVel=dec(self.lambdaVel)
+        self.initXData=dec(self.initXData)
+                                 
     def getInputStream(self):
         '''
         InputStream generator
@@ -101,7 +105,7 @@ class InputStreamFactory:
         '''
         normalizes true mean velocity of all created InputStreams to the specified mean
         '''
-        deltaV = self.meanN.mean() - self.getAvgVelocity()
+        deltaV = dec(self.meanN.mean()) - dec(self.getAvgVelocity())
         for stream in self.inputStreams:
             stream.correctVelocity(deltaV)
             
@@ -176,7 +180,7 @@ class InputStreamFactory:
 if __name__=="__main__":
     #stream fetching test - OK
     '''
-    l=0
+    l=1
     initX=0
     velMeanDist=(5,1+sys.float_info.min)
     velStdDist=(0,1+sys.float_info.min)
@@ -194,10 +198,16 @@ if __name__=="__main__":
         for i in range(10):
             print("Data:%f"%st.next())
             print("Velocity:%f"%stream.getVelocity())
+    print(factory.getVelocityLogs())
+    print(factory.getDataUpdateLogs())
     '''
-    
     #dataset generating test - OK
     '''
+    import decimal
+    decimal.getcontext().prec=Config.prec
+    decimal.getcontext().rounding=Config.rounding
+    
+    print(decimal.getcontext())
     l=0
     initX=0
     velMeanDist=(5,5+sys.float_info.min)
@@ -223,7 +233,8 @@ if __name__=="__main__":
         
     m=[]
     for i in range(len(v0)):
-        print np.mean([v0[i],v1[i],v2[i]])
+        print((v0[i],v1[i],v2[i]))
+        print dec(np.mean([v0[i],v1[i],v2[i]]))
         m.append(np.mean([v0[i],v1[i],v2[i]]))
     print("mean of means is:%f"%np.mean(m))
 

@@ -4,6 +4,7 @@
 from __future__ import division
 import numpy as np
 import decimal
+from GM_Exp import Config
 
 
 def avgListsOverIters(array2d):
@@ -62,6 +63,14 @@ def deDec(data):
     
 if __name__=='__main__':
     #dec function test
+    
+    dat=[]
+    print(dec(dat))
+    dat.append(4.5)
+    print(dat)
+    print(dec(dat))
+    print(deDec(dec(dat)))
+    
     dat=4.3
     print(dec(dat))
     print(isinstance(dec(dat),decimal.Decimal))
@@ -109,3 +118,6 @@ if __name__=='__main__':
     print(dat_dec.shape)
     print(deDec(dat_dec))
     print(isinstance(deDec(dat_dec),np.ndarray))
+    
+    dat=np.array([[4.3,6.5,7.3],[5.4,6.7,1.2],[44,4.3,0.1]])
+    print(dec(dat))

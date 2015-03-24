@@ -3,7 +3,7 @@
 '''
 from scipy.stats import norm
 import numpy as np
-
+from GM_Exp.Utils.Utils import dec,deDec
 
 
 
@@ -39,12 +39,18 @@ class InputStream:
         self.velocities=[]
         self.dataUpdates=[]
         
+        #dataset import
         if velocitiesDataSet and updatesDataSet:
             self.velocityDistr=None
             self.velocities=velocitiesDataSet
             self.dataUpdates=updatesDataSet
             
-    
+        #convert all to decimal
+        self.lambdaVel=dec(self.lambdaVel)
+        self.initXData=dec(self.initXData)
+        self.velocity=dec(self.velocity)
+        self.velocities=dec(self.velocities)
+        self.dataUpdates=dec(self.dataUpdates)
     '''
     --Getter methods
     '''
@@ -83,7 +89,7 @@ class InputStream:
         '''
         applies correction to current velocity
         '''
-        self.velocity+=deltaV
+        self.velocity+=dec(deltaV)
         
     
     '''
@@ -112,7 +118,7 @@ class InputStream:
             
             #--initial values, stream initialization
             xData=self.initXData
-            self.velocity=self.velocityDistr.rvs()
+            self.velocity=dec(self.velocityDistr.rvs())
             
             yield xData
             
@@ -126,7 +132,7 @@ class InputStream:
                 #LOG
                 self.velocities.append(self.velocity)
                 
-                self.velocity=self.lambdaVel*self.velocity+(1-self.lambdaVel)*self.velocityDistr.rvs()
+                self.velocity=self.lambdaVel*self.velocity+(dec(1)-self.lambdaVel)*dec(self.velocityDistr.rvs())
 
                 yield xData
                 
@@ -141,7 +147,7 @@ class InputStream:
 if __name__=="__main__":
     
     #NO DATASET test - OK
-    
+    '''
     l=0
     xInit=0
     mean=2.0
@@ -165,7 +171,7 @@ if __name__=="__main__":
     print("updates:")
     print(len(ist.getDataUpdatesLog()))
     print(ist.getDataUpdatesLog())
-    
+    '''
     #DATASET test - OK
     '''
     vels=[3,2,4,2,3,2,5,6,4,3,2,2,3,5,4,3,2]

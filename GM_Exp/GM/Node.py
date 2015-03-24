@@ -3,7 +3,7 @@
 '''
 import uuid
 from GM_Exp import Config
-
+from GM_Exp.Utils.Utils import dec,deDec
 
 class Node:
     '''
@@ -21,7 +21,9 @@ class Node:
         self.env=env
         self.id=nid
         self.weight=weight
-
+        
+        #convert to decimals
+        self.weight=dec(self.weight)
     
     '''
     --------------getters

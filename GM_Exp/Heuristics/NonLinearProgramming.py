@@ -7,7 +7,6 @@ import numpy as np
 from GM_Exp import Config
 
 
-
 def heuristicNLP(data,threshold, mean,fu,plot=Config.NLPPlot):
     '''
     inputs:
@@ -66,3 +65,4 @@ if __name__=='__main__':
     threshold=80
     mean=8
     heuristicNLP(data,threshold,mean,Config.defMonFunc)
+    

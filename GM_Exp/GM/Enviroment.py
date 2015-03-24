@@ -264,7 +264,7 @@ if __name__=="__main__":
     '''
     import sys
     
-    env=Enviroment(balancing="heuristic", 
+    env=Enviroment(balancing="classic", 
                    nodeNum=2, 
                    threshold=10, 
                    monitoringFunction=lambda x: x,
@@ -282,7 +282,9 @@ if __name__=="__main__":
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
     '''
     #dataset import test - OK
-    
+    import decimal
+    decimal.getcontext().prec=Config.prec
+    decimal.getcontext().rounding=Config.rounding
     
     env=Enviroment(balancing='staticCumulative',
                    cumulationFactor=10,
