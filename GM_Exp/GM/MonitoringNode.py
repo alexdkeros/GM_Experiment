@@ -49,7 +49,7 @@ class MonitoringNode(Node):
         self.inputStream=inputStream.getData()
         
         #EXP
-        self.uLog=[]
+        self.uLog=[0]
         
     '''
     ----------------------------------------------------------------------
@@ -157,8 +157,6 @@ class MonitoringNode(Node):
         '''
         performs threshold check of drift vector's function value: f(u)
         '''
-        #EXP
-        self.uLog.append(self.u)
         
         #DBG
         print('--Node %s reporting u: %f'%(self.id,self.u))
@@ -173,8 +171,13 @@ class MonitoringNode(Node):
         '''
         self.v=self.inputStream.next()
         
+        #EXP
+        self.uLog.append(self.u)
+        
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
+        #EXP
+        self.uLog.append(self.u)
     
     
         

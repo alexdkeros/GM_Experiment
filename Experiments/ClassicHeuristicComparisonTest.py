@@ -5,7 +5,9 @@ Comparison of Classic and Heuristic balancing schemes
 '''
 import os
 import pickle
+import math
 import numpy as np
+from itertools import chain
 from GM_Exp.Utils.Plotter import multiplePlots2d
 from GM_Exp.Utils.Plotter import barChart
 from GM_Exp.GM.Enviroment import Enviroment
@@ -156,7 +158,7 @@ if __name__ == '__main__':
                 #plotting dataset specific experiments
                 
                 #drift vectors plot
-                multiplePlots2d([np.arange(len(ar)) for ar in res["classic"]["driftVectors"]],
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for ar in res["classic"]["driftVectors"]],
                                 res["classic"]["driftVectors"],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
@@ -165,7 +167,8 @@ if __name__ == '__main__':
                                 filename="./"+pureName+"/"+"classic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
-                multiplePlots2d([np.arange(len(ar)) for ar in res["heuristic"]["driftVectors"]],
+                
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for ar in res["heuristic"]["driftVectors"]],
                                 res["heuristic"]["driftVectors"],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
@@ -175,7 +178,7 @@ if __name__ == '__main__':
                                 showFlag=conf.showFlag)
                 
                 #remaining distance plot
-                multiplePlots2d([np.arange(res["classic"]["totalLVs"]),np.arange(res["heuristic"]["totalLVs"])],
+                multiplePlots2d([np.arange(1,res["classic"]["totalLVs"]+1),np.arange(1,res["heuristic"]["totalLVs"]+1)],
                                 [res["classic"]["remainingDist"],res["heuristic"]["remainingDist"]],
                                 labels=["classic","heuristic"],
                                 xLabel="local violations",
@@ -232,3 +235,4 @@ if __name__ == '__main__':
                             "./"+functionNames[i]+"/iters_thresh-"+str(threshold),
                             conf.saveFlag,
                             conf.showFlag)
+            

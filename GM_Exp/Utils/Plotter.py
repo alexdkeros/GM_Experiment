@@ -99,7 +99,7 @@ def multiplePlots2d(plotRanges, data,
     if styles and (not isinstance(styles, list)):
         styles=[styles]
         
-    fig,axes=pl.subplots()
+    fig,axes=pl.subplots(figsize=(9,7))
     for i in range(len(data)):
         if styles:
             axes.plot(plotRanges[i],data[i],styles[i],label=(labels[i] if labels else None))
@@ -181,7 +181,7 @@ def __autolabel(rects,axes):
     # attach some text labels
         for rect in rects:
             height = rect.get_height()
-            axes.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
+            axes.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%.2f'%height,
                     ha='center', va='bottom')        
         
 def barChart(data,
@@ -261,6 +261,11 @@ def barChart(data,
 
 if __name__=="__main__":
     #testing simple 2d plot - OK
+    
+    range=[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8]
+    dataa=[1,1,2,2,3,3,4,5,7,7,8,8,9,14,34,34,35,35]
+    plot2d(range, dataa,saveFlag=False, showFlag=True)
+    
     '''
     start=0
     end=3000
@@ -300,9 +305,9 @@ if __name__=="__main__":
     '''
     
     #testing bar chart - OK
-    
+    '''
     data=[1,3,4,5]
     labels=['two']
     xticks=['A','B','C','D']
     barChart(data, labels=labels,xticks=xticks)
-    
+    '''

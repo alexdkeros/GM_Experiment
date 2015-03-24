@@ -25,13 +25,13 @@ def __heuristicTester(data,threshold,b,fu,comment):
         plotData.append([d[1]])
         ranges.append([np.zeros_like(d[1])+val])
         labels.append(d[0]+' prev:'+str(d[1]))
-        styles.append('x')
+        styles.append('o')
     #appending data after
     for d in res:
         plotData.append([res[d]])
         ranges.append([np.zeros_like(res[d])+val])
         labels.append(d+' after:'+str(res[d]))
-        styles.append('x')
+        styles.append('s')
         
     #plotting
     multiplePlots2d(plotRanges=plotData,
@@ -41,9 +41,9 @@ def __heuristicTester(data,threshold,b,fu,comment):
                     xLabel='optimization axis',
                     title='NLP heuristic '+comment,
                     grid=False,
-                    saveFlag=False,
+                    saveFlag=True,
                     filename='u_b-'+str(b)+'_optimization_'+comment,
-                    showFlag=True)
+                    showFlag=False)
     
     #----------------------------f(u)'s--------------------------------
     plotData=[[threshold],[fu(b)]]
@@ -55,13 +55,13 @@ def __heuristicTester(data,threshold,b,fu,comment):
         plotData.append([fu(d[1])])
         ranges.append([np.zeros_like(fu(d[1]))+val])
         labels.append('f('+d[0]+') prev:'+str(fu(d[1])))
-        styles.append('x')
+        styles.append('o')
     #appending data after
     for d in res:
         plotData.append([fu(res[d])])
         ranges.append([np.zeros_like(fu(res[d]))+val])
         labels.append('f('+d+') after:'+str(fu(res[d])))
-        styles.append('x')
+        styles.append('s')
         
     #plotting
     multiplePlots2d(plotRanges=plotData,
@@ -73,7 +73,7 @@ def __heuristicTester(data,threshold,b,fu,comment):
                     grid=False,
                     saveFlag=True,
                     filename='fu_b-'+str(b)+'_optimization_'+comment,
-                    showFlag=True)
+                    showFlag=False)
 if __name__ == '__main__':
     
 
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     #data=[(id,velocity),]
     data=[('dat1',4),
           ('dat2',12)]
-    threshold=10
+    threshold=50
     b=np.mean([j for i,j in data])
     fu=lambda x:x**2
     
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     data=[('dat1',4),
           ('dat2',12),
           ('dat3',7.4)]
-    threshold=10
+    threshold=50
     b=np.mean([j for i,j in data])
     fu=lambda x:x**2
     

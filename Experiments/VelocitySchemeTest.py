@@ -62,7 +62,7 @@ def __velSchemeShower(meanDistr,stdDistr,initX,iters,streamsNum,l,normalizing,co
 if __name__ == '__main__':
     
     
-    streamsNum=3
+    streamsNum=2
     
     #l=0
     __velSchemeShower(meanDistr=(5,5),
