@@ -399,6 +399,100 @@ class Coordinator(Node):
                 
                 self.globalViolation()
                 
+                
+    '''
+    ------HEURISTIC ONCE CUMULATIVE balance-------
+    '''
+    
+    def heuristicOnceCumulativeRep(self,dat,sender):
+        '''
+            "rep" signal for once cumulative balancing
+            an Coordinator's node request for balancing collect self.cumulativeFactor nodes the first time of each LV
+                resolution, then one at a time
+        '''
+        self.balancingSet.add((sender,)+dat)  
+        if not (1<len(self.balancingSet)<self.cumulationFactor+1) or len(self.balancingSet)==len(self.nodes):
+            self.balance()
+    
+    
+    
+    def heuristicOnceCumulativeBalance(self):
+        '''
+        balance method requesting self.cumulationFactor random nodes for the first balance of a LV
+        '''
+        b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        
+        
+        #DBG
+        if len(self.balancingSet)==1:
+            print("Coord:LOCAL VIOLATION")
+        else:
+            print("balancing set is:")
+            print(self.balancingSet)
+        print("Coord: balance vector is: %f, threshold is %f"%(b,self.threshold))
+        
+        if self.monitoringFunction(b)<self.threshold:
+            #----------------------------------------------------------------
+            #SUCESSfull balancing
+            #----------------------------------------------------------------
+            
+            bSetDict={str(nid):u for nid,v,u,vel in self.balancingSet}
+            
+            results=heuristicNLP(list((str(nid),deDec(vel)) for nid,v,u,vel in self.balancingSet),deDec(self.threshold),deDec(b),self.monitoringFunction)
+            
+            dDelta=[]
+            nodeIds=[]
+            for i in results.keys():
+                nodeIds.append(uuid.UUID(i))
+                dDelta.append(self.nodes[uuid.UUID(i)]*dec(results[i])-self.nodes[uuid.UUID(i)]*bSetDict[i])
+            
+            #DBG
+            print("Coord: balance success")
+            print("dDelta:")
+            print(dDelta)
+            
+            #EXP - log balancing vector
+            self.send(None, "balancingVector", b)
+            
+            self.balancingSet.clear()
+
+            self.adjSlk(nodeIds, dDelta)
+                    
+        else:
+            #-----------------------------------------------------------------
+            #FAILed balancing
+            #-----------------------------------------------------------------
+            diffSet=set(self.nodes.keys())-set(i for i,v,u,vel in self.balancingSet)
+            
+            if len(diffSet): #i.e. len(balancingSet)!=len(nodes)
+                
+                if len(self.balancingSet)==1 and len(diffSet)>=self.cumulationFactor:   #first time in balacing method, just received LV msg
+                    reqNodeId=random.sample(diffSet,self.cumulationFactor)
+                else:
+                    reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random
+                
+                self.req(reqNodeId)
+            
+            else:
+                #----------------
+                #Global Violation
+                #----------------
+                vGl=sum(v*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
+                uGl=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                
+                #EXP - log balancing vector
+                self.send(None, "balancingVector", b)
+                
+                #DBG
+                print("Coord: GLOBAL VIOLATION:v=%f,u=%f,f(v)=%f"%(vGl,uGl,self.monitoringFunction(vGl)))
+                
+                self.e=vGl
+                
+                self.balancingSet.clear()
+                
+                #self.newEst()
+                
+                self.globalViolation()
      
     '''
     -----------------------------------------STATIC CUMULATIVE balance----------------------------------------------
@@ -488,7 +582,98 @@ class Coordinator(Node):
                 
                 self.globalViolation()
                 
+    '''
+    ------HEURISTIC STATIC CUMULATIVE balance------
+    '''
+    
+    
+    def heuristicStaticCumulativeRep(self,dat,sender):
+        '''
+            "rep" signal for static cumulative balancing
+            at each Coordinator's request for balancing collect self.cumulativeFactor nodes at once
+        '''
+        self.balancingSet.add((sender,)+dat)    
+        if len(self.balancingSet)%self.cumulationFactor==1 or len(self.balancingSet)==len(self.nodes) or self.cumulationFactor==1:
+            self.balance()
+    
+    
+    
+    def heuristicStaticCumulativeBalance(self):
+        '''
+        balance method requesting self.cumulationFactor random nodes at each request
+        '''
+        b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        
+        
+        #DBG
+        if len(self.balancingSet)==1:
+            print("Coord:LOCAL VIOLATION")
+        else:
+            print("balancing set is:")
+            print(self.balancingSet)
+        print("Coord: balance vector is: %f, threshold is %f"%(b,self.threshold))
+        
+        if self.monitoringFunction(b)<self.threshold:
+            #----------------------------------------------------------------
+            #SUCESSfull balancing
+            #----------------------------------------------------------------
+            
+            bSetDict={str(nid):u for nid,v,u,vel in self.balancingSet}
+            
+            results=heuristicNLP(list((str(nid),deDec(vel)) for nid,v,u,vel in self.balancingSet),deDec(self.threshold),deDec(b),self.monitoringFunction)
+            
+            dDelta=[]
+            nodeIds=[]
+            for i in results.keys():
+                nodeIds.append(uuid.UUID(i))
+                dDelta.append(self.nodes[uuid.UUID(i)]*dec(results[i])-self.nodes[uuid.UUID(i)]*bSetDict[i])
+            
+            #DBG
+            print("Coord: balance success")
+            print("dDelta:")
+            print(dDelta)
+            
+            #EXP - log balancing vector
+            self.send(None, "balancingVector", b)
+            
+            self.balancingSet.clear()
+
+            self.adjSlk(nodeIds, dDelta)
+                    
+        else:
+            #-----------------------------------------------------------------
+            #FAILed balancing
+            #-----------------------------------------------------------------
+            diffSet=set(self.nodes.keys())-set(i for i,v,u,vel in self.balancingSet)
+            
+            if len(diffSet): #i.e. len(balancingSet)!=len(nodes)
+                if len(diffSet)>=self.cumulationFactor:
+                    reqNodeId=random.sample(diffSet,self.cumulationFactor)
+                else:
+                    reqNodeId=random.sample(diffSet,len(diffSet))
+            
+                self.req(reqNodeId)
+            
+            else:
+                #----------------
+                #Global Violation
+                #----------------
+                vGl=sum(v*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
+                uGl=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
                 
+                #EXP - log balancing vector
+                self.send(None, "balancingVector", b)
+                
+                #DBG
+                print("Coord: GLOBAL VIOLATION:v=%f,u=%f,f(v)=%f"%(vGl,uGl,self.monitoringFunction(vGl)))
+                
+                self.e=vGl
+                
+                self.balancingSet.clear()
+                
+                #self.newEst()
+                
+                self.globalViolation()
     
     '''
     -----------------------------------------INCREMENTAL CUMULATIVE balance-----------------------------------------
@@ -578,7 +763,101 @@ class Coordinator(Node):
                 
                 self.globalViolation()
 
+    '''
+    ------HEURISTIC INCREMENTAL CUMULATIVE balance------
+    '''
+    
+    def heuristicIncrementalCumulativeRep(self,dat,sender):
+        '''
+            "rep" signal for incremental cumulative balancing
+            at each Coordinator's request for balancing collect 2x nodes each time
+        '''
+        self.balancingSet.add((sender,)+dat)
+        if log(len(self.balancingSet),2).is_integer() or len(self.balancingSet)==len(self.nodes):   
+            self.balance()
+    
+    
+    
+    def heuristicIncrementalCumulativeBalance(self):
+        '''
+        balance method requesting 2x nodes each time for balancing
+        '''
+        b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        
+        
+        #DBG
+        if len(self.balancingSet)==1:
+            print("Coord:LOCAL VIOLATION")
+        else:
+            print("balancing set is:")
+            print(self.balancingSet)
+        print("Coord: balance vector is: %f, threshold is %f"%(b,self.threshold))
+        
+        if self.monitoringFunction(b)<self.threshold:
+            #----------------------------------------------------------------
+            #SUCESSfull balancing
+            #----------------------------------------------------------------
+            
+            bSetDict={str(nid):u for nid,v,u,vel in self.balancingSet}
+            
+            results=heuristicNLP(list((str(nid),deDec(vel)) for nid,v,u,vel in self.balancingSet),deDec(self.threshold),deDec(b),self.monitoringFunction)
+            
+            dDelta=[]
+            nodeIds=[]
+            for i in results.keys():
+                nodeIds.append(uuid.UUID(i))
+                dDelta.append(self.nodes[uuid.UUID(i)]*dec(results[i])-self.nodes[uuid.UUID(i)]*bSetDict[i])
+            
+            #DBG
+            print("Coord: balance success")
+            print("dDelta:")
+            print(dDelta)
+            
+            #EXP - log balancing vector
+            self.send(None, "balancingVector", b)
+            
+            self.balancingSet.clear()
 
+            self.adjSlk(nodeIds, dDelta)
+                    
+        else:
+            #-----------------------------------------------------------------
+            #FAILed balancing
+            #-----------------------------------------------------------------
+            diffSet=set(self.nodes.keys())-set(i for i,v,u,vel in self.balancingSet)
+            
+            if len(diffSet): #i.e. len(balancingSet)!=len(nodes)
+                
+                if len(diffSet)>=len(self.balancingSet):
+                    reqNodeId=random.sample(diffSet,len(self.balancingSet))
+                else:
+                    reqNodeId=random.sample(diffSet,len(diffSet))
+                
+                self.req(reqNodeId)
+            
+            else:
+                #----------------
+                #Global Violation
+                #----------------
+                vGl=sum(v*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
+                uGl=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                
+                #EXP - log balancing vector
+                self.send(None, "balancingVector", b)
+                
+                #DBG
+                print("Coord: GLOBAL VIOLATION:v=%f,u=%f,f(v)=%f"%(vGl,uGl,self.monitoringFunction(vGl)))
+                
+                self.e=vGl
+                
+                self.balancingSet.clear()
+                
+                #self.newEst()
+                
+                self.globalViolation()    
+                
+                
+                      
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------

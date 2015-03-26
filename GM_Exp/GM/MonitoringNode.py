@@ -124,7 +124,12 @@ class MonitoringNode(Node):
             "rep" signal
             "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
         '''
-        f=getattr(self, self.balancing+"Rep", self.classicRep)
+        if self.balancing in Config.classicBalances:
+            f=getattr(self, "classicRep", self.classicRep)
+        elif self.balancing in Config.heuristicBalances:
+            f=getattr(self, "heuristicRep", self.classicRep)
+        else:
+            f=self.classicRep
         return f()
     
     #-------------------CLASSIC BALANCING--------------------------------
@@ -135,6 +140,7 @@ class MonitoringNode(Node):
                 data is (v,u)
         '''
         self.send("Coord", "rep", (self.v,self.u))
+    
     
     #-------------------HEURISTIC BALANCING-------------------------------    
     def heuristicRep(self):

@@ -14,4 +14,11 @@ monitoringFunctions=[lambda x:x, lambda x:x**2]
 functionNames=["x", "x2"]
 
 cumulationFactors=[2,5,7,10,12,15,17]
-balTypes=["classic","heuristic","staticCumulative","onceCumulative","incrementalCumulative"]
+balTypes=["classic",
+          "staticCumulative",
+          "onceCumulative",
+          "incrementalCumulative",
+          "heuristic",
+          "heuristicOnceCumulative",
+          "heuristicStaticCumulative",
+          "heuristicIncrementalCumulative"]

@@ -282,6 +282,7 @@ if __name__=="__main__":
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
     '''
     #dataset import test - OK
+    '''
     import decimal
     decimal.getcontext().prec=Config.prec
     decimal.getcontext().rounding=Config.rounding
@@ -293,7 +294,7 @@ if __name__=="__main__":
                    dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-30_m-10_std-10.p')
     env.runSimulation(None)
     print(env.getExpRes())
-    
+    '''
     
     #cumulative balances tests
     
@@ -306,7 +307,7 @@ if __name__=="__main__":
     #once cumulative balance test - OK
     '''
     nodeNum=6
-    env=Enviroment(balancing='onceCumulative',
+    env=Enviroment(balancing='heuristicOnceCumulative',
                    cumulationFactor=3,
                    nodeNum=nodeNum,
                    threshold=threshold,
@@ -322,7 +323,7 @@ if __name__=="__main__":
     #static cumulative balance test - OK
     '''
     nodeNum=9
-    env=Enviroment(balancing='staticCumulative',
+    env=Enviroment(balancing='heuristicStaticCumulative',
                    cumulationFactor=3,
                    nodeNum=nodeNum,
                    threshold=threshold,

@@ -134,7 +134,8 @@ if __name__ == '__main__':
                          xticks=map(str,cumulationFactors),
                          saveFlag=conf.saveFlag,
                          filename="./"+pureName+"/total_msgs_cmp_f_"+functionNames[i]+pureName,
-                         showFlag=conf.showFlag)
+                         showFlag=conf.showFlag,
+                         figsize=(155,15),totalBarWidth=0.82)
                 #total lvs
                 barChart([[balRes[key][keyb]["totalLVs"] for keyb in cumulationFactors] for key in balTypes],
                          labels=balTypes,
@@ -144,7 +145,8 @@ if __name__ == '__main__':
                          xticks=map(str,cumulationFactors),
                          saveFlag=conf.saveFlag,
                          filename="./"+pureName+"/total_lvs_cmp_f_"+functionNames[i]+pureName,
-                         showFlag=conf.showFlag)
+                         showFlag=conf.showFlag,
+                         figsize=(155,15),totalBarWidth=0.82)
                 #iters
                 barChart([[balRes[key][keyb]["iters"] for keyb in cumulationFactors] for key in balTypes],
                          labels=balTypes,
@@ -154,7 +156,8 @@ if __name__ == '__main__':
                          xticks=map(str,cumulationFactors),
                          saveFlag=conf.saveFlag,
                          filename="./"+pureName+"/iters_cmp_f_"+functionNames[i]+pureName,
-                         showFlag=conf.showFlag)
+                         showFlag=conf.showFlag,
+                         figsize=(155,15),totalBarWidth=0.82)
                 #avgReqsPerLv
                 barChart([[balRes[key][keyb]["avgReqsPerLv"] for keyb in cumulationFactors] for key in balTypes],
                          labels=balTypes,
@@ -164,6 +167,7 @@ if __name__ == '__main__':
                          xticks=map(str,cumulationFactors),
                          saveFlag=conf.saveFlag,
                          filename="./"+pureName+"/avgReqsPerLv_cmp_f_"+functionNames[i]+pureName,
-                         showFlag=conf.showFlag)
+                         showFlag=conf.showFlag,
+                         figsize=(155,15),totalBarWidth=0.82)
                 
                 

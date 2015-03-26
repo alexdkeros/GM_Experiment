@@ -15,7 +15,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 from mpl_toolkits.axisartist.axis_artist import Ticks
 from scipy.io.matlab.mio5_utils import scipy
 
-colors = itertools.cycle(['r','b','g','c', 'm', 'y', 'k'])
+colors = itertools.cycle(['r','b','g','c', 'm', 'y', 'k','w'])
 
 #plotting settings
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
@@ -321,12 +321,12 @@ if __name__=="__main__":
     xticks=[]
     for i in range(170):
         xticks.append("REALLY BIG NAME GOES HERE %d"%i)
-    for i in range(2):
+    for i in range(8):
         t=[]
         for j in range(170):
             t.append(d.rvs())
         data.append(t)
     
-    labels=['two','three']
-    barChart(data, labels=labels,xticks=xticks,showFlag=False,saveFlag=True,filename='test_bar')
+    labels=['two','three','four','five','a','b','g','h']
+    barChart(data, labels=labels,xticks=xticks,showFlag=False,saveFlag=True,filename='test_bar',figsize=(155,15),totalBarWidth=0.82)
     
