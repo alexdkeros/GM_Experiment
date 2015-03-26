@@ -13,6 +13,7 @@ from matplotlib import rc
 from matplotlib import cm
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from mpl_toolkits.axisartist.axis_artist import Ticks
+from scipy.io.matlab.mio5_utils import scipy
 
 colors = itertools.cycle(['r','b','g','c', 'm', 'y', 'k'])
 
@@ -190,9 +191,11 @@ def barChart(data,
              yLabel=None,
              title=None,
              xticks=None,
+             totalBarWidth=0.5,
              saveFlag=False,
              filename=None,
-             showFlag=True):
+             showFlag=True,
+             figsize=(50,18)):
     '''
     function barChart:
     creates simple bar chart
@@ -203,9 +206,11 @@ def barChart(data,
         @param yLabel: label of y axis
         @param title: plot title
         @param xticks: x axis ticks
+        @param totalBarWidth: total width of bars in group
         @param saveFlag: (boolean) save figure
         @param filename: filename to save under (no .ext required)
         @param showFlag: (boolean) show figure
+        @param figsize: tuple, figure size
     '''
     if not any((isinstance(k,list) or isinstance(k,pl.ndarray)) for k in data):
         data=[data]
@@ -216,9 +221,9 @@ def barChart(data,
         
     bars=data.shape[0]
     
-    fig, axes = pl.subplots(figsize=(16,14))
+    fig, axes = pl.subplots(figsize=figsize)
     
-    bar_width = 0.85/bars
+    bar_width = totalBarWidth/bars
     
     maxIndex=[]
     
@@ -236,11 +241,12 @@ def barChart(data,
         __autolabel(rect,axes)
     
     axes.set_ylim([0,max(max(k) for k in data)*1.5])
+    axes.set_xlim([0,(len(maxIndex))])
     axes.set_xlabel(xLabel)
     axes.set_ylabel(yLabel)
     axes.set_title(title)
-    axes.set_xticks(maxIndex + bar_width)
-    axes.set_xticklabels(xticks,rotation=75)
+    axes.set_xticks((maxIndex) + bar_width)
+    axes.set_xticklabels(xticks,rotation=90)
     axes.legend()
 
     fig.tight_layout()
@@ -261,12 +267,13 @@ def barChart(data,
 
 if __name__=="__main__":
     #testing simple 2d plot - OK
+    '''
     import decimal
     range=map(decimal.Decimal,map(str,[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8]))
     dataa=map(decimal.Decimal,map(str,[1,1,2,2,3,3,4,5,7,7,8,8,9,14,34,34,35,35]))
     #plot2d(range, dataa,saveFlag=False, showFlag=True)
     plot2d(map(float,range), map(float,dataa),saveFlag=False, showFlag=True)
-    
+    '''
     '''
     start=0
     end=3000
@@ -306,9 +313,20 @@ if __name__=="__main__":
     '''
     
     #testing bar chart - OK
-    '''
-    data=[1,3,4,5]
-    labels=['two']
-    xticks=['A','B','C','D']
-    barChart(data, labels=labels,xticks=xticks)
-    '''
+    
+    from scipy.stats import norm
+    print("---plotting---")
+    d=norm(5,1)
+    data=[]
+    xticks=[]
+    for i in range(170):
+        xticks.append("REALLY BIG NAME GOES HERE %d"%i)
+    for i in range(2):
+        t=[]
+        for j in range(170):
+            t.append(d.rvs())
+        data.append(t)
+    
+    labels=['two','three']
+    barChart(data, labels=labels,xticks=xticks,showFlag=False,saveFlag=True,filename='test_bar')
+    

@@ -99,7 +99,7 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
         @param showFlag: boolean
     '''
 
-    keys=datasetRes.keys()
+    keys=sorted(datasetRes.keys())
     classicRes=[datasetRes[key]["classic"][plotVal] for key in keys]
     heuristicRes=[datasetRes[key]["heuristic"][plotVal] for key in keys]
     barChart([classicRes,heuristicRes],
