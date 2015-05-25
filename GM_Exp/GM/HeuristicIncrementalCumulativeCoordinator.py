@@ -15,14 +15,15 @@ from GM_Exp.Utils.Utils import dec, deDec
 
 class HeuristicIncrementalCumulativeCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with heuristic balancing scheme, collect 2x nodes each time
+    geometric monitoring, coordinator with  collect 2x nodes each time, heuristic balancing scheme
     '''
 
 
     def __init__(self,  env, nodes, 
                  nid="Coord", 
                  threshold=Config.threshold, 
-                 monitoringFunction=Config.defMonFunc):
+                 monitoringFunction=Config.defMonFunc,
+                 cumulationFactor=None):
 
         '''
         Constructor
@@ -32,7 +33,8 @@ class HeuristicIncrementalCumulativeCoordinator(Coordinator):
             ------geometric monitoring params
             @param env: networking/monitoring enviroment creating Coordinator
             @param threshold: monitoring threshold
-            @param monitoringFunction: monitoring function
+            @param monitoringFunction: monitoring function,
+            @param cumulationFactor: no role here, formating reasons only
             '''
         Coordinator.__init__(self, env, nodes, nid, threshold, monitoringFunction)
 
@@ -61,8 +63,8 @@ class HeuristicIncrementalCumulativeCoordinator(Coordinator):
     '''
     def balance(self):
         '''
-        @override
-        balance method requesting 2x nodes each time for balancing
+            @override
+            balance method requesting 2x nodes each time for balancing
         '''
         b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
         

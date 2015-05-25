@@ -102,7 +102,7 @@ class Enviroment:
                 coordObj = getattr(loaded_mod,mod_name)
                 break
             
-        coordinator=coordObj(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction)
+        coordinator=coordObj(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction, cumulationFactor=self.cumulationFactor)
         self.nodes[coordinator.getId()]=coordinator
                 
                 
@@ -276,10 +276,10 @@ class Enviroment:
             
 if __name__=="__main__":
     #running test and heuristic test - OK
-    
+    '''
     import sys
     
-    env=Enviroment(balancing="Classic", 
+    env=Enviroment(balancing="Heuristic", 
                    nodeNum=2, 
                    threshold=10, 
                    monitoringFunction=lambda x: x,
@@ -295,14 +295,14 @@ if __name__=="__main__":
     print(len(res["reqMsgsPerIter"]))
     print(len(res["lVsPerIter"]))
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
-    
+    '''
     #dataset import test - OK
     '''
     import decimal
     decimal.getcontext().prec=Config.prec
     decimal.getcontext().rounding=Config.rounding
     
-    env=Enviroment(balancing='staticCumulative',
+    env=Enviroment(balancing='ClassicStaticCumulative',
                    cumulationFactor=10,
                    threshold=100,
                    monitoringFunction=lambda x:x,
@@ -322,7 +322,7 @@ if __name__=="__main__":
     #once cumulative balance test - OK
     '''
     nodeNum=6
-    env=Enviroment(balancing='heuristicOnceCumulative',
+    env=Enviroment(balancing='HeuristicOnceCumulative',
                    cumulationFactor=3,
                    nodeNum=nodeNum,
                    threshold=threshold,
@@ -338,7 +338,7 @@ if __name__=="__main__":
     #static cumulative balance test - OK
     '''
     nodeNum=9
-    env=Enviroment(balancing='heuristicStaticCumulative',
+    env=Enviroment(balancing='HeuristicStaticCumulative',
                    cumulationFactor=3,
                    nodeNum=nodeNum,
                    threshold=threshold,
@@ -354,7 +354,7 @@ if __name__=="__main__":
     #incremental cumulative balance test - OK
     '''
     nodeNum=5
-    env=Enviroment(balancing='incrementalCumulative',
+    env=Enviroment(balancing='HeuristicIncrementalCumulative',
                    nodeNum=nodeNum,
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,

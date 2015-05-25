@@ -12,7 +12,7 @@ from GM_Exp.Utils.Utils import dec, deDec
 
 class ClassicStaticCumulativeCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with cumulate-at-LV-alert-once balancing scheme
+    geometric monitoring, coordinator with cumulate-cumulationFactor nodes each request, classic balancing scheme
     '''
 
 

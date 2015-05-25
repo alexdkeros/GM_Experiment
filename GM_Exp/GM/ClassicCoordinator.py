@@ -19,7 +19,8 @@ class ClassicCoordinator(Coordinator):
     def __init__(self,  env, nodes, 
                  nid="Coord", 
                  threshold=Config.threshold, 
-                 monitoringFunction=Config.defMonFunc):
+                 monitoringFunction=Config.defMonFunc,
+                 cumulationFactor=None):
         '''
         Constructor
         args:
@@ -29,6 +30,7 @@ class ClassicCoordinator(Coordinator):
             @param env: networking/monitoring enviroment creating Coordinator
             @param threshold: monitoring threshold
             @param monitoringFunction: monitoring function
+            @param cumulationFactor: no role here, formating reasons only
             '''
         Coordinator.__init__(self, env, nodes, nid, threshold, monitoringFunction)
     
@@ -56,8 +58,8 @@ class ClassicCoordinator(Coordinator):
     '''
     def balance(self):
         '''
-        @override
-        balance method based on original paper
+            @override
+            balance method based on original paper
         '''
         b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
         

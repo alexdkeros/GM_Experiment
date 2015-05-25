@@ -21,7 +21,8 @@ class HeuristicCoordinator(Coordinator):
     def __init__(self,  env, nodes, 
                  nid="Coord", 
                  threshold=Config.threshold, 
-                 monitoringFunction=Config.defMonFunc):
+                 monitoringFunction=Config.defMonFunc,
+                 cumulationFactor=None):
         '''
         Constructor
         args:
@@ -31,6 +32,7 @@ class HeuristicCoordinator(Coordinator):
             @param env: networking/monitoring enviroment creating Coordinator
             @param threshold: monitoring threshold
             @param monitoringFunction: monitoring function
+            @param cumulationFactor: no role here, formating reasons only
             '''
         Coordinator.__init__(self, env, nodes, nid, threshold, monitoringFunction)
     

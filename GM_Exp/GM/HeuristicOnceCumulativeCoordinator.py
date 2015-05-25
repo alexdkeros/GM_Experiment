@@ -14,7 +14,7 @@ from GM_Exp.Utils.Utils import dec, deDec
 
 class HeuristicOnceCumulativeCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with heuristic balancing scheme
+    geometric monitoring, coordinator with cumulate-at-LV-alert-once heuristic balancing scheme
     '''
 
 

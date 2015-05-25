@@ -12,7 +12,7 @@ from GM_Exp.Utils.Utils import dec, deDec
 
 class ClassicOnceCumulativeCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with cumulate-at-LV-alert-once balancing scheme
+    geometric monitoring, coordinator with cumulate-at-LV-alert-once classic balancing scheme
     '''
 
 
@@ -62,8 +62,8 @@ class ClassicOnceCumulativeCoordinator(Coordinator):
     '''
     def balance(self):
         '''
-        @override
-        balance method requesting self.cumulationFactor random nodes for the first balance of a LV
+            @override
+            balance method requesting self.cumulationFactor random nodes for the first balance of a LV, classic balance
         '''
         b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
         

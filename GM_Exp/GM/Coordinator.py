@@ -126,15 +126,6 @@ class Coordinator(Node):
         dispaches to selected balancing scheme method
         '''
         pass
-        
-        
-        '''
-        balancing handler
-        dispaches to selected balancing scheme method
-        
-        f=getattr(self, self.balancing+"Balance", self.classicBalance)
-        return f()
-        '''
     
                 
                 

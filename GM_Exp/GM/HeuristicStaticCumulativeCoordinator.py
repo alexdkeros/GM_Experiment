@@ -14,7 +14,7 @@ from GM_Exp.Utils.Utils import dec, deDec
 
 class HeuristicStaticCumulativeCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with heuristic balancing scheme
+    geometric monitoring, coordinator with cumulate-cumulationFactor nodes each request, heuristic balancing scheme
     '''
 
 
@@ -47,6 +47,7 @@ class HeuristicStaticCumulativeCoordinator(Coordinator):
     ----------------------------------------------------------------------
 
     '''
+    
     def rep(self,dat,sender):
         '''
              @override
@@ -65,8 +66,8 @@ class HeuristicStaticCumulativeCoordinator(Coordinator):
     '''
     def balance(self):
         '''
-        @override
-        balance method requesting self.cumulationFactor random nodes at each request
+            @override
+            balance method requesting self.cumulationFactor random nodes at each request
         '''
         b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
         

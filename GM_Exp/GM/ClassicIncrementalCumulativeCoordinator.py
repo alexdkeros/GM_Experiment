@@ -13,14 +13,15 @@ from GM_Exp.Utils.Utils import dec, deDec
 
 class ClassicIncrementalCumulativeCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with cumulate-at-LV-alert-once balancing scheme
+    geometric monitoring, coordinator with 2^|P'| , P'=balancing set, node requests at each LV, classic balancing scheme
     '''
 
 
     def __init__(self,  env, nodes, 
                  nid="Coord", 
                  threshold=Config.threshold, 
-                 monitoringFunction=Config.defMonFunc):
+                 monitoringFunction=Config.defMonFunc,
+                 cumulationFactor=None):
         '''
         Constructor
         args:
@@ -30,6 +31,7 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
             @param env: networking/monitoring enviroment creating Coordinator
             @param threshold: monitoring threshold
             @param monitoringFunction: monitoring function
+            @param cumulationFactor: no role here, formating reasons only
             '''
         Coordinator.__init__(self, env, nodes, nid, threshold, monitoringFunction)
 
@@ -58,8 +60,8 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
     '''
     def balance(self):
         '''
-        @override
-        balance method requesting 2x nodes each time for balancing
+            @override
+            balance method requesting 2x nodes each time for balancing
         '''
         b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
         
