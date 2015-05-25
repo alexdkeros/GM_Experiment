@@ -2,10 +2,9 @@
 @author: ak
 '''
 from scipy.stats import norm
+
+from GM_Exp.Utils.Utils import dec, deDec
 import numpy as np
-from GM_Exp.Utils.Utils import dec,deDec
-
-
 
 
 class InputStream:

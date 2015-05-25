@@ -1,20 +1,22 @@
 '''
 @author: ak
 '''
-import matplotlib
-#matplotlib.use('Agg')
-import time
-import random
 import itertools
-from GM_Exp.Utils import Utils
-import pylab as pl
-import numpy as np
-from matplotlib import rc
 from matplotlib import cm
-from mpl_toolkits.mplot3d.axes3d import Axes3D
+from matplotlib import rc
+import matplotlib
 from mpl_toolkits.axisartist.axis_artist import Ticks
+from mpl_toolkits.mplot3d.axes3d import Axes3D
+import random
 from scipy.io.matlab.mio5_utils import scipy
+import time
 
+from GM_Exp.Utils import Utils
+import numpy as np
+import pylab as pl
+
+
+#matplotlib.use('Agg')
 colors = itertools.cycle(['r','b','g','c', 'm', 'y', 'k','w'])
 
 #plotting settings

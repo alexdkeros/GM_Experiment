@@ -3,6 +3,7 @@
 '''
 import sys
 
+
 #- NODE RANGE
 nodeStart=3 #2
 nodeEnd=6 #50
@@ -86,11 +87,11 @@ threshold=100 #100
 defMonFunc= lambda x: x**2
 
 #balancing - heuristic/classic
-balancingTypes=["classic","onceCumulative","staticCumulative","incrementalCumulative","heuristic","heuristicOnceCumulative","heuristicStaticCumulative","heuristicIncrementalCumulative"]
-classicBalances=["classic","onceCumulative","staticCumulative","incrementalCumulative"]
-heuristicBalances=["heuristic","heuristicOnceCumulative","heuristicStaticCumulative","heuristicIncrementalCumulative"]
+balancingTypes=["Classic","OnceCumulative","StaticCumulative","IncrementalCumulative","Heuristic","HeuristicOnceCumulative","HeuristicStaticCumulative","heuristicIncrementalCumulative"]
+classicBalances=["Classic","OnceCumulative","StaticCumulative","IncrementalCumulative"]
+heuristicBalances=["Heuristic","HeuristicOnceCumulative","HeuristicStaticCumulative","heuristicIncrementalCumulative"]
 #balancingTypes=['classic']
-balancing="heuristic"
+balancing="Heuristic"
 defCumulationFactor=defNodeNum/5
 
 #NLP

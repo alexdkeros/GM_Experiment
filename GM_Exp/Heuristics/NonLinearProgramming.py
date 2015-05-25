@@ -3,8 +3,9 @@
 '''
 from FuncDesigner import *
 from openopt import *
-import numpy as np
+
 from GM_Exp import Config
+import numpy as np
 
 
 def heuristicNLP(data,threshold, mean,fu,plot=Config.NLPPlot):

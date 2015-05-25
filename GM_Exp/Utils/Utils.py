@@ -2,9 +2,11 @@
 @author: ak
 '''
 from __future__ import division
-import numpy as np
+
 import decimal
+
 from GM_Exp import Config
+import numpy as np
 
 
 def avgListsOverIters(array2d):

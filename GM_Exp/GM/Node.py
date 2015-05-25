@@ -2,8 +2,10 @@
 @author: ak
 '''
 import uuid
+
 from GM_Exp import Config
-from GM_Exp.Utils.Utils import dec,deDec
+from GM_Exp.Utils.Utils import dec, deDec
+
 
 class Node:
     '''

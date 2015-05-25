@@ -1,14 +1,16 @@
 '''
 @author: ak
 '''
-from GM_Exp.DataStream.InputStream import InputStream
-from GM_Exp import Config
-from scipy.stats import norm
-import numpy as np
 import pickle
+from scipy.stats import norm
 import sys
+
+from GM_Exp import Config
+from GM_Exp.DataStream.InputStream import InputStream
 from GM_Exp.Utils.Plotter import multiplePlots2d
-from GM_Exp.Utils.Utils import dec,deDec
+from GM_Exp.Utils.Utils import dec, deDec
+import numpy as np
+
 
 class InputStreamFactory:
     '''

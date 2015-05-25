@@ -2,6 +2,8 @@
 @author: ak
 '''
 import time
+import sys
+import pkgutil
 import uuid
 from GM_Exp import Config
 from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory 
@@ -89,9 +91,21 @@ class Enviroment:
         #--------------------------------------------------------------------------------------------------------------------
         # creating coordinator
         #--------------------------------------------------------------------------------------------------------------------
-        coordObj=getattr(, self.balancing+"Coordinator", self.classicBalance)
-        coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing, cumulationFactor=cumulationFactor)
+        modules=pkgutil.iter_modules()
+        coordObj=None;
+        for loader, mod_name, ispkg in modules:
+            if mod_name not in sys.modules and mod_name==(self.balancing+"Coordinator"):
+                # Import module
+                loaded_mod = __import__(mod_name)
+    
+                # Load class from imported module
+                coordObj = getattr(loaded_mod,mod_name)
+                break
+            
+        coordinator=coordObj(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction)
         self.nodes[coordinator.getId()]=coordinator
+                
+                
         
             
             
@@ -262,10 +276,10 @@ class Enviroment:
             
 if __name__=="__main__":
     #running test and heuristic test - OK
-    '''
+    
     import sys
     
-    env=Enviroment(balancing="classic", 
+    env=Enviroment(balancing="Classic", 
                    nodeNum=2, 
                    threshold=10, 
                    monitoringFunction=lambda x: x,
@@ -281,7 +295,7 @@ if __name__=="__main__":
     print(len(res["reqMsgsPerIter"]))
     print(len(res["lVsPerIter"]))
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
-    '''
+    
     #dataset import test - OK
     '''
     import decimal
