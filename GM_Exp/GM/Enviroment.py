@@ -89,6 +89,7 @@ class Enviroment:
         #--------------------------------------------------------------------------------------------------------------------
         # creating coordinator
         #--------------------------------------------------------------------------------------------------------------------
+        coordObj=getattr(, self.balancing+"Coordinator", self.classicBalance)
         coordinator=Coordinator(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction,balancing=balancing, cumulationFactor=cumulationFactor)
         self.nodes[coordinator.getId()]=coordinator
         
