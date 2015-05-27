@@ -1,19 +1,21 @@
 '''
 @author: ak
 '''
-from math import log
 import random
 from types import StringType
+import uuid
 
 from GM_Exp import Config
 from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.GM.Node import Node
+from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Utils.Utils import dec, deDec
 
 
-class ClassicIncrementalCumulativeCoordinator(Coordinator):
+class NaiveHeuristicCoordinator(Coordinator):
     '''
-    geometric monitoring, coordinator with 2^|P'| , P'=balancing set, node requests at each LV, classic balancing scheme
+    geometric monitoring, coordinator with heuristic balancing scheme
+    naive coordinator, first add all violating nodes to balancing set, then balance at end of iteration
     '''
 
 
@@ -34,7 +36,10 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
             @param cumulationFactor: no role here, formating reasons only
             '''
         Coordinator.__init__(self, env, nodes, nid, threshold, monitoringFunction)
-
+        
+        #flag discriminates between request due to LV (no imediate Balancing) and request during bal process
+        self.nodeRequestFlag=False 
+        
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -45,11 +50,16 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
     def rep(self,dat,sender):
         '''
             @override
-            "rep" signal for incremental cumulative balancing
-            at each Coordinator's request for balancing collect 2x nodes each time
+            "rep" signal for heuristic balancing
+            at each "rep" msg add node to balancing set
         '''
-        self.balancingSet.add((sender,)+dat)
-        if log(len(self.balancingSet),2).is_integer() or len(self.balancingSet)==len(self.nodes):   
+        self.balancingSet.add((sender,)+dat)    
+        
+        #DBG
+        print("Coord: bal set elem added,bal set is:")
+        print(self.balancingSet) 
+        
+        if self.nodeRequestFlag:
             self.balance()
     
     '''
@@ -61,29 +71,42 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
     def balance(self):
         '''
             @override
-            balance method requesting 2x nodes each time for balancing
+            heuristic based balancing method
         '''
+        #--------------------empty balancingSet, do nothing
+        if not self.balancingSet:
+            return
+        
+        #--------------------non empty balancingSet
+        #DBG
+        print("Coord: BALANCING")
+        
         b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
-        
-        
+                
         #DBG
         if len(self.balancingSet)==1:
             print("Coord:LOCAL VIOLATION")
         else:
             print("balancing set is:")
             print(self.balancingSet)
-        print("Coord: balance vector is: %f, threshold is %f"%(b,self.threshold))
+        
+        print("Coord: balance vector is: %f,f(b)= %f, threshold is %f"%(b,self.monitoringFunction(b),self.threshold))
         
         if self.monitoringFunction(b)<self.threshold:
             #----------------------------------------------------------------
             #SUCESSfull balancing
             #----------------------------------------------------------------
+            
+            bSetDict={str(nid):u for nid,v,u,vel in self.balancingSet}
+            
+            results=heuristicNLP(list((str(nid),deDec(vel)) for nid,v,u,vel in self.balancingSet),deDec(self.threshold),deDec(b),self.monitoringFunction)
+            
             dDelta=[]
             nodeIds=[]
-            for (i,v,u,vel) in self.balancingSet:
-                dDelta.append(self.nodes[i]*b-self.nodes[i]*u)
-                nodeIds.append(i)
-            
+            for i in results.keys():
+                nodeIds.append(uuid.UUID(i))
+                dDelta.append(self.nodes[uuid.UUID(i)]*dec(results[i])-self.nodes[uuid.UUID(i)]*bSetDict[i])
+                
             #DBG
             print("Coord: balance success")
             print("dDelta:")
@@ -92,8 +115,10 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
             #EXP - log balancing vector
             self.send(None, "balancingVector", b)
             
+            #reset data
             self.balancingSet.clear()
-
+            self.nodeRequestFlag=False
+            
             self.adjSlk(nodeIds, dDelta)
                     
         else:
@@ -103,11 +128,13 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
             diffSet=set(self.nodes.keys())-set(i for i,v,u,vel in self.balancingSet)
             
             if len(diffSet): #i.e. len(balancingSet)!=len(nodes)
+                reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random
                 
-                if len(diffSet)>=len(self.balancingSet):
-                    reqNodeId=random.sample(diffSet,len(self.balancingSet))
-                else:
-                    reqNodeId=random.sample(diffSet,len(diffSet))
+                #enable balancing because of req msg
+                self.nodeRequestFlag=True
+                
+                #DBG
+                print("Coord: request node:"+str(reqNodeId))
                 
                 self.req(reqNodeId)
             
@@ -131,3 +158,4 @@ class ClassicIncrementalCumulativeCoordinator(Coordinator):
                 #self.newEst()
                 
                 self.globalViolation()
+      

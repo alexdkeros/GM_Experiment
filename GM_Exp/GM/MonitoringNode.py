@@ -76,7 +76,7 @@ class MonitoringNode(Node):
             send signal "init" to Coordinator
         '''
         self.vLast=self.v
-        self.send("Coord", "init", (self.vLast,self.weight))
+        self.send(self.env.getCoordId(), "init", (self.vLast,self.weight))
     
     def req(self,dat, sender):
         '''
@@ -124,34 +124,9 @@ class MonitoringNode(Node):
     def rep(self):
         '''
             "rep" signal
-            "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
+            in classic balancing velocity is not used
         '''
-        if self.balancing in Config.classicBalances:
-            f=getattr(self, "classicRep", self.classicRep)
-        elif self.balancing in Config.heuristicBalances:
-            f=getattr(self, "heuristicRep", self.classicRep)
-        else:
-            f=self.classicRep
-        return f()
-    
-    #-------------------CLASSIC BALANCING--------------------------------
-    def classicRep(self):
-        '''
-            "rep" signal
-            "rep" msg for CLASSIC balancing scheme
-                data is (v,u)
-        '''
-        self.send("Coord", "rep", (self.v,self.u))
-    
-    
-    #-------------------HEURISTIC BALANCING-------------------------------    
-    def heuristicRep(self):
-        '''
-            "rep" signal
-            "rep" msg for HEURISTIC balancing scheme
-                data is (v,u,velocity)
-        '''
-        self.send("Coord", "rep", (self.v,self.u,self.inputStreamInstance.getVelocity()))
+        self.send(self.env.getCoordId(), "rep", (self.v,self.u,self.inputStreamInstance.getVelocity()))
         
     
     '''

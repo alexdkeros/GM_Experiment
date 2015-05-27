@@ -87,10 +87,10 @@ threshold=100 #100
 defMonFunc= lambda x: x**2
 
 #balancing - heuristic/classic
-balancingTypes=["Classic","OnceCumulative","StaticCumulative","IncrementalCumulative","Heuristic","HeuristicOnceCumulative","HeuristicStaticCumulative","heuristicIncrementalCumulative"]
-classicBalances=["Classic","OnceCumulative","StaticCumulative","IncrementalCumulative"]
-heuristicBalances=["Heuristic","HeuristicOnceCumulative","HeuristicStaticCumulative","heuristicIncrementalCumulative"]
-#balancingTypes=['classic']
+balancingTypes=["Classic","ClassicOnceCumulative","ClassicStaticCumulative","ClassicIncrementalCumulative",
+                "Heuristic","HeuristicOnceCumulative","HeuristicStaticCumulative","HeuristicIncrementalCumulative","NaiveHeuristic"]
+classicBalances=balancingTypes[0:4]
+heuristicBalances=balancingTypes[4:]
 balancing="Heuristic"
 defCumulationFactor=defNodeNum/5
 

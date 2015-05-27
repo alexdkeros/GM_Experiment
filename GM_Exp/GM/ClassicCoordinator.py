@@ -61,7 +61,7 @@ class ClassicCoordinator(Coordinator):
             @override
             balance method based on original paper
         '''
-        b=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)
+        b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
         
         #DBG
         if len(self.balancingSet)==1:
@@ -78,7 +78,7 @@ class ClassicCoordinator(Coordinator):
             #----------------------------------------------------------------
             dDelta=[]
             nodeIds=[]
-            for (i,v,u) in self.balancingSet:
+            for (i,v,u,vel) in self.balancingSet:
                 dDelta.append(self.nodes[i]*b-self.nodes[i]*u)
                 nodeIds.append(i)
             
@@ -98,7 +98,7 @@ class ClassicCoordinator(Coordinator):
             #-----------------------------------------------------------------
             #FAILed balancing
             #-----------------------------------------------------------------
-            diffSet=set(self.nodes.keys())-set(i for i,v,u in self.balancingSet)
+            diffSet=set(self.nodes.keys())-set(i for i,v,u,vel in self.balancingSet)
             
             if len(diffSet): #i.e. len(balancingSet)!=len(nodes)
                 reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random
@@ -109,8 +109,8 @@ class ClassicCoordinator(Coordinator):
                 #----------------
                 #Global Violation
                 #----------------
-                vGl=sum(v*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)   #global stats vector
-                uGl=sum(u*self.nodes[i] for i,v,u in self.balancingSet)/sum(self.nodes[i] for i,v,u in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                vGl=sum(v*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
+                uGl=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
                 
                 #EXP - log balancing vector
                 self.send(None, "balancingVector", b)

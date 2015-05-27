@@ -104,9 +104,15 @@ class Enviroment:
             
         coordinator=coordObj(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction, cumulationFactor=self.cumulationFactor)
         self.nodes[coordinator.getId()]=coordinator
-                
-                
         
+        self.coordId=coordinator.getId()
+                
+                
+    def getCoordId(self):
+        '''
+        @return: coordinator id
+        '''
+        return self.coordId
             
             
     def signal(self,data): 
