@@ -25,7 +25,25 @@ class OptimalPairer:
         if self.threshold:
             self.optimize([(n,) for n in self.nodes.keys()])
         
+    '''
+    --------------getters
+    '''
+    def getTypeDict(self):
+        '''
+        @return dictionary of pairs by type
+        '''
+        return self.typeDict
     
+    def getOptPairing(self, nodes):
+        '''
+        args:
+            @param nodes: tuple of nodeIds, length equals to pairing type
+        '''
+        return self.typeDict[len(nodes)][nodes]
+    
+    '''
+    --------------main function: OPTIMIZER
+    '''
     def optimize(self,nodes,threshold=None):
         '''
         builds optimization tree/dictionary
@@ -65,7 +83,10 @@ class OptimalPairer:
         
         #recurse
         self.optimize([n+pairs[n] for n in pairs.keys()], threshold)
-        
+    
+    '''
+    --------------Helper functions
+    '''    
         
     def _computeAvgDistr(self,nodes):
         '''
