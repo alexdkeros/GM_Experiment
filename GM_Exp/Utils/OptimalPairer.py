@@ -2,6 +2,8 @@
 @author: ak
 '''
 import networkx as nx
+import numpy as np
+from scipy.stats import norm
 
 class OptimalPairer:
     '''
@@ -12,7 +14,7 @@ class OptimalPairer:
         '''
         constructor
         args:
-            @param nodes: list of node instances
+            @param nodes: dictionary of {nodeId: (mean,std)}
             @param threshold: to compute edge weights for max_weight_matching, i.e. compute cdf(threshold) 
         '''
         self.nodes=nodes
@@ -72,3 +74,17 @@ class OptimalPairer:
         
         @return tuple (mean, std) 
         '''
+        m=np.mean([self.nodes[node][0] for node in nodes])
+        std=np.sqrt(sum([self.nodes[node][1]**2 for node in nodes])/float(len(nodes)))
+        return (m,std)
+        
+    def _computeCdfWeight(self,distr,thresh):
+        '''
+        args:
+            @param distr: tuple (mean, std)
+            @param thresh: P(x<=thresh)
+            
+        @return P(X<=thresh)
+        '''
+        d=norm(distr[0], distr[1])
+        return d.cdf(thresh)
