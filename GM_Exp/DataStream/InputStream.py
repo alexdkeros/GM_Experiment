@@ -80,6 +80,14 @@ class InputStream:
         else:
             return ((self.velocityDistr.mean(),self.velocityDistr.std()))
     
+    def getDataUpdatesDistr(self):
+        '''
+        @return InputStream's data update distribution, tuple (mean, std).
+                If dataset is loaded, returns total distribution over all dataset,
+                else returns curent distribution data
+        '''
+        return ((np.mean(self.dataUpdates),np.std(self.dataUpdates)))
+    
     '''
     --Other methods
     '''
