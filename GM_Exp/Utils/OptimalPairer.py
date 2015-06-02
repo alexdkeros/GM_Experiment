@@ -4,6 +4,7 @@
 import networkx as nx
 import numpy as np
 from scipy.stats import norm
+from GM_Exp.Utils import Utils
 
 class OptimalPairer:
     '''
@@ -21,9 +22,8 @@ class OptimalPairer:
         self.threshold=threshold
         
         self.typeDict={} #contains optimal pairings {n:{(id1, id2, ...idn):(idk,....idz)}}
+        self.distrDict={}
         
-        if self.threshold:
-            self.optimize([frozenset([n]) for n in self.nodes.keys()])
         
     '''
     --------------getters
@@ -34,19 +34,47 @@ class OptimalPairer:
         '''
         return self.typeDict
     
+    def getDistrDict(self):
+        '''
+        @return dictionary of distributions
+        '''
+        return self.distrDict
+    
+    
     def getOptPairing(self, nodes):
         '''
         args:
             @param nodes: set of nodeIds, length equals to pairing type
+        @return list with optimal pair
         '''
-        return self.typeDict[len(nodes)][nodes]
+        if len(nodes) in self.typeDict:
+            if frozenset(nodes) in self.typeDict[len(nodes)]:
+                return self.typeDict[len(nodes)][frozenset(nodes)]
+        return None
     
     '''
     --------------main function: OPTIMIZER
     '''
-    def optimize(self,nodes,threshold=None):
+    def optimize(self,nodes=None,threshold=None):
         '''
-        builds optimization tree/dictionary
+        constructor
+        args:
+            @param nodes: dictionary of {nodeId: (mean,std)} 
+            @param threshold: to compute edge weights for max_weight_matching, i.e. compute cdf(threshold) 
+        @return: typeDict dictionary of pairings OR None at fail
+        '''
+        if nodes:
+            self.nodes=nodes
+        if threshold:
+            self.threshold=threshold
+        
+        if self.threshold and self.nodes:
+            return self._optimize([frozenset([n]) for n in self.nodes.keys()],self.threshold)
+            
+            
+    def _optimize(self,nodes,threshold=None):
+        '''
+        builds optimization tree/dictionary, recursive func
         args:
             @param nodes: list of node sets
             @param threshold: cdf threshold as weights
@@ -61,7 +89,7 @@ class OptimalPairer:
         
         #recursion finish
         if len(nodes)==1:
-            self.typeDict[len(nodes[0])]=nodes
+            self.typeDict[len(nodes[0])]=nodes[0]
             return self.typeDict
         
         #create complete Graph
@@ -71,6 +99,7 @@ class OptimalPairer:
         nx.relabel_nodes(g, mapping=dict(zip(range(len(nodes)),nodes)), copy=False)
         for n in g.nodes():
             g.node[n]['distr']=self._computeAvgDistr(n)
+            self.distrDict[n]=g.node[n]['distr']
          
         #DBG
         #print(g.nodes(data=True))
@@ -86,7 +115,7 @@ class OptimalPairer:
         self.typeDict[len(pairs.keys()[0])]=pairs
         
         #recurse
-        self.optimize(list(set(n.union(pairs[n]) for n in pairs.keys())), threshold)
+        self._optimize(list(set(n.union(pairs[n]) for n in pairs.keys())), threshold)
     
     '''
     --------------Helper functions
@@ -99,8 +128,8 @@ class OptimalPairer:
         
         @return tuple (mean, std) 
         '''
-        m=np.mean([self.nodes[node][0] for node in nodes])
-        std=np.sqrt(sum([self.nodes[node][1]**2 for node in nodes])/float(len(nodes)))
+        m=Utils.deDec(np.mean([self.nodes[node][0] for node in nodes]))
+        std=np.sqrt(Utils.deDec(sum([self.nodes[node][1]**2 for node in nodes]))/float(len(nodes)))
         
         return (m,std)
         
@@ -128,6 +157,7 @@ if __name__=="__main__":
               "n7":(0,0.1)}
     print(nodeDict)
     o=OptimalPairer(nodeDict, 8)
+    o.optimize(nodeDict, 10)
     d=o.getTypeDict()
     for ty in d.keys():
         print("Type: %d"%ty)

@@ -10,6 +10,7 @@ from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.GM.Node import Node
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Utils.Utils import dec, deDec
+from GM_Exp.Utils.OptimalPairer import OptimalPairer
 
 
 class HeuristicOptimalPairCoordinator(Coordinator):
@@ -23,7 +24,7 @@ class HeuristicOptimalPairCoordinator(Coordinator):
                  threshold=Config.threshold, 
                  monitoringFunction=Config.defMonFunc,
                  cumulationFactor=None,
-                 typeDictionary=None):
+                 optimalPairer=None):
         '''
         Constructor
         args:
@@ -31,14 +32,15 @@ class HeuristicOptimalPairCoordinator(Coordinator):
             @param nid: unique node id - "Coord"
             ------geometric monitoring params
             @param env: networking/monitoring enviroment creating Coordinator
-            @param threshold: monitoring threshold
+            @param threshold: monitoring thresholdtypeDictionary=typeDict
             @param monitoringFunction: monitoring function
             @param cumulationFactor: no role here, formating reasons only
-            @param typeDictionary: dictionary of optimal pairs, per type
+            @param optimalPairer: optimal pairs generator, per type
             '''
         Coordinator.__init__(self, env, nodes, nid, threshold, monitoringFunction)
         
-        self.typeDictionary=typeDictionary
+        self.optimalPairer=optimalPairer
+        self.remainingReps=0 #set it to the number of expected reports during balancing
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -52,8 +54,10 @@ class HeuristicOptimalPairCoordinator(Coordinator):
             "rep" signal for heuristic balancing
             at each "rep" msg initiate balancing process
         '''
-        self.balancingSet.add((sender,)+dat)    
-        self.balance()
+        self.balancingSet.add((sender,)+dat) 
+        self.remainingReps-=1
+        if self.remainingReps<=0:   
+            self.balance()
     
     '''
     ----------------------------------------------------------------------------------------------------------------
@@ -110,25 +114,17 @@ class HeuristicOptimalPairCoordinator(Coordinator):
             #-----------------------------------------------------------------
             
             diffSet=set(self.nodes.keys())-set(i for i,v,u,vel in self.balancingSet)
-            
+                        
             if len(diffSet): #i.e. len(balancingSet)!=len(nodes)
-                #DBG
-                print("Coord:typeDictionary use requirements")
-                print("Coord:lenght %d"%(len(self.balancingSet) in self.typeDictionary))
-                print("Coord:key:")
-                print(frozenset(self.balancingSet) in self.typeDictionary[len(self.balancingSet)])
-                
-                
-                if (len(self.balancingSet) in self.typeDictionary):
-                    if (frozenset(self.balancingSet) in self.typeDictionary[len(self.balancingSet)]):
-                        #request matching pair
-                        reqNodeId=self.typeDictionary[len(self.balancingSet)][frozenset(self.balancingSet)]
-                    
-                        #DBG
-                        print("Coord: requesting MATCHING PAIR")
-                        print(reqNodeId)
-                
-                        self.req(reqNodeId)
+                reqNodeId=self.optimalPairer.getOptPairing(set(i for i,v,u,vel in self.balancingSet))
+                if reqNodeId:
+                    #request matching pair
+                    #DBG
+                    print("Coord: requesting MATCHING PAIR")
+                    print(reqNodeId)
+            
+                    self.remainingReps=len(reqNodeId)
+                    self.req(list(reqNodeId))
                 else:
                     #request node at random
                     reqNodeId=random.sample(diffSet,1)[0]   #request new node data at random
@@ -136,7 +132,8 @@ class HeuristicOptimalPairCoordinator(Coordinator):
                     #DBG
                     print("Coord: requesting RANDOM NODE")
                     print(reqNodeId)
-                
+                    
+                    self.remainingReps=1
                     self.req(reqNodeId)
             else:
                 #----------------

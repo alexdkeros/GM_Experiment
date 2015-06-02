@@ -56,6 +56,10 @@ class OptimalPairEnviroment:
         self.threshold=threshold
         self.streamNormalizing=streamNormalizing
         self.globalViolationFlag=False
+        self.dataSetFlag=False
+        if dataSetFile:
+            self.dataSetFlag=True
+        
         
 
         #--------------------------------------------------------------------------------------------------------------------
@@ -82,9 +86,6 @@ class OptimalPairEnviroment:
         self.nodes={}
         coordDict={}
         
-        #dictionary with distribution data
-        pairDict={}
-        
         #--------------------------------------------------------------------------------------------------------------------
         # creating Nodes (from scratch or from loaded dataset)
         #--------------------------------------------------------------------------------------------------------------------
@@ -93,17 +94,17 @@ class OptimalPairEnviroment:
             node = MonitoringNode(env=self, nid=uuid.uuid4(), inputStream=self.inputStreamFetcher.next(), threshold=threshold, monitoringFunction=monitoringFunction, balancing=balancing)
             self.nodes[node.getId()]=node
             coordDict[node.getId()]=node.getWeight()
-            pairDict[node.getId()]=node.getDataUpdatesDistr()
         
         #--------------------------------------------------------------------------------------------------------------------
         # building optimal pairing dictionary
         #--------------------------------------------------------------------------------------------------------------------
-        optimalPairer=OptimalPairer(pairDict,self.threshold)
-        typeDict=optimalPairer.getTypeDict()
-        #DBG
-        for i in typeDict.keys():
-            print(i)
-            print(typeDict[i])
+        self.optimalPairer=OptimalPairer(self.threshold)
+        if dataSetFile:
+            self.optimalPairer.optimize({nId:self.nodes[nId].getDataUpdatesDistr() for nId in self.nodes.keys()}, threshold)
+            for i in self.optimalPairer.getTypeDict().keys():
+                print(i)
+                print(self.optimalPairer.getTypeDict()[i])
+        
         #--------------------------------------------------------------------------------------------------------------------
         # creating optimal pairing coordinator
         #--------------------------------------------------------------------------------------------------------------------
@@ -112,9 +113,8 @@ class OptimalPairEnviroment:
                              threshold=threshold, 
                              monitoringFunction=monitoringFunction, 
                              cumulationFactor=self.cumulationFactor,
-                             typeDictionary=typeDict)
+                             optimalPairer=self.optimalPairer)
         self.nodes[coordinator.getId()]=coordinator
-        
         self.coordId=coordinator.getId()
                 
                 
@@ -177,7 +177,7 @@ class OptimalPairEnviroment:
             self.newIter()
             
             #DBG
-            #print("-----------------iteration %d----------------------"%self.iterCounter)
+            print("-----------------iteration %d----------------------"%self.iterCounter)
             
             #normalizing velocities before new stream update
             if self.streamNormalizing:
@@ -185,13 +185,20 @@ class OptimalPairEnviroment:
             
             for node in self.nodes.values():
                 #DBG
-                print("-------node running:%s"%node.getId())
+                #print("-------node running:%s"%node.getId())
                 
                 node.run()
-            
+                
+            #optimization running for every iteration, if dataset not present
+            if not self.dataSetFlag:
+                self.optimalPairer.optimize({nId:self.nodes[nId].getDataUpdatesDistr() for nId in self.nodes.keys() if nId!=self.coordId}, self.threshold)
+                #DBG
+                print(self.optimalPairer.getDistrDict())
+                print(self.optimalPairer.getTypeDict())
+                
             for node in self.nodes.values():
                 #DBG
-                print("-------node checking:%s"%node.getId())
+                #print("-------node checking:%s"%node.getId())
                 
                 node.check()
                 
@@ -291,12 +298,12 @@ class OptimalPairEnviroment:
 #----------------------------------------------------------------------------
             
 if __name__=="__main__":
-    #running test and heuristic test - OK
-    
+    #running test - OK
+    '''
     import sys
     
     env=OptimalPairEnviroment(balancing="HeuristicOptimalPair", 
-                   nodeNum=4, 
+                   nodeNum=6, 
                    threshold=10, 
                    monitoringFunction=lambda x: x,
                     lambdaVel=1,
@@ -311,18 +318,17 @@ if __name__=="__main__":
     print(len(res["reqMsgsPerIter"]))
     print(len(res["lVsPerIter"]))
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
-    
+    '''
     #dataset import test - OK
     '''
     import decimal
     decimal.getcontext().prec=Config.prec
     decimal.getcontext().rounding=Config.rounding
     
-    env=Enviroment(balancing='ClassicStaticCumulative',
-                   cumulationFactor=10,
+    env=OptimalPairEnviroment(balancing='HeuristicOptimalPair',
                    threshold=100,
                    monitoringFunction=lambda x:x,
-                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-30_m-10_std-10.p')
+                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/bak/DATASET_l-1_n-10_m-10_std-10.p')
     env.runSimulation(None)
     print(env.getExpRes())
     '''
