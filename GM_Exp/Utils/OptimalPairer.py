@@ -54,7 +54,7 @@ class OptimalPairer:
         @return: typeDict dictionary of pairings OR None at fail
         '''
         #DBG
-        print nodes
+        #print nodes
         
         if not threshold and self.threshold:
             threshold=self.threshold
@@ -73,7 +73,7 @@ class OptimalPairer:
             g.node[n]['distr']=self._computeAvgDistr(n)
          
         #DBG
-        print(g.nodes(data=True))
+        #print(g.nodes(data=True))
         
         #add edge weights
         for (i,j) in g.edges():

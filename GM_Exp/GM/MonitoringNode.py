@@ -141,6 +141,11 @@ class MonitoringNode(Node):
         '''
         return self.uLog
     
+    def getDataUpdatesDistr(self):
+        '''
+            @return (mean, std) tuple, distribution data
+        '''
+        return self.inputStreamInstance.getDataUpdatesDistr()
     '''
     ----------------------------------------------------------------------
     monitoring operation
