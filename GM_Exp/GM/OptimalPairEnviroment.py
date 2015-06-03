@@ -177,7 +177,7 @@ class OptimalPairEnviroment:
             self.newIter()
             
             #DBG
-            print("-----------------iteration %d----------------------"%self.iterCounter)
+            #print("-----------------iteration %d----------------------"%self.iterCounter)
             
             #normalizing velocities before new stream update
             if self.streamNormalizing:
@@ -193,8 +193,8 @@ class OptimalPairEnviroment:
             if not self.dataSetFlag:
                 self.optimalPairer.optimize({nId:self.nodes[nId].getDataUpdatesDistr() for nId in self.nodes.keys() if nId!=self.coordId}, self.threshold)
                 #DBG
-                print(self.optimalPairer.getDistrDict())
-                print(self.optimalPairer.getTypeDict())
+                #print(self.optimalPairer.getDistrDict())
+                #print(self.optimalPairer.getTypeDict())
                 
             for node in self.nodes.values():
                 #DBG

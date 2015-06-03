@@ -3,7 +3,6 @@
 '''
 import time
 import sys
-import pkgutil
 import uuid
 from GM_Exp import Config
 from GM_Exp.DataStream.InputStreamFactory import InputStreamFactory 
@@ -11,6 +10,7 @@ from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Config import dataSetFile, lambdaVel, streamNormalizing
+
 
 class Enviroment:
     '''
@@ -91,17 +91,13 @@ class Enviroment:
         #--------------------------------------------------------------------------------------------------------------------
         # creating coordinator
         #--------------------------------------------------------------------------------------------------------------------
-        modules=pkgutil.iter_modules()
-        coordObj=None;
-        for loader, mod_name, ispkg in modules:
-            if mod_name not in sys.modules and mod_name==(self.balancing+"Coordinator"):
-                # Import module
-                loaded_mod = __import__(mod_name)
-    
-                # Load class from imported module
-                coordObj = getattr(loaded_mod,mod_name)
-                break
-            
+        
+        mod = __import__("GM_Exp.GM."+self.balancing+"Coordinator", fromlist=[self.balancing+"Coordinator"])
+        coordObj= getattr(mod, self.balancing+"Coordinator")        
+        
+        #DBG
+        #print(coordObj)
+        
         coordinator=coordObj(env=self, nodes=coordDict,threshold=threshold, monitoringFunction=monitoringFunction, cumulationFactor=self.cumulationFactor)
         self.nodes[coordinator.getId()]=coordinator
         
@@ -244,8 +240,9 @@ class Enviroment:
             
             self.reqMsgsPerBal[-1]+=1 #counting reqsPerBalance by the num of adjSlk msgs sent
         elif msg=="globalViolation":
-            if self.reqMsgsPerBal[-1]==0:
-                self.reqMsgsPerBal[-1]=len(self.nodes)-1 #at last balancing(i.e.GV all nodes take place)
+            if self.reqMsgsPerBal:
+                if self.reqMsgsPerBal[-1]==0:
+                    self.reqMsgsPerBal[-1]=len(self.nodes)-1 #at last balancing(i.e.GV all nodes take place)
         elif msg=="balancingVector":
             self.balancingVectors.append(data)
                 
@@ -303,19 +300,19 @@ if __name__=="__main__":
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
     '''
     #dataset import test - OK
-    '''
+    
     import decimal
     decimal.getcontext().prec=Config.prec
     decimal.getcontext().rounding=Config.rounding
     
-    env=Enviroment(balancing='ClassicStaticCumulative',
+    env=Enviroment(balancing="Classic",
                    cumulationFactor=10,
                    threshold=100,
                    monitoringFunction=lambda x:x,
                    dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-30_m-10_std-10.p')
     env.runSimulation(None)
     print(env.getExpRes())
-    '''
+    
     
     #cumulative balances tests
     

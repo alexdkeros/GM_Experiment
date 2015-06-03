@@ -102,13 +102,13 @@ class NaiveEnviroment(Enviroment):
             
             for node in self.nodes.values():
                 #DBG
-                print("-------node running:%s"%node.getId())
+                #print("-------node running:%s"%node.getId())
                 
                 node.run()
             
             for node in self.nodes.values():
                 #DBG
-                print("-------node checking:%s"%node.getId())
+                #print("-------node checking:%s"%node.getId())
                 
                 node.check()
             
@@ -142,16 +142,16 @@ class NaiveEnviroment(Enviroment):
             
 if __name__=="__main__":
     #running test - OK
-    '''
+    
     import sys
     
     env=NaiveEnviroment(balancing="NaiveHeuristic", 
-                   nodeNum=3, 
+                   nodeNum=2, 
                    threshold=10, 
                    monitoringFunction=lambda x: x,
                     lambdaVel=1,
-                    meanDistr=(2,2),
-                    stdDistr=(0,0+sys.float_info.min),
+                    meanDistr=(8,2),
+                    stdDistr=(2,0+sys.float_info.min),
                     streamNormalizing=True)
     env.runSimulation()
     res=env.getExpRes()
@@ -161,4 +161,4 @@ if __name__=="__main__":
     print(len(res["reqMsgsPerIter"]))
     print(len(res["lVsPerIter"]))
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
-    '''
+    
