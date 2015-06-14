@@ -10,7 +10,7 @@ from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.GM.Node import Node
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Utils.Utils import dec, deDec
-from GM_Exp.Utils.OptimalPairer import OptimalPairer
+from GM_Exp.Utils.OptimalPairer import OptimalPairerWDataUpdates,OptimalPairerWDistr
 
 
 class HeuristicOptimalPairCoordinator(Coordinator):
@@ -155,4 +155,3 @@ class HeuristicOptimalPairCoordinator(Coordinator):
                 #self.newEst()
                 
                 self.globalViolation()
-      

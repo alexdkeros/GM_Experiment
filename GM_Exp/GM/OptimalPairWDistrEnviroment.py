@@ -11,10 +11,10 @@ from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.HeuristicOptimalPairCoordinator import HeuristicOptimalPairCoordinator
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Config import dataSetFile, lambdaVel, streamNormalizing
-from GM_Exp.Utils.OptimalPairer import OptimalPairer
+from GM_Exp.Utils.OptimalPairer import OptimalPairerWDistr
 
 
-class OptimalPairEnviroment:
+class OptimalPairWDistrEnviroment:
     '''
     simulation enviroment, responsible for running/coordinanting the simulation
     '''
@@ -98,9 +98,10 @@ class OptimalPairEnviroment:
         #--------------------------------------------------------------------------------------------------------------------
         # building optimal pairing dictionary
         #--------------------------------------------------------------------------------------------------------------------
-        self.optimalPairer=OptimalPairer(self.threshold)
+        self.optimalPairer=OptimalPairerWDistr(threshold=self.threshold)
+        
         if dataSetFile:
-            self.optimalPairer.optimize({nId:self.nodes[nId].getDataUpdatesDistr() for nId in self.nodes.keys()}, threshold)
+            self.optimalPairer.optimize(nodes={nId:self.nodes[nId].getVelocityDistr() for nId in self.nodes.keys()}, threshold=threshold)
             for i in self.optimalPairer.getTypeDict().keys():
                 print(i)
                 print(self.optimalPairer.getTypeDict()[i])
@@ -132,6 +133,10 @@ class OptimalPairEnviroment:
         '''
         #EXP-sniff msg
         self.newMsg(data[2],data[3])
+        
+        #DBG
+        #print("signal received")
+        #print("Sender: %s, Target: %s , msg: %s , data: %s"%(data[0],data[1],data[2],str(data[3])))
         
         if data[1]:
             self.nodes[data[1]].rcv(data)
@@ -191,7 +196,7 @@ class OptimalPairEnviroment:
                 
             #optimization running for every iteration, if dataset not present
             if not self.dataSetFlag:
-                self.optimalPairer.optimize({nId:self.nodes[nId].getDataUpdatesDistr() for nId in self.nodes.keys() if nId!=self.coordId}, self.threshold)
+                self.optimalPairer.optimize({nId:self.nodes[nId].getVelocityDistr() for nId in self.nodes.keys() if nId!=self.coordId}, self.threshold)
                 #DBG
                 #print(self.optimalPairer.getDistrDict())
                 #print(self.optimalPairer.getTypeDict())
@@ -265,6 +270,9 @@ class OptimalPairEnviroment:
                 self.reqMsgsPerBal[-1]=len(self.nodes)-1 #at last balancing(i.e.GV all nodes take place)
         elif msg=="balancingVector":
             self.balancingVectors.append(data)
+        #DBG
+        #print("REQ Message count per iter:")
+        #print(self.reqMsgsPerIter)
                 
         
     def processExpRes(self):
@@ -320,15 +328,15 @@ if __name__=="__main__":
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
     '''
     #dataset import test - OK
-    '''
+    
     import decimal
     decimal.getcontext().prec=Config.prec
     decimal.getcontext().rounding=Config.rounding
     
-    env=OptimalPairEnviroment(balancing='HeuristicOptimalPair',
+    env=OptimalPairWDistrEnviroment(balancing='HeuristicOptimalPair',
                    threshold=100,
                    monitoringFunction=lambda x:x,
-                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/bak/DATASET_l-1_n-10_m-10_std-10.p')
+                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/bak/DATASET_l-1_n-10_m-10_std-0.p')
     env.runSimulation(None)
     print(env.getExpRes())
-    '''
+    

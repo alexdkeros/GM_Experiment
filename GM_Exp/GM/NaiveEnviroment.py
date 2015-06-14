@@ -142,7 +142,7 @@ class NaiveEnviroment(Enviroment):
             
 if __name__=="__main__":
     #running test - OK
-    
+    '''
     import sys
     
     env=NaiveEnviroment(balancing="NaiveHeuristic", 
@@ -161,4 +161,18 @@ if __name__=="__main__":
     print(len(res["reqMsgsPerIter"]))
     print(len(res["lVsPerIter"]))
     print("total lVs:%d (from msgs are:%d)"%(sum(res["lVsPerIter"]),sum(res["repMsgsPerIter"])-sum(res["reqMsgsPerIter"])))
+    '''
+    #dataset import test - OK
+    
+    import decimal
+    decimal.getcontext().prec=Config.prec
+    decimal.getcontext().rounding=Config.rounding
+    
+    env=NaiveEnviroment(balancing="NaiveHeuristic",
+                   cumulationFactor=10,
+                   threshold=100,
+                   monitoringFunction=lambda x:x,
+                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-5_m-10_std-10.p')
+    env.runSimulation(None)
+    print(env.getExpRes())
     

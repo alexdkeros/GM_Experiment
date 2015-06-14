@@ -7,7 +7,7 @@ import sys
 
 from GM_Exp import Config
 from GM_Exp.DataStream.InputStream import InputStream
-from GM_Exp.Utils.Plotter import multiplePlots2d
+from GM_Exp.Utils.Plotter import multiplePlots2d, plot2d
 from GM_Exp.Utils.Utils import dec, deDec
 import numpy as np
 
@@ -247,7 +247,7 @@ if __name__=="__main__":
     
     print('---LOADING DATASET---')
     
-    factory2=InputStreamFactory(dataSetFile='datasetTest.p')
+    factory2=InputStreamFactory(dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-5_m-10_std-10.p')
     fetcher2=factory2.getInputStream()
     print(factory2)
     print(fetcher2)
@@ -263,4 +263,35 @@ if __name__=="__main__":
             print("Velocity:%f"%stream.getVelocity())
     ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
     multiplePlots2d(ranges, factory2.getDataUpdateLogs())
+    
+    '''
+    '''
+    import matplotlib.pyplot as plt
+    import scipy
+    import scipy.stats
+
+    factory2=InputStreamFactory(dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-5_m-10_std-10.p')
+    fetcher2=factory2.getInputStream()
+    print(factory2)
+    print(fetcher2)
+    for i in range(3):
+        print(fetcher2.next())
+    streams=factory2.getInputStreams()
+    print(streams)
+    y=deDec(streams[1].getDataUpdatesLog()[1:1000])
+    
+    plot2d(np.arange(len(y)),y)
+    h = plt.hist(y,bins=30)
+
+    dist_names = ['alpha', 'beta', 'arcsine',
+              'weibull_min', 'weibull_max', 'rayleigh']
+
+    for dist_name in dist_names:
+        dist = getattr(scipy.stats, dist_name)
+        param = dist.fit(y)
+        pdf_fitted = dist.pdf(scipy.arange(len(y)), *param[:-2], loc=param[-2], scale=param[-1]) * len(y)
+        plt.plot(pdf_fitted, label=dist_name.replace("_"," "))
+        plt.xlim(0,47)
+    plt.legend()
+    plt.show()
     '''

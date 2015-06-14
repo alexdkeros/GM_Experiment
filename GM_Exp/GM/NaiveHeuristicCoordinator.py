@@ -61,6 +61,9 @@ class NaiveHeuristicCoordinator(Coordinator):
         
         if self.nodeRequestFlag:
             self.balance()
+        #DBG
+        else:
+            print("Coord: LOCAL VIOLATION")
     
     '''
     ----------------------------------------------------------------------------------------------------------------
@@ -84,11 +87,11 @@ class NaiveHeuristicCoordinator(Coordinator):
         b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
                 
         #DBG
-        if len(self.balancingSet)==1:
-            print("Coord:LOCAL VIOLATION")
-        else:
-            print("balancing set is:")
-            print(self.balancingSet)
+        #if len(self.balancingSet)==1:
+            #print("Coord:LOCAL VIOLATION")
+        #else:
+        print("balancing set is:")
+        print(self.balancingSet)
         
         print("Coord: balance vector is: %f,f(b)= %f, threshold is %f"%(b,self.monitoringFunction(b),self.threshold))
         

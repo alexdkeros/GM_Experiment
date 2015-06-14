@@ -8,12 +8,13 @@ import pickle
 import math
 import numpy as np
 from itertools import chain
+from GM_Exp.Utils.Utils import avgListsOverIters
 from GM_Exp.Utils.Plotter import multiplePlots2d
 from GM_Exp.Utils.Plotter import barChart
 from GM_Exp.GM.Enviroment import Enviroment
 from GM_Exp.GM.NaiveEnviroment import NaiveEnviroment
-from GM_Exp.GM.OptimalPairEnviroment import OptimalPairEnviroment
-
+from GM_Exp.GM.OptimalPairWDistrEnviroment import OptimalPairWDistrEnviroment
+from GM_Exp.GM.OptimalPairWDataUpdatesEnviroment import OptimalPairWDataUpdatesEnviroment
 
 import ExperimentConfig as conf
 
@@ -66,7 +67,7 @@ def __viewDataset(dataSetFile,savePath,filename,saveFlag,showFlag):
     
     
     
-def __runExperimentsOnDataSet(dataSetFile,threshold, monitoringFunction):
+def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction):
     '''
     runs classic and heuristic tests on dataset
     args:
@@ -77,43 +78,150 @@ def __runExperimentsOnDataSet(dataSetFile,threshold, monitoringFunction):
     '''
     #DBG
     print("-------------Classic")
-    env=Enviroment(balancing="Classic",
+    classicRes={}
+    for rep in range(repeats):
+        print("***------------------------------------rep %d---------------------------------***"%rep)
+        env=None
+                 
+        env=Enviroment(balancing="Classic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
                    dataSetFile=dataSetFile)
-    env.runSimulation(None)
-    classicRes=env.getExpRes()
+        env.runSimulation(None)
+        res=env.getExpRes()
+        
+        
+        #collect repeat results
+        if not classicRes:
+            for metric in res:
+                classicRes[metric]=[]
+
+        for metric in res:
+            classicRes[metric].append(res[metric])
+   
+    for metric in classicRes:
+        if metric!="driftVectors":
+            classicRes[metric]=avgListsOverIters(classicRes[metric])
+    
+    
     
     #DBG
     print("-------------Heuristic")
-    env=Enviroment(balancing="Heuristic",
+    heuristicRes={}
+    for rep in range(repeats):
+        print("***------------------------------------rep %d---------------------------------***"%rep)
+        env=None
+        env=Enviroment(balancing="Heuristic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
                    dataSetFile=dataSetFile)
-    env.runSimulation(None)
-    heuristicRes=env.getExpRes()
+        env.runSimulation(None)
+        res=env.getExpRes()
+        
+        #collect repeat results
+        if not heuristicRes:
+            for metric in res:
+                heuristicRes[metric]=[]
+
+        for metric in res:
+            heuristicRes[metric].append(res[metric])
+   
+    for metric in heuristicRes:
+        if metric!="driftVectors":
+            heuristicRes[metric]=avgListsOverIters(heuristicRes[metric])
+    
+    
     
     #DBG
     print("-------------NaiveHeuristic")
-    env=NaiveEnviroment(balancing="NaiveHeuristic",
+    naiveHeuristicRes={}
+    for rep in range(repeats):
+        print("***------------------------------------rep %d---------------------------------***"%rep)
+        env=None
+        env=NaiveEnviroment(balancing="NaiveHeuristic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
                    dataSetFile=dataSetFile)
-    env.runSimulation(None)
-    naiveHeuristicRes=env.getExpRes()
+        env.runSimulation(None)
+        res=env.getExpRes()
+        
+        #collect repeat results
+        if not naiveHeuristicRes:
+            for metric in res:
+                naiveHeuristicRes[metric]=[]
+
+        for metric in res:
+            naiveHeuristicRes[metric].append(res[metric])
+   
+    for metric in naiveHeuristicRes:
+        if metric!="driftVectors":
+            naiveHeuristicRes[metric]=avgListsOverIters(naiveHeuristicRes[metric])
+            
+            
+            
+            
     
     #DBG
-    print("-------------HeuristicOptimalPair")
-    env=OptimalPairEnviroment(balancing="HeuristicOptimalPair",
+    print("-------------HeuristicOptimalPairWDistr")
+    optPairWDistrHeuristicRes={}
+    for rep in range(repeats):
+        print("***------------------------------------rep %d---------------------------------***"%rep)
+        env=None
+        env=OptimalPairWDistrEnviroment(balancing="HeuristicOptimalPair",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
                    dataSetFile=dataSetFile)
-    env.runSimulation(None)
-    optPairHeuristicRes=env.getExpRes()
+        env.runSimulation(None)
+        res=env.getExpRes()
     
+        #collect repeat results
+        if not optPairWDistrHeuristicRes:
+            for metric in res:
+                optPairWDistrHeuristicRes[metric]=[]
+
+        for metric in res:
+            optPairWDistrHeuristicRes[metric].append(res[metric])
+   
+    for metric in optPairWDistrHeuristicRes:
+        if metric!="driftVectors":
+            optPairWDistrHeuristicRes[metric]=avgListsOverIters(optPairWDistrHeuristicRes[metric])
+            
+            
+            
+    
+    #DBG
+    print("-------------HeuristicOptimalPairWDataUps")
+    optPairWDataUpsHeuristicRes={}
+    for rep in range(repeats):
+        print("***------------------------------------rep %d---------------------------------***"%rep)
+        env=None
+        env=OptimalPairWDataUpdatesEnviroment(balancing="HeuristicOptimalPair",
+                   threshold=threshold,
+                   monitoringFunction=monitoringFunction,
+                   dataSetFile=dataSetFile)
+        env.runSimulation(None)
+        res=env.getExpRes()
+        
+        #collect repeat results
+        if not optPairWDataUpsHeuristicRes:
+            for metric in res:
+                optPairWDataUpsHeuristicRes[metric]=[]
+
+        for metric in res:
+            optPairWDataUpsHeuristicRes[metric].append(res[metric])
+   
+    for metric in optPairWDataUpsHeuristicRes:
+        if metric!="driftVectors":
+            optPairWDataUpsHeuristicRes[metric]=avgListsOverIters(optPairWDataUpsHeuristicRes[metric])
+        
+        
     
 
-    return {"Classic": classicRes, "Heuristic":heuristicRes, "NaiveHeuristic":naiveHeuristicRes, "HeuristicOptimalPair":optPairHeuristicRes}
+    return {"Classic": classicRes,
+            "Heuristic":heuristicRes, 
+            "NaiveHeuristic":naiveHeuristicRes, 
+            "HeuristicOptimalPairWDistr":optPairWDistrHeuristicRes,
+            "HeuristicOptimalPairWDataUps":optPairWDataUpsHeuristicRes}
 
 
 def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
@@ -131,9 +239,11 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
     classicRes=[datasetRes[key]["Classic"][plotVal] for key in keys]
     heuristicRes=[datasetRes[key]["Heuristic"][plotVal] for key in keys]
     naiveHeuristicRes=[datasetRes[key]["NaiveHeuristic"][plotVal] for key in keys]
-    optPairHeuristicRes=[datasetRes[key]["HeuristicOptimalPair"][plotVal] for key in keys]
-    barChart([classicRes,heuristicRes,naiveHeuristicRes,optPairHeuristicRes],
-             labels=["Classic","Heuristic","NaiveHeuristic","HeuristicOptimalPair"],
+    optPairWDistrHeuristicRes=[datasetRes[key]["HeuristicOptimalPairWDistr"][plotVal] for key in keys]
+    optPairWDataUpsHeuristicRes=[datasetRes[key]["HeuristicOptimalPairWDataUps"][plotVal] for key in keys]
+
+    barChart([classicRes,heuristicRes,naiveHeuristicRes,optPairWDistrHeuristicRes,optPairWDataUpsHeuristicRes],
+             labels=["Classic","Heuristic","NaiveHeuristic","HeuristicOptimalPairWDistr","HeuristicOptimalPairWDataUps"],
              xLabel="datasets",
              yLabel=plotVal,
              title=plotVal,
@@ -150,7 +260,7 @@ if __name__ == '__main__':
     thresholds=conf.thresholds
     monitoringFunctions=conf.monitoringFunctions
     functionNames=conf.functionNames
-    
+    repeats=conf.repeats
     
     #load dataset
     print("---LOADING DATASETS---")
@@ -183,6 +293,7 @@ if __name__ == '__main__':
                 #DBG
                 print("-------------------------------------------------------"+pureName)
                 res=__runExperimentsOnDataSet(conf.dataSetFolder+"/"+dataset,
+                                              repeats,
                                               threshold, 
                                               monitoringFunctions[i])
                 datasetRes[pureName]=res
@@ -190,8 +301,8 @@ if __name__ == '__main__':
                 #plotting dataset specific experiments
                 
                 #drift vectors plot
-                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for ar in res["Classic"]["driftVectors"]],
-                                res["Classic"]["driftVectors"],
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["Classic"]["driftVectors"] for ar in rep],
+                                [ar for rep in res["Classic"]["driftVectors"] for ar in rep],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
                                 title="drift vectors of classic balance for f="+functionNames[i]+" thresh="+str(threshold),
@@ -200,8 +311,8 @@ if __name__ == '__main__':
                                 showFlag=conf.showFlag)
                 
                 
-                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for ar in res["Heuristic"]["driftVectors"]],
-                                res["Heuristic"]["driftVectors"],
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["Heuristic"]["driftVectors"] for ar in rep],
+                                [ar for rep in res["Heuristic"]["driftVectors"] for ar in rep],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
                                 title="drift vectors of heuristic balance for f="+functionNames[i]+" thresh="+str(threshold),
@@ -209,8 +320,8 @@ if __name__ == '__main__':
                                 filename="./"+pureName+"/"+"heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
-                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for ar in res["NaiveHeuristic"]["driftVectors"]],
-                                res["NaiveHeuristic"]["driftVectors"],
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["NaiveHeuristic"]["driftVectors"] for ar in rep],
+                                [ar for rep in res["NaiveHeuristic"]["driftVectors"] for ar in rep],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
                                 title="drift vectors of naive heuristic balance for f="+functionNames[i]+" thresh="+str(threshold),
@@ -218,19 +329,28 @@ if __name__ == '__main__':
                                 filename="./"+pureName+"/"+"naive_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
-                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for ar in res["HeuristicOptimalPair"]["driftVectors"]],
-                                res["HeuristicOptimalPair"]["driftVectors"],
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["HeuristicOptimalPairWDistr"]["driftVectors"] for ar in rep],
+                                [ar for rep in res["HeuristicOptimalPairWDistr"]["driftVectors"] for ar in rep],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
-                                title="drift vectors of heuristic optimal pair balance for f="+functionNames[i]+" thresh="+str(threshold),
+                                title="drift vectors of heuristic optimal pair with distributions balance for f="+functionNames[i]+" thresh="+str(threshold),
                                 saveFlag=conf.saveFlag,
-                                filename="./"+pureName+"/"+"opt_pair_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
+                                filename="./"+pureName+"/"+"opt_pair_w_distr_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
+                                showFlag=conf.showFlag)
+                
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["HeuristicOptimalPairWDataUps"]["driftVectors"] for ar in rep],
+                                [ar for rep in res["HeuristicOptimalPairWDataUps"]["driftVectors"] for ar in rep],
+                                xLabel="iterations",
+                                yLabel="drift vector value",
+                                title="drift vectors of heuristic optimal pair with data updates balance for f="+functionNames[i]+" thresh="+str(threshold),
+                                saveFlag=conf.saveFlag,
+                                filename="./"+pureName+"/"+"opt_pair_w_data_ups_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
                 #remaining distance plot
-                multiplePlots2d([np.arange(1,res["Classic"]["totalLVs"]+1),np.arange(1,res["Heuristic"]["totalLVs"]+1),np.arange(1,len(res["NaiveHeuristic"]["remainingDist"])+1),np.arange(1,res["HeuristicOptimalPair"]["totalLVs"]+1)],
-                                [res["Classic"]["remainingDist"],res["Heuristic"]["remainingDist"],res["NaiveHeuristic"]["remainingDist"],res["HeuristicOptimalPair"]["remainingDist"]],
-                                labels=["Classic","Heuristic","NaiveHeuristic","HeuristicOptimalPair"],
+                multiplePlots2d([np.arange(1,len(res["Classic"]["remainingDist"])+1),np.arange(1,len(res["Heuristic"]["remainingDist"])+1),np.arange(1,len(res["NaiveHeuristic"]["remainingDist"])+1),np.arange(1,len(res["HeuristicOptimalPairWDistr"]["remainingDist"])+1),np.arange(1,len(res["HeuristicOptimalPairWDataUps"]["remainingDist"])+1)],
+                                [res["Classic"]["remainingDist"],res["Heuristic"]["remainingDist"],res["NaiveHeuristic"]["remainingDist"],res["HeuristicOptimalPairWDistr"]["remainingDist"],res["HeuristicOptimalPairWDataUps"]["remainingDist"]],
+                                labels=["Classic","Heuristic","NaiveHeuristic","HeuristicOptimalPairWDistr","HeuristicOptimalPairWDataUps"],
                                 xLabel="local violations",
                                 yLabel="distance",
                                 title="remaining distance for f="+functionNames[i]+" thresh="+str(threshold),
@@ -239,9 +359,9 @@ if __name__ == '__main__':
                                 showFlag=conf.showFlag)
                 
                 #lvs per iter plot
-                multiplePlots2d([np.arange(res["Classic"]["iters"]),np.arange(res["Heuristic"]["iters"]),np.arange(res["NaiveHeuristic"]["iters"]),np.arange(res["HeuristicOptimalPair"]["iters"])],
-                                [res["Classic"]["lVsPerIter"],res["Heuristic"]["lVsPerIter"],res["NaiveHeuristic"]["lVsPerIter"],res["HeuristicOptimalPair"]["lVsPerIter"]],
-                                labels=["Classic","Heuristic","NaiveHeuristic","HeuristicOptimalPair"],
+                multiplePlots2d([np.arange(len(res["Classic"]["lVsPerIter"])),np.arange(len(res["Heuristic"]["lVsPerIter"])),np.arange(len(res["NaiveHeuristic"]["lVsPerIter"])),np.arange(len(res["HeuristicOptimalPairWDistr"]["lVsPerIter"])),np.arange(len(res["HeuristicOptimalPairWDataUps"]["lVsPerIter"]))],
+                                [res["Classic"]["lVsPerIter"],res["Heuristic"]["lVsPerIter"],res["NaiveHeuristic"]["lVsPerIter"],res["HeuristicOptimalPairWDistr"]["lVsPerIter"],res["HeuristicOptimalPairWDataUps"]["lVsPerIter"]],
+                                labels=["Classic","Heuristic","NaiveHeuristic","HeuristicOptimalPairWDistr","HeuristicOptimalPairWDataUps"],
                                 xLabel="iterations",
                                 yLabel="local violations",
                                 title="local violations per iteration for f="+functionNames[i]+" thresh="+str(threshold),
@@ -252,7 +372,7 @@ if __name__ == '__main__':
                 
             
             #plotting experiments
-            #datasetRes={"dataset":{"Classic":{},"Heuristic":{},"NaiveHeuristic":{},"HeuristicOptimalPair":{}}}
+            #datasetRes={"dataset":{"Classic":{},"Heuristic":{},"NaiveHeuristic":{},"HeuristicOptimalPairWDistr":{},"HeuristicOptimalPairWDataUps":{}}}
                 
             if not os.path.exists(functionNames[i]):
                 os.makedirs(functionNames[i]) 
@@ -285,4 +405,4 @@ if __name__ == '__main__':
                             "./"+functionNames[i]+"/iters_thresh-"+str(threshold),
                             conf.saveFlag,
                             conf.showFlag)
-            
+    print(datasetRes)

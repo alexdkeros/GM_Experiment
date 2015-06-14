@@ -118,6 +118,9 @@ class Enviroment:
         '''
         #EXP-sniff msg
         self.newMsg(data[2],data[3])
+        #DBG
+        #print("signal received")
+        #print("Sender: %s, Target: %s , msg: %s , data: %s"%(data[0],data[1],data[2],str(data[3])))
         
         if data[1]:
             self.nodes[data[1]].rcv(data)
@@ -171,13 +174,13 @@ class Enviroment:
             
             for node in self.nodes.values():
                 #DBG
-                print("-------node running:%s"%node.getId())
+                #print("-------node running:%s"%node.getId())
                 
                 node.run()
             
             for node in self.nodes.values():
                 #DBG
-                print("-------node checking:%s"%node.getId())
+                #print("-------node checking:%s"%node.getId())
                 
                 node.check()
                 
@@ -237,14 +240,20 @@ class Enviroment:
             self.repMsgsPerIter[-1]+=1
         elif msg=="adjSlk":
             self.totalMsgs+=1
-            
-            self.reqMsgsPerBal[-1]+=1 #counting reqsPerBalance by the num of adjSlk msgs sent
+            if self.reqMsgsPerBal:
+                self.reqMsgsPerBal[-1]+=1 #counting reqsPerBalance by the num of adjSlk msgs sent
+            else:
+                self.reqMsgsPerBal.append(0)    
         elif msg=="globalViolation":
             if self.reqMsgsPerBal:
                 if self.reqMsgsPerBal[-1]==0:
                     self.reqMsgsPerBal[-1]=len(self.nodes)-1 #at last balancing(i.e.GV all nodes take place)
         elif msg=="balancingVector":
             self.balancingVectors.append(data)
+        
+        #DBG
+        #print("REQ Message count per iter:")
+        #print(self.reqMsgsPerIter)
                 
         
     def processExpRes(self):
@@ -305,11 +314,11 @@ if __name__=="__main__":
     decimal.getcontext().prec=Config.prec
     decimal.getcontext().rounding=Config.rounding
     
-    env=Enviroment(balancing="Classic",
+    env=Enviroment(balancing="Heuristic",
                    cumulationFactor=10,
                    threshold=100,
                    monitoringFunction=lambda x:x,
-                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-30_m-10_std-10.p')
+                   dataSetFile='/home/ak/git/GM_Experiment/Experiments/datasets/DATASET_l-0_n-5_m-10_std-10.p')
     env.runSimulation(None)
     print(env.getExpRes())
     

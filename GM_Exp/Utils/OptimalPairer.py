@@ -6,12 +6,12 @@ import numpy as np
 from scipy.stats import norm
 from GM_Exp.Utils import Utils
 
-class OptimalPairer:
+class OptimalPairerWDistr:
     '''
     class implementing optimal pairing as in paper Geometric Monitoring of Heterogeneous Streams
     '''
     
-    def __init__(self,nodes,threshold=None):
+    def __init__(self,nodes=None,threshold=None):
         '''
         constructor
         args:
@@ -24,6 +24,7 @@ class OptimalPairer:
         self.typeDict={} #contains optimal pairings {n:{(id1, id2, ...idn):(idk,....idz)}}
         self.distrDict={}
         
+
         
     '''
     --------------getters
@@ -67,6 +68,10 @@ class OptimalPairer:
             self.nodes=nodes
         if threshold:
             self.threshold=threshold
+            
+        #DBG
+        #print("OPTIMAL PAIRER: DISTRIBUTIONS")
+        #print(self.nodes)
         
         if self.threshold and self.nodes:
             return self._optimize([frozenset([n]) for n in self.nodes.keys()],self.threshold)
@@ -102,11 +107,16 @@ class OptimalPairer:
             self.distrDict[n]=g.node[n]['distr']
          
         #DBG
+        #print("!!!NODES!!!")
         #print(g.nodes(data=True))
         
         #add edge weights
         for (i,j) in g.edges():
-            g[i][j]['weight']=self._computeCdfWeight(g.node[i]['distr'],threshold)
+            g[i][j]['weight']=self._computeCdfWeight(self._computeAvgDistr(list(i.union(j))),threshold)
+        
+        #DBG
+        #print("!!!EDGES!!!")
+        #print(g.edges(data=True))
         
         #max weight matching
         pairs=nx.max_weight_matching(g, maxcardinality=True)
@@ -128,8 +138,8 @@ class OptimalPairer:
         
         @return tuple (mean, std) 
         '''
-        m=Utils.deDec(np.mean([self.nodes[node][0] for node in nodes]))
-        std=np.sqrt(Utils.deDec(sum([self.nodes[node][1]**2 for node in nodes]))/float(len(nodes)))
+        m=Utils.deDec(sum([self.nodes[node][0] for node in nodes])/Utils.dec(len(nodes)))
+        std=Utils.deDec(np.sqrt(sum([Utils.dec(self.nodes[node][1])**2 for node in nodes])/(Utils.dec(len(nodes))**2)))
         
         return (m,std)
         
@@ -144,21 +154,240 @@ class OptimalPairer:
         d=norm(distr[0], distr[1])
         return d.cdf(thresh)
     
+    
+
+
+
+
+
+'''
+---------------------------------------------DATA UPDATE OPTIMAL PAIRER------------------------------------------------
+'''
+
+
+
+
+class OptimalPairerWDataUpdates:
+    '''
+    class implementing optimal pairing as in paper Geometric Monitoring of Heterogeneous Streams
+    '''
+    
+    def __init__(self,nodes=None, threshold=None,func=None):
+        '''
+        constructor
+        args:
+            @param nodes: dictionary of {nodeId: data updates}
+            @param threshold: to compute edge weights for max_weight_matching, i.e. compute cdf(threshold) 
+            @param func: function of data to respect threshold
+
+        '''
+        self.nodes=nodes
+        self.threshold=threshold
+        self.func=func
+        self.globalMean=[]
+        
+        self.typeDict={} #contains optimal pairings {n:{(id1, id2, ...idn):(idk,....idz)}}
+        self.percentageDict={}
+        
+        
+    '''
+    --------------getters
+    '''
+    def getTypeDict(self):
+        '''
+        @return dictionary of pairs by type
+        '''
+        return self.typeDict
+    
+    def getPercentageDict(self):
+        '''
+        @return dictionary of distributions
+        '''
+        return self.percentageDict
+    
+    
+    def getOptPairing(self, nodes):
+        '''
+        args:
+            @param nodes: set of nodeIds, length equals to pairing type
+        @return list with optimal pair
+        '''
+        if len(nodes) in self.typeDict:
+            if frozenset(nodes) in self.typeDict[len(nodes)]:
+                return self.typeDict[len(nodes)][frozenset(nodes)]
+        return None
+    
+    '''
+    --------------main function: OPTIMIZER
+    '''
+    def optimize(self,nodes=None,threshold=None,func=None):
+        '''
+        constructor
+        args:
+            @param nodes: dictionary of {nodeId: data updates} 
+            @param threshold: to compute edge weights for max_weight_matching, i.e. compute cdf(threshold) 
+            @param func: function of data to respect threshold
+
+        @return: typeDict dictionary of pairings OR None at fail
+        '''
+        
+        if nodes:
+            self.nodes=nodes
+        if threshold:
+            self.threshold=threshold
+        if func:
+            self.func=func
+             
+        if not self.globalMean:
+            dataTups=zip(*[self.nodes[n] for n in nodes])
+            self.globalMean=[np.mean(t) for t in dataTups]
+            #DBG
+            #print("GLOBAL MEAN COMPUTATION")
+            #print(self.globalMean)
+        if self.threshold and self.nodes and self.func:
+            return self._optimize([frozenset([n]) for n in self.nodes.keys()],self.threshold,self.func)
+        else:
+            return None
+            
+    def _optimize(self,nodes,threshold=None,func=None):
+        '''
+        builds optimization tree/dictionary, recursive func
+        args:
+            @param nodes: list of node sets
+            @param threshold: cdf threshold as weights
+            @param func: function of data to respect threshold
+        
+        @return: typeDict dictionary of pairings OR None at fail
+        '''
+        #DBG
+        #print nodes
+        
+        if not threshold and self.threshold:
+            threshold=self.threshold
+        if not func and self.func:
+            func=self.func
+        
+        #recursion finish
+        if len(nodes)==1:
+            self.typeDict[len(nodes[0])]=nodes[0]
+            return self.typeDict
+        
+        #create complete Graph
+        g=nx.complete_graph(len(nodes))
+        
+        #assign actual nodeIds and distribution data to graph
+        nx.relabel_nodes(g, mapping=dict(zip(range(len(nodes)),nodes)), copy=False)
+         
+        #DBG
+        #print("!!!NODES!!!")
+        #print(g.nodes(data=True))
+        
+        #add edge weights
+        for (i,j) in g.edges():
+            g[i][j]['weight']=self._computePercentageWeight(list(i.union(j)),threshold,func)
+            self.percentageDict[i.union(j)]=g[i][j]['weight']
+        
+        #DBG
+        #print("!!!EDGES!!!")
+        #print(g.edges(data=True))
+        
+        #max weight matching
+        pairs=nx.max_weight_matching(g, maxcardinality=True)
+        
+        #store type i pairs
+        self.typeDict[len(pairs.keys()[0])]=pairs
+        
+        #recurse
+        self._optimize(list(set(n.union(pairs[n]) for n in pairs.keys())), threshold,func)
+    
+    '''
+    --------------Helper functions
+    '''    
+    
+    def _computePercentageWeight(self,nodes,thresh,func):
+        '''
+        args:
+            @param nodes: list of nodes
+            @param thresh: P(f(x)<=thresh)
+            @param func: function f()
+            
+        @return P(f(X)<=thresh)
+        '''
+        z=zip(*[self.nodes[n] for n in nodes])
+        counter=0.0
+        for i in range(len(z)):
+            if func(np.mean(z[i]))<thresh:
+                #DBG
+                #print("in Func: Qualifying %f"%func(np.mean(t)))
+                #print(t)
+                counter+=(-abs(Utils.deDec(func(self.globalMean[i]))-Utils.deDec(func(np.mean(z[i])))))
+        #DBG
+        '''
+        print("OPTIMAL PAIRER PERCENTAGE COMPUTATION:")
+        print(z)
+        print(nodes)
+        print(counter)
+        print(len(z))
+        print(counter/float(len(z)))
+        '''
+        return counter/float(len(z))
+    
 if __name__=="__main__":
     #run test - OK
+    thresh=100
     #dummy node dictionary
-    nodeDict={"n0":(2,3),
-              "n1":(2,5),
+    #print("----------------- DISTRIBUTION OPTIMAL PAIRER ------------------------------")
+    nodeDict={"n0":(100,3),
+              "n1":(90,5),
               "n2":(0,4),
-              "n3":(6,1),
+              "n3":(6,1)
+              }
+    '''
               "n4":(1,10),
               "n5":(8,2),
               "n6":(4,2),
-              "n7":(0,0.1)}
+              "n7":(0,0.1)
+    '''
+    
     print(nodeDict)
-    o=OptimalPairer(nodeDict, 8)
-    o.optimize(nodeDict, 10)
+    '''
+    o=OptimalPairerWDistr(nodeDict, thresh)
+    o.optimize(nodeDict, thresh)
     d=o.getTypeDict()
     for ty in d.keys():
         print("Type: %d"%ty)
         print(d[ty])
+    print("--------------")
+    di=o.getDistrDict()
+    
+    for n in di:
+        print("Node: %s"%str(n))
+        print(di[n])
+        print(norm(di[n][0],di[n][1]).cdf(thresh))
+    '''
+    
+    print("----------------- DATA UPDATES OPTIMAL PAIRER ------------------------------")
+    nodeDict2={}
+    for n in nodeDict:
+        r=0
+        nodeDict2[n]=[r]
+        for i in range(1000):
+            q=norm(nodeDict[n][0],nodeDict[n][1]).rvs()
+            r=r+q
+            nodeDict2[n].append(r)
+    for n in nodeDict2:
+        print(nodeDict2[n])
+    f=lambda x:x
+    o=OptimalPairerWDataUpdates(nodeDict2,thresh,f)
+    o.optimize(nodeDict2,thresh,f)
+    d=o.getTypeDict()
+    for t in d:
+        print("Type: %d"%t)
+        print(d[t])
+    print("--------------")
+    p=o.getPercentageDict()
+    
+    for n in p:
+        print("Node: %s"%str(n))
+        print(p[n])
+    

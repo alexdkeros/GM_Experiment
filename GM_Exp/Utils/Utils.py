@@ -64,8 +64,11 @@ def deDec(data):
         
     
 if __name__=='__main__':
+    #avg lists over iters
+    a=[[[2,3,4,5,6,6,7,7,8,8,9,9],[54,5,5],[4,5,6,6,7,65,5,4,3,2,2]],[[2,3,4,5,6,6,7,7,8,8,9,9],[54,5,5],[4,5,6,6,7,65,5,4,3,2,2]]]
+    print(toNdArray(a))
     #dec function test
-    
+    '''
     dat=[]
     print(dec(dat))
     dat.append(4.5)
@@ -123,3 +126,4 @@ if __name__=='__main__':
     
     dat=np.array([[4.3,6.5,7.3],[5.4,6.7,1.2],[44,4.3,0.1]])
     print(dec(dat))
+    '''

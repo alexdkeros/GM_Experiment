@@ -53,6 +53,7 @@ class MonitoringNode(Node):
         
         #EXP
         self.uLog=[0]
+
         
         #convert to decimals
         self.threshold=dec(self.threshold)
@@ -141,11 +142,24 @@ class MonitoringNode(Node):
         '''
         return self.uLog
     
+    def getDataUpdatesLog(self):
+        '''
+            returns data updates throught monitoring process
+            @return: array of data update x values
+        '''
+        return self.inputStreamInstance.getDataUpdatesLog()
+    
     def getDataUpdatesDistr(self):
         '''
             @return (mean, std) tuple, distribution data
         '''
         return self.inputStreamInstance.getDataUpdatesDistr()
+    
+    def getVelocityDistr(self):
+        '''
+            @return (mean, std) tuple, distribution data
+        '''
+        return self.inputStreamInstance.getVelocityDistr()
     '''
     ----------------------------------------------------------------------
     monitoring operation

@@ -7,11 +7,12 @@ Experiments configuration parameters
 #classic heuristic comparison test
 saveFlag=True
 showFlag=False
-dataSetFolder="./datasets"
+dataSetFolder="./test_datasets"
+repeats=3
 
 thresholds=[100]
-monitoringFunctions=[lambda x:x, lambda x:x**2]
-functionNames=["x", "x2"]
+monitoringFunctions=[lambda x:x]#,lambda x:x**2]
+functionNames=["x"]#,"x2"]
 
 cumulationFactors=[2,5,7,10,12,15,17]
 balTypes=["Classic",
