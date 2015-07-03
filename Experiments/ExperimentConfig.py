@@ -7,8 +7,8 @@ Experiments configuration parameters
 #classic heuristic comparison test
 saveFlag=True
 showFlag=False
-dataSetFolder="./test_datasets"
-repeats=3
+dataSetFolder="./datasets"
+repeats=2
 
 thresholds=[100]
 monitoringFunctions=[lambda x:x]#,lambda x:x**2]

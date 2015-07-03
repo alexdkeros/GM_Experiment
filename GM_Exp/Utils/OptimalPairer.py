@@ -5,6 +5,7 @@ import networkx as nx
 import numpy as np
 from scipy.stats import norm
 from GM_Exp.Utils import Utils
+import itertools
 
 class OptimalPairerWDistr:
     '''
@@ -52,6 +53,20 @@ class OptimalPairerWDistr:
             if frozenset(nodes) in self.typeDict[len(nodes)]:
                 return self.typeDict[len(nodes)][frozenset(nodes)]
         return None
+    
+    def getOptPairingOfTypeFromSet(self,t,s):
+        '''
+        args:
+            @param t: type number ( i.e. 1,2,4,8,16,... )
+            @param s: starting set
+        @return list with optimal pair
+        '''
+        l=set()
+        for el in set(itertools.combinations(s,t)):
+            if frozenset(list(el)) in self.typeDict[t]:
+                l=l.union(self.typeDict[t][frozenset(list(el))])
+        return l-s
+            
     
     '''
     --------------main function: OPTIMIZER
@@ -217,6 +232,18 @@ class OptimalPairerWDataUpdates:
                 return self.typeDict[len(nodes)][frozenset(nodes)]
         return None
     
+    def getOptPairingOfTypeFromSet(self,t,s):
+        '''
+        args:
+            @param t: type number ( i.e. 1,2,4,8,16,... )
+            @param s: starting set
+        @return list with optimal pair
+        '''
+        l=set()
+        for el in set(itertools.combinations(s,t)):
+            if frozenset(list(el)) in self.typeDict[t]:
+                l=l.union(self.typeDict[t][frozenset(list(el))])
+        return l-s
     '''
     --------------main function: OPTIMIZER
     '''
@@ -322,14 +349,13 @@ class OptimalPairerWDataUpdates:
                 #print(t)
                 counter+=(-abs(Utils.deDec(func(self.globalMean[i]))-Utils.deDec(func(np.mean(z[i])))))
         #DBG
-        '''
+        
         print("OPTIMAL PAIRER PERCENTAGE COMPUTATION:")
         print(z)
         print(nodes)
-        print(counter)
-        print(len(z))
-        print(counter/float(len(z)))
-        '''
+        print("Counter Val:%f"%counter)
+        print("Normalized Counter Val:%f"%(counter/float(len(z))))
+        
         return counter/float(len(z))
     
 if __name__=="__main__":
@@ -375,8 +401,10 @@ if __name__=="__main__":
             q=norm(nodeDict[n][0],nodeDict[n][1]).rvs()
             r=r+q
             nodeDict2[n].append(r)
+    '''
     for n in nodeDict2:
         print(nodeDict2[n])
+    '''
     f=lambda x:x
     o=OptimalPairerWDataUpdates(nodeDict2,thresh,f)
     o.optimize(nodeDict2,thresh,f)
@@ -384,10 +412,15 @@ if __name__=="__main__":
     for t in d:
         print("Type: %d"%t)
         print(d[t])
+    '''
     print("--------------")
     p=o.getPercentageDict()
     
     for n in p:
         print("Node: %s"%str(n))
         print(p[n])
+        
+    print("-------------")
+    '''
+    #print(o.getOptPairingOfTypeFromSet(2,set(["n1","n3","n2"])))
     

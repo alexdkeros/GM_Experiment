@@ -13,6 +13,7 @@ from GM_Exp.Utils.Plotter import multiplePlots2d
 from GM_Exp.Utils.Plotter import barChart
 from GM_Exp.GM.Enviroment import Enviroment
 from GM_Exp.GM.NaiveEnviroment import NaiveEnviroment
+from GM_Exp.GM.NaiveOptimalPairEnviroment import NaiveOptimalPairEnviroment
 from GM_Exp.GM.OptimalPairWDataUpdatesEnviroment import OptimalPairWDataUpdatesEnviroment
 
 import ExperimentConfig as conf
@@ -130,6 +131,35 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
             heuristicRes[metric]=avgListsOverIters(heuristicRes[metric])
     
     
+                
+    
+    #DBG
+    print("-------------HeuristicOptimalPairWDataUps")
+    optPairWDataUpsHeuristicRes={}
+    for rep in range(repeats):
+        print("***------------------------------------rep %d---------------------------------***"%rep)
+        env=None
+        env=OptimalPairWDataUpdatesEnviroment(balancing="HeuristicOptimalPair",
+                   threshold=threshold,
+                   monitoringFunction=monitoringFunction,
+                   dataSetFile=dataSetFile)
+        env.runSimulation(None)
+        res=env.getExpRes()
+        
+        #collect repeat results
+        if not optPairWDataUpsHeuristicRes:
+            for metric in res:
+                optPairWDataUpsHeuristicRes[metric]=[]
+
+        for metric in res:
+            optPairWDataUpsHeuristicRes[metric].append(res[metric])
+   
+    for metric in optPairWDataUpsHeuristicRes:
+        if metric!="driftVectors":
+            optPairWDataUpsHeuristicRes[metric]=avgListsOverIters(optPairWDataUpsHeuristicRes[metric])
+        
+        
+    
     
     #DBG
     print("-------------NaiveHeuristic")
@@ -189,12 +219,12 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
             
     
     #DBG
-    print("-------------HeuristicOptimalPairWDataUps")
-    optPairWDataUpsHeuristicRes={}
+    print("-------------NaiveHeuristicOptimalPairWDataUps")
+    naiveOptPairWDataUpsHeuristicRes={}
     for rep in range(repeats):
         print("***------------------------------------rep %d---------------------------------***"%rep)
         env=None
-        env=OptimalPairWDataUpdatesEnviroment(balancing="HeuristicOptimalPair",
+        env=NaiveOptimalPairEnviroment(balancing="NaiveOptimalPair",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
                    dataSetFile=dataSetFile)
@@ -202,16 +232,16 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         res=env.getExpRes()
         
         #collect repeat results
-        if not optPairWDataUpsHeuristicRes:
+        if not naiveOptPairWDataUpsHeuristicRes:
             for metric in res:
-                optPairWDataUpsHeuristicRes[metric]=[]
+                naiveOptPairWDataUpsHeuristicRes[metric]=[]
 
         for metric in res:
-            optPairWDataUpsHeuristicRes[metric].append(res[metric])
+            naiveOptPairWDataUpsHeuristicRes[metric].append(res[metric])
    
-    for metric in optPairWDataUpsHeuristicRes:
+    for metric in naiveOptPairWDataUpsHeuristicRes:
         if metric!="driftVectors":
-            optPairWDataUpsHeuristicRes[metric]=avgListsOverIters(optPairWDataUpsHeuristicRes[metric])
+            naiveOptPairWDataUpsHeuristicRes[metric]=avgListsOverIters(naiveOptPairWDataUpsHeuristicRes[metric])
         
         
     
@@ -220,7 +250,8 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
             "Heuristic":heuristicRes, 
             "NaiveHeuristic":naiveHeuristicRes, 
             "NaiveClassic":naiveClassicRes,
-            "HeuristicOptimalPairWDataUps":optPairWDataUpsHeuristicRes}
+            "HeuristicOptimalPairWDataUps":optPairWDataUpsHeuristicRes,
+            "NaiveOptPairWDataUpsHeuristic":naiveOptPairWDataUpsHeuristicRes}
 
 
 def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
@@ -240,9 +271,11 @@ def __barChartPlots(datasetRes,plotVal,filename,saveFlag,showFlag):
     naiveHeuristicRes=[datasetRes[key]["NaiveHeuristic"][plotVal] for key in keys]
     naiveClassicRes=[datasetRes[key]["NaiveClassic"][plotVal] for key in keys]
     optPairWDataUpsHeuristicRes=[datasetRes[key]["HeuristicOptimalPairWDataUps"][plotVal] for key in keys]
+    naiveOptPairWDataUpsHeuristicRes=[datasetRes[key]["NaiveOptPairWDataUpsHeuristic"][plotVal] for key in keys]
 
-    barChart([classicRes,heuristicRes,naiveHeuristicRes,naiveClassicRes,optPairWDataUpsHeuristicRes],
-             labels=["Classic","Heuristic","NaiveHeuristic","NaiveClassic","HeuristicOptimalPairWDataUps"],
+
+    barChart([classicRes,heuristicRes,optPairWDataUpsHeuristicRes,naiveClassicRes,naiveHeuristicRes,naiveOptPairWDataUpsHeuristicRes],
+             labels=["Classic","Heuristic","HeuristicOptimalPairWDataUps","NaiveClassic","NaiveHeuristic","NaiveOptPairWDataUpsHeuristic"],
              xLabel="datasets",
              yLabel=plotVal,
              title=plotVal,
@@ -332,9 +365,9 @@ if __name__ == '__main__':
                                 [ar for rep in res["NaiveClassic"]["driftVectors"] for ar in rep],
                                 xLabel="iterations",
                                 yLabel="drift vector value",
-                                title="drift vectors of heuristic optimal pair with distributions balance for f="+functionNames[i]+" thresh="+str(threshold),
+                                title="drift vectors of naive classic balance for f="+functionNames[i]+" thresh="+str(threshold),
                                 saveFlag=conf.saveFlag,
-                                filename="./"+pureName+"/"+"opt_pair_w_distr_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
+                                filename="./"+pureName+"/"+"naive_classic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
                 
                 multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["HeuristicOptimalPairWDataUps"]["driftVectors"] for ar in rep],
@@ -345,11 +378,20 @@ if __name__ == '__main__':
                                 saveFlag=conf.saveFlag,
                                 filename="./"+pureName+"/"+"opt_pair_w_data_ups_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
                                 showFlag=conf.showFlag)
+
+                multiplePlots2d([np.array(list(chain.from_iterable(zip(range(int(math.ceil(len(ar)/float(2)))),range(int(math.ceil(len(ar)/float(2)))))))[0:(-1 if len(ar)%2==1 else len(ar))]) for rep in res["NaiveOptPairWDataUpsHeuristic"]["driftVectors"] for ar in rep],
+                                [ar for rep in res["NaiveOptPairWDataUpsHeuristic"]["driftVectors"] for ar in rep],
+                                xLabel="iterations",
+                                yLabel="drift vector value",
+                                title="drift vectors of naive optimal pair w data updates heuristic balance for f="+functionNames[i]+" thresh="+str(threshold),
+                                saveFlag=conf.saveFlag,
+                                filename="./"+pureName+"/"+"naive_opt_pair_heuristic_drifts_f-"+functionNames[i]+"_thresh-"+str(threshold),
+                                showFlag=conf.showFlag)
                 
                 #remaining distance plot
-                multiplePlots2d([np.arange(1,len(res["Classic"]["remainingDist"])+1),np.arange(1,len(res["Heuristic"]["remainingDist"])+1),np.arange(1,len(res["NaiveHeuristic"]["remainingDist"])+1),np.arange(1,len(res["NaiveClassic"]["remainingDist"])+1),np.arange(1,len(res["HeuristicOptimalPairWDataUps"]["remainingDist"])+1)],
-                                [res["Classic"]["remainingDist"],res["Heuristic"]["remainingDist"],res["NaiveHeuristic"]["remainingDist"],res["NaiveClassic"]["remainingDist"],res["HeuristicOptimalPairWDataUps"]["remainingDist"]],
-                                labels=["Classic","Heuristic","NaiveHeuristic","NaiveClassic","HeuristicOptimalPairWDataUps"],
+                multiplePlots2d([np.arange(1,len(res["Classic"]["remainingDist"])+1),np.arange(1,len(res["Heuristic"]["remainingDist"])+1),np.arange(1,len(res["HeuristicOptimalPairWDataUps"]["remainingDist"])+1),np.arange(1,len(res["NaiveClassic"]["remainingDist"])+1),np.arange(1,len(res["NaiveHeuristic"]["remainingDist"])+1),np.arange(1,len(res["NaiveOptPairWDataUpsHeuristic"]["remainingDist"])+1)],
+                                [res["Classic"]["remainingDist"],res["Heuristic"]["remainingDist"],res["HeuristicOptimalPairWDataUps"]["remainingDist"],res["NaiveClassic"]["remainingDist"],res["NaiveHeuristic"]["remainingDist"],res["NaiveOptPairWDataUpsHeuristic"]["remainingDist"]],
+                                labels=["Classic","Heuristic","HeuristicOptimalPairWDataUps","NaiveClassic","NaiveHeuristic","NaiveOptPairWDataUpsHeuristic"],
                                 xLabel="local violations",
                                 yLabel="distance",
                                 title="remaining distance for f="+functionNames[i]+" thresh="+str(threshold),
@@ -358,9 +400,9 @@ if __name__ == '__main__':
                                 showFlag=conf.showFlag)
                 
                 #lvs per iter plot
-                multiplePlots2d([np.arange(len(res["Classic"]["lVsPerIter"])),np.arange(len(res["Heuristic"]["lVsPerIter"])),np.arange(len(res["NaiveHeuristic"]["lVsPerIter"])),np.arange(len(res["NaiveClassic"]["lVsPerIter"])),np.arange(len(res["HeuristicOptimalPairWDataUps"]["lVsPerIter"]))],
-                                [res["Classic"]["lVsPerIter"],res["Heuristic"]["lVsPerIter"],res["NaiveHeuristic"]["lVsPerIter"],res["NaiveClassic"]["lVsPerIter"],res["HeuristicOptimalPairWDataUps"]["lVsPerIter"]],
-                                labels=["Classic","Heuristic","NaiveHeuristic","NaiveClassic","HeuristicOptimalPairWDataUps"],
+                multiplePlots2d([np.arange(len(res["Classic"]["lVsPerIter"])),np.arange(len(res["Heuristic"]["lVsPerIter"])),np.arange(len(res["HeuristicOptimalPairWDataUps"]["lVsPerIter"])),np.arange(len(res["NaiveClassic"]["lVsPerIter"])),np.arange(len(res["NaiveHeuristic"]["lVsPerIter"])),np.arange(len(res["NaiveOptPairWDataUpsHeuristic"]["lVsPerIter"]))],
+                                [res["Classic"]["lVsPerIter"],res["Heuristic"]["lVsPerIter"],res["HeuristicOptimalPairWDataUps"]["lVsPerIter"],res["NaiveClassic"]["lVsPerIter"],res["NaiveHeuristic"]["lVsPerIter"],res["NaiveOptPairWDataUpsHeuristic"]["lVsPerIter"]],
+                                labels=["Classic","Heuristic","HeuristicOptimalPairWDataUps","NaiveClassic","NaiveHeuristic","NaiveOptPairWDataUpsHeuristic"],
                                 xLabel="iterations",
                                 yLabel="local violations",
                                 title="local violations per iteration for f="+functionNames[i]+" thresh="+str(threshold),
@@ -371,7 +413,7 @@ if __name__ == '__main__':
                 
             
             #plotting experiments
-            #datasetRes={"dataset":{"Classic":{},"Heuristic":{},"NaiveHeuristic":{},"NaiveClassic":{},"HeuristicOptimalPairWDataUps":{}}}
+            #datasetRes={"dataset":{"Classic":{},"Heuristic":{},"HeuristicOptimalPairWDataUps":{},"NaiveClassic":{},"NaiveHeuristic":{},"NaiveOptPairWDataUpsHeuristic":{}}}
                 
             if not os.path.exists(functionNames[i]):
                 os.makedirs(functionNames[i]) 
