@@ -7,8 +7,8 @@ import sys
 
 from GM_Exp import Config
 from GM_Exp.DataStream.InputStream import InputStream
-from GM_Exp.Utils.Plotter import multiplePlots2d, plot2d
-from GM_Exp.Utils.Utils import dec, deDec
+from GM_Exp.Util.Plotter import multiplePlots2d, plot2d
+from GM_Exp.Util.Utils import dec, deDec
 import numpy as np
 
 
@@ -240,7 +240,7 @@ if __name__=="__main__":
         m.append(np.mean([v0[i],v1[i],v2[i]]))
     print("mean of means is:%f"%np.mean(m))
 
-    from GM_Exp.Utils import Plotter
+    from GM_Exp.Util import Plotter
     ranges=[np.arange(1,51),np.arange(1,51), np.arange(1,51)]
     multiplePlots2d(ranges,[v0,v1,v2],['one','two','three'],title="vels")
     multiplePlots2d(ranges, ds['updates'], ['one','two','three'],title='updates')

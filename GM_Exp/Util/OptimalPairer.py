@@ -4,7 +4,7 @@
 import networkx as nx
 import numpy as np
 from scipy.stats import norm
-from GM_Exp.Utils import Utils
+from GM_Exp.Util import Utils
 import itertools
 
 class OptimalPairerWDistr:

@@ -4,9 +4,9 @@ Heuristic method test
 @author: ak
 '''
 import numpy as np
-from GM_Exp.Utils import Plotter
+from GM_Exp.Util import Plotter
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
-from GM_Exp.Utils.Plotter import multiplePlots2d
+from GM_Exp.Util.Plotter import multiplePlots2d
 
 
 def __heuristicTester(data,threshold,b,fu,comment):

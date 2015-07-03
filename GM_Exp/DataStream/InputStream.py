@@ -3,7 +3,7 @@
 '''
 from scipy.stats import norm
 
-from GM_Exp.Utils.Utils import dec, deDec
+from GM_Exp.Util.Utils import dec, deDec
 import numpy as np
 
 

@@ -8,7 +8,7 @@ from GM_Exp import Config
 from GM_Exp.GM.Node import Node
 from types import StringType
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
-from GM_Exp.Utils.Utils import dec,deDec
+from GM_Exp.Util.Utils import dec,deDec
 
 
 
