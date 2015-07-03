@@ -2,9 +2,10 @@
 @author: ak
 '''
 import itertools
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import cm
 from matplotlib import rc
-import matplotlib
 from mpl_toolkits.axisartist.axis_artist import Ticks
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import random

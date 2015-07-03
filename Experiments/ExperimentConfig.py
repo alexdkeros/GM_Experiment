@@ -7,7 +7,7 @@ Experiments configuration parameters
 #classic heuristic comparison test
 saveFlag=True
 showFlag=False
-dataSetFolder="./datasets"
+dataSetFolder="/home/ak/git/GM_Experiment/Experiments/datasets"
 repeats=10
 
 thresholds=[100]
