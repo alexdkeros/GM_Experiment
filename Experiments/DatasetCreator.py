@@ -11,7 +11,7 @@ if __name__ == '__main__':
     
     datal=[1] #lambda 0,0.5,
     dataNodes=[5] #nodes 2,3,5,10,20,30
-    dataMeanDist=[(5,2)] #mean distribution (2,1),(10,10)
+    dataMeanDist=[(3,15)] #mean distribution (2,1),(10,10)
     dataStdDist=[(5,5)] #std distribution (0,1),(10,10)
     
     for l in datal:

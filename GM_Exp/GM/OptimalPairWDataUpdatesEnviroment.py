@@ -11,7 +11,7 @@ from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.HeuristicOptimalPairCoordinator import HeuristicOptimalPairCoordinator
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Config import dataSetFile, lambdaVel, streamNormalizing
-from GM_Exp.Utils.OptimalPairer import OptimalPairerWDataUpdates
+from GM_Exp.Utils.OptimalPairer import WeightedOptimalPairerWDataUpdates
 
 
 class OptimalPairWDataUpdatesEnviroment:
@@ -98,7 +98,7 @@ class OptimalPairWDataUpdatesEnviroment:
         #--------------------------------------------------------------------------------------------------------------------
         # building optimal pairing dictionary
         #--------------------------------------------------------------------------------------------------------------------
-        self.optimalPairer=OptimalPairerWDataUpdates(threshold=self.threshold)
+        self.optimalPairer=WeightedOptimalPairerWDataUpdates(threshold=self.threshold)
         
         #DBG
         #print("OPTIMAL PAIRER: DISTRIBUTIONS")
