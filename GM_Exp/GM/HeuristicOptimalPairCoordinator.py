@@ -9,8 +9,8 @@ from GM_Exp import Config
 from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.GM.Node import Node
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
-from GM_Exp.Utils.Utils import dec, deDec
-from GM_Exp.Utils.OptimalPairer import OptimalPairerWDataUpdates,OptimalPairerWDistr
+from GM_Exp.Util.Utils import dec, deDec
+from GM_Exp.Util.OptimalPairer import OptimalPairerWDataUpdates,OptimalPairerWDistr
 
 
 class HeuristicOptimalPairCoordinator(Coordinator):

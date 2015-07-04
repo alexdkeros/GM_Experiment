@@ -2,16 +2,17 @@
 @author: ak
 '''
 import itertools
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import cm
 from matplotlib import rc
-import matplotlib
 from mpl_toolkits.axisartist.axis_artist import Ticks
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import random
 from scipy.io.matlab.mio5_utils import scipy
 import time
 
-from GM_Exp.Utils import Utils
+from GM_Exp.Util import Utils
 import numpy as np
 import pylab as pl
 

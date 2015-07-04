@@ -6,8 +6,8 @@ Created on Dec 11, 2014
 import numpy as np
 import pylab as pl
 import GM_Exp.Config as Config
-from GM_Exp.Utils import Utils
-from GM_Exp.Utils import Plotter
+from GM_Exp.Util import Utils
+from GM_Exp.Util import Plotter
 from GM_Exp.GM.Enviroment import Enviroment
 
 if __name__ == '__main__':

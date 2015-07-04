@@ -3,14 +3,16 @@ Comparison of Classic,Heuristic, NaiveHeuristic and HeuristicOptimalPair balanci
 
 @author: ak
 '''
+import sys
+sys.path.append("/home/ak/git/GM_Experiment") 
 import os
 import pickle
 import math
 import numpy as np
 from itertools import chain
-from GM_Exp.Utils.Utils import avgListsOverIters
-from GM_Exp.Utils.Plotter import multiplePlots2d
-from GM_Exp.Utils.Plotter import barChart
+from GM_Exp.Util.Utils import avgListsOverIters
+from GM_Exp.Util.Plotter import multiplePlots2d
+from GM_Exp.Util.Plotter import barChart
 from GM_Exp.GM.Enviroment import Enviroment
 from GM_Exp.GM.NaiveEnviroment import NaiveEnviroment
 from GM_Exp.GM.NaiveOptimalPairEnviroment import NaiveOptimalPairEnviroment

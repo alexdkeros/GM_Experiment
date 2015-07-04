@@ -11,7 +11,11 @@ from GM_Exp.GM.MonitoringNode import MonitoringNode
 from GM_Exp.GM.HeuristicOptimalPairCoordinator import HeuristicOptimalPairCoordinator
 from GM_Exp.Heuristics.NonLinearProgramming import heuristicNLP
 from GM_Exp.Config import dataSetFile, lambdaVel, streamNormalizing
+<<<<<<< HEAD
 from GM_Exp.Utils.OptimalPairer import WeightedOptimalPairerWDataUpdates
+=======
+from GM_Exp.Util.OptimalPairer import OptimalPairerWDataUpdates
+>>>>>>> 8b8df8ed0ecf6f0cfcf433a14e9787ea09fc9781
 
 
 class OptimalPairWDataUpdatesEnviroment:

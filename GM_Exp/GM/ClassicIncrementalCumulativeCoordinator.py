@@ -8,7 +8,7 @@ from types import StringType
 from GM_Exp import Config
 from GM_Exp.GM.Coordinator import Coordinator
 from GM_Exp.GM.Node import Node
-from GM_Exp.Utils.Utils import dec, deDec
+from GM_Exp.Util.Utils import dec, deDec
 
 
 class ClassicIncrementalCumulativeCoordinator(Coordinator):

@@ -8,8 +8,8 @@ import pickle
 import math
 import numpy as np
 from itertools import chain
-from GM_Exp.Utils.Plotter import multiplePlots2d
-from GM_Exp.Utils.Plotter import barChart
+from GM_Exp.Util.Plotter import multiplePlots2d
+from GM_Exp.Util.Plotter import barChart
 from GM_Exp.GM.Enviroment import Enviroment
 import ExperimentConfig as conf
 
