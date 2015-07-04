@@ -7,8 +7,8 @@ Experiments configuration parameters
 #classic heuristic comparison test
 saveFlag=True
 showFlag=False
-dataSetFolder="/home/ak/git/GM_Experiment/Experiments/datasets"
-repeats=10
+dataSetFolder="/home/ak/workspace/GM_Experiment/Experiments/datasets"
+repeats=2
 
 thresholds=[100]
 monitoringFunctions=[lambda x:x]#,lambda x:x**2]

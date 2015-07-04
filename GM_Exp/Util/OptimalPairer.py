@@ -397,7 +397,7 @@ class WeightedOptimalPairerWDataUpdates:
         self.threshold=threshold
         self.func=func
         self.globalMean=[]
-        self.normalizer=10
+        self.normalizer=1
         self.typeDict={} #contains optimal pairings {n:{(id1, id2, ...idn):(idk,....idz)}}
         self.percentageDict={}
         
@@ -540,15 +540,15 @@ class WeightedOptimalPairerWDataUpdates:
         z=zip(*[self.nodes[n] for n in nodes])
         counter=0.0
         for i in range(len(z)):
-            if func(np.mean(z[i]))<thresh:
+            #if func(np.mean(z[i]))<thresh:
                 #DBG
                 #print("in Func: Qualifying %f"%func(np.mean(t)))
                 #print(t)
-                w=0
-                ps=list(itertools.combinations(set(z[i]),2))
-                for j in ps:
-                    w+=abs(j[0]-j[1])
-                counter+=(-abs(Utils.deDec(func(self.globalMean[i]))-Utils.deDec(func(np.mean(z[i])))))+Utils.deDec(w/self.normalizer)
+            w=0
+            ps=list(itertools.combinations(set(z[i]),2))
+            for j in ps:
+                w+=abs(j[0]-j[1])
+            counter+=(-abs(Utils.deDec(func(self.globalMean[i]))-Utils.deDec(func(np.mean(z[i])))))+Utils.deDec(w/self.normalizer)
         #DBG
         '''
         print("OPTIMAL PAIRER PERCENTAGE COMPUTATION:")
@@ -594,8 +594,8 @@ if __name__=="__main__":
     
     print("-----------------WEIGHTED DATA UPDATES OPTIMAL PAIRER ------------------------------")
     import pickle
-    from GM_Exp.Utils.Plotter import multiplePlots2d
-    dataSet=pickle.load(open("/home/ak/workspace/GM_Experiment/Experiments/datasets/DATASET_l-1_n-5_m-3_std-5.p","rb"))
+    from GM_Exp.Util.Plotter import multiplePlots2d
+    dataSet=pickle.load(open("/home/ak/workspace/GM_Experiment/Experiments/datasets/DATASET_l-1_n-5_m-5_std-5.p","rb"))
     nodeDict2={}
     for i in range(dataSet["streams"]):
         nodeDict2["n"+str(i)]=dataSet["updates"][i]

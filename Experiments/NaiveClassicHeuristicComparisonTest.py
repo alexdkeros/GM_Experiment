@@ -4,7 +4,7 @@ Comparison of Classic,Heuristic, NaiveHeuristic and HeuristicOptimalPair balanci
 @author: ak
 '''
 import sys
-sys.path.append("/home/ak/git/GM_Experiment") 
+sys.path.append("/home/ak/workspace/GM_Experiment") 
 import os
 import pickle
 import math
