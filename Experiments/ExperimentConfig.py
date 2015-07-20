@@ -8,7 +8,7 @@ Experiments configuration parameters
 saveFlag=True
 showFlag=False
 dataSetFolder="/home/ak/workspace/GM_Experiment/Experiments/datasets"
-repeats=10
+repeats=3
 
 thresholds=[100]
 monitoringFunctions=[lambda x:x]#,lambda x:x**2]

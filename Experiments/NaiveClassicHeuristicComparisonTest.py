@@ -11,6 +11,7 @@ import math
 import numpy as np
 from itertools import chain
 from GM_Exp.Util.Utils import avgListsOverIters
+from GM_Exp.Util.Utils import loadDataSet
 from GM_Exp.Util.Plotter import multiplePlots2d
 from GM_Exp.Util.Plotter import barChart
 from GM_Exp.GM.Enviroment import Enviroment
@@ -32,7 +33,7 @@ def __viewDataset(dataSetFile,savePath,filename,saveFlag,showFlag):
         @param showFlag: boolean, to show flag
     '''
     print(dataSetFile)
-    dataSet=pickle.load(open(dataSetFile,"rb"))
+    dataSet=loadDataSet(dataSetFile)
     ranges=[np.arange(dataSet["iterations"])]*dataSet["streams"]
     #velocities
     multiplePlots2d(ranges,
@@ -78,6 +79,9 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         @param monitoringFunction: the monitoring function
     @return: results for classic and heuristic tests, dict {"classic":{},"heuristic":{}}
     '''
+    #preload dataset
+    dataSet=loadDataSet(dataSetFile)
+    
     #DBG
     print("-------------Classic")
     classicRes={}
@@ -88,7 +92,7 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         env=Enviroment(balancing="Classic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
-                   dataSetFile=dataSetFile)
+                   dataSetFile=dataSet)
         env.runSimulation(None)
         res=env.getExpRes()
         
@@ -116,7 +120,7 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         env=Enviroment(balancing="Heuristic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
-                   dataSetFile=dataSetFile)
+                   dataSetFile=dataSet)
         env.runSimulation(None)
         res=env.getExpRes()
         
@@ -144,7 +148,7 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         env=OptimalPairWDataUpdatesEnviroment(balancing="HeuristicOptimalPair",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
-                   dataSetFile=dataSetFile)
+                   dataSetFile=dataSet)
         env.runSimulation(None)
         res=env.getExpRes()
         
@@ -172,7 +176,7 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         env=NaiveEnviroment(balancing="NaiveHeuristic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
-                   dataSetFile=dataSetFile)
+                   dataSetFile=dataSet)
         env.runSimulation(None)
         res=env.getExpRes()
         
@@ -201,7 +205,7 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         env=NaiveEnviroment(balancing="NaiveClassic",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
-                   dataSetFile=dataSetFile)
+                   dataSetFile=dataSet)
         env.runSimulation(None)
         res=env.getExpRes()
     
@@ -229,7 +233,7 @@ def __runExperimentsOnDataSet(dataSetFile,repeats,threshold, monitoringFunction)
         env=NaiveOptimalPairEnviroment(balancing="NaiveOptimalPair",
                    threshold=threshold,
                    monitoringFunction=monitoringFunction,
-                   dataSetFile=dataSetFile)
+                   dataSetFile=dataSet)
         env.runSimulation(None)
         res=env.getExpRes()
         

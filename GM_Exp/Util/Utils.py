@@ -4,7 +4,7 @@
 from __future__ import division
 
 import decimal
-
+import pickle
 from GM_Exp import Config
 import numpy as np
 
@@ -62,7 +62,14 @@ def deDec(data):
         else:
             return data
         
-    
+def loadDataSet(filename):
+    '''
+    @param filename: filename of dataset
+    @return dictionary with dataset data
+    '''
+    if isinstance(filename,str):
+        return pickle.load(open(filename,"rb"))
+        
 if __name__=='__main__':
     #avg lists over iters
     a=[[[2,3,4,5,6,6,7,7,8,8,9,9],[54,5,5],[4,5,6,6,7,65,5,4,3,2,2]],[[2,3,4,5,6,6,7,7,8,8,9,9],[54,5,5],[4,5,6,6,7,65,5,4,3,2,2]]]
@@ -126,4 +133,7 @@ if __name__=='__main__':
     
     dat=np.array([[4.3,6.5,7.3],[5.4,6.7,1.2],[44,4.3,0.1]])
     print(dec(dat))
+    
+    d=loadDataSet('/home/ak/workspace/GM_Experiment/Experiments/datasets/DATASET_l-1_n-5_m-5_std-5.p')
+    print(d)
     '''

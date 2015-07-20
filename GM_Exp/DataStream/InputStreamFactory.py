@@ -170,11 +170,16 @@ class InputStreamFactory:
         '''
         load created dataset
         '''
-        dataSet=pickle.load(open(dataSetFile,"rb"))
+        if isinstance(dataSetFile,str):
+            dataSet=pickle.load(open(dataSetFile,"rb"))
+        elif isinstance(dataSetFile,dict):
+            dataSet=dataSetFile
         #DBG
         for i in range(dataSet["streams"]):
             self.inputStreams.append(InputStream(velocitiesDataSet=dataSet["velocities"][i], updatesDataSet=dataSet["updates"][i]))
         self.dataSetFlag=True
+        
+    
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------
