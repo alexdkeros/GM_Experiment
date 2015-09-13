@@ -1,23 +1,22 @@
 '''
 @author: ak
 '''
-import itertools
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import cm
 from matplotlib import rc
 from mpl_toolkits.axisartist.axis_artist import Ticks
 from mpl_toolkits.mplot3d.axes3d import Axes3D
-import random
-from scipy.io.matlab.mio5_utils import scipy
-import time
 
-from GM_Exp.Util import Utils
-import numpy as np
+import itertools
+import time
+import scipy as sp
 import pylab as pl
 
 
-#matplotlib.use('Agg')
+from Simulation.Utilities.ArrayOperations import *
+
+
 colors = itertools.cycle(['r','b','g','c', 'm', 'y', 'k','w'])
 
 #plotting settings
@@ -161,7 +160,7 @@ def plot3d(xRange, yRange, data,
     fig=pl.figure()
     axes=fig.add_subplot(1,1,1, projection='3d')
     Y,X=pl.meshgrid(yRange, xRange)
-    p=axes.plot_surface(X,Y,Utils.toNdArray(data).transpose(),rstride=1, cstride=1, cmap=cm.get_cmap('coolwarm', None), linewidth=0, antialiased=True)
+    p=axes.plot_surface(X,Y,toNdArray(data).transpose(),rstride=1, cstride=1, cmap=cm.get_cmap('coolwarm', None), linewidth=0, antialiased=True)
     axes.view_init(angleX, angleY)
     cb=fig.colorbar(p,shrink=0.5)
     axes.set_ylim3d(yRange[0], yRange[-1])
@@ -265,7 +264,7 @@ def barChart(data,
     pl.close()
     
 #----------------------------------------------------------------------------
-#---------------------------------TEST---------------------------------------
+#---------------------------------TEST-OK------------------------------------
 #----------------------------------------------------------------------------          
 
 if __name__=="__main__":
@@ -316,7 +315,7 @@ if __name__=="__main__":
     '''
     
     #testing bar chart - OK
-    
+    '''
     from scipy.stats import norm
     print("---plotting---")
     d=norm(5,1)
@@ -332,4 +331,4 @@ if __name__=="__main__":
     
     labels=['two','three','four','five','a','b','g','h']
     barChart(data, labels=labels,xticks=xticks,showFlag=False,saveFlag=True,filename='test_bar',figsize=(155,15),totalBarWidth=0.82)
-    
+    '''
