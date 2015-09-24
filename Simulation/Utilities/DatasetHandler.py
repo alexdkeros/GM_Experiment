@@ -26,9 +26,22 @@ def loadDataset(path):
     elif ext==".xlsx" or ext==".xls":
         dataset=pd.read_excel(path)
     else:
-        raise Exception("Not supported dataset, try csv,hdf of excel file.")
+        raise ValueError("Not supported dataset, try csv,hdf of excel file.")
     
     return dataset
+
+def saveDataset(dataset,path):
+    ext=os.path.splitext(path)
+
+    if ext==".csv":
+        dataset.to_csv(path)
+    elif ext==".h5":
+        dataset.to_hdf(path,'df')
+    elif ext==".xlsx" or ext==".xls":
+        dataset.to_excel(path)
+    else:
+        raise ValueError("Not supported dataset, try csv,hdf of excel file.")
+     
 
 def splitTrainTestDataset(dataset,percentage=0.8):
     '''
