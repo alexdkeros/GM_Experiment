@@ -3,6 +3,7 @@
 '''
 import decimal
 import scipy as sp
+import pandas as pd
 
 def dec(data):
     '''
@@ -11,7 +12,18 @@ def dec(data):
     @return decimal representation of data
     '''
     if isinstance(data, list) or isinstance(data,sp.ndarray):
-        return list(dec(d) for d in data) if isinstance(data,list) else sp.array([dec(d) for d in data]) 
+        return list(dec(d) for d in data) 
+    elif isinstance(data,sp.ndarray):
+        return sp.array([dec(d) for d in data])
+    
+    #pandas data types
+    elif isinstance(data,pd.Series):
+        return data.map(dec)
+    elif isinstance(data,pd.DataFrame):
+        return data.applymap(dec)
+    elif isinstance(data,pd.Panel):
+        return pd.Panel({i:dec(data[i]) for i in data})
+    
     else:
         return decimal.Decimal(str(data))
         
@@ -23,7 +35,17 @@ def deDec(data):
     @return decoded data, float
     '''
     if isinstance(data, list) or isinstance(data,sp.ndarray):
-        return list(deDec(d) for d in data) if isinstance(data,list) else sp.array([deDec(d) for d in data]) 
+        return list(deDec(d) for d in data) 
+    elif isinstance(data,sp.ndarray):
+        return sp.array([deDec(d) for d in data])
+    
+    #pandas data types
+    elif isinstance(data,pd.Series):
+        return data.map(deDec)
+    elif isinstance(data,pd.DataFrame):
+        return data.applymap(deDec)
+    elif isinstance(data,pd.Panel):
+        return pd.Panel({i:deDec(data[i]) for i in data})
     else:
         if isinstance(data,decimal.Decimal):
             return float(data)
@@ -50,4 +72,44 @@ if __name__=='__main__':
     
     assert deDec(dec(td))==td
     assert deDec(dec(tdArray))==tdArray
+    
+    print('-------panda testing------')
+    print('Series:')
+    p=pd.Series([3.2,4.5,1000,234.23],index=['a','b','c','d'])
+    print(p)
+    dp=dec(p)
+    print(type(dp))
+    print(dp)
+    print(type(dp[0]))
+    print('deDec:')
+    print(deDec(dp))
+    print(type(deDec(dp)))
+    print(type(deDec(dp)[0]))
+          
+    
+    
+    print('DataFrames:')
+    p=pd.DataFrame([p]*3)
+    print(p)
+    dp=dec(p)
+    print(type(dp))
+    print(dp)
+    print(type(dp.iloc[0,0]))
+    print('deDec:')
+    print(deDec(dp))
+    print(type(deDec(dp)))
+    print(type(deDec(dp).iloc[0,0]))
+    
+    
+    print('Panels:')
+    p=pd.Panel({'a':p,'b':p})
+    print(p)
+    dp=dec(p)
+    print(type(dp))
+    print(dp)
+    print(type(dp.iloc[0,0,0]))
+    print('deDec:')
+    print(deDec(dp))
+    print(type(deDec(dp)))
+    print(type(deDec(dp).iloc[0,0,0]))
     
