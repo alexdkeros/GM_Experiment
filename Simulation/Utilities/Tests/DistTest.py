@@ -1,5 +1,6 @@
 '''
 @author: ak
+
 '''
 from FuncDesigner import *
 from openopt import *
@@ -15,6 +16,7 @@ def minDist():
     func=lambda x,y,z:(x**2+y+z)
     
     x=oovars(['x','y','z'])
+    print(x)
     
     f=[]
     constraints=[]
@@ -30,6 +32,11 @@ def minDist():
     r=p.maximize('ralg',plot=False)
     
     print({v.name:r(v) for v in x})
+    
+    r=p.minimize('ralg',plot=False)
+    
+    print({v.name:r(v) for v in x})
+    
     return r
 
 if __name__=='__main__':

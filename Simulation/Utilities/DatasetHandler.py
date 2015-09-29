@@ -6,7 +6,7 @@ import os.path
 
 import pandas as pd
 import scipy as sp
-
+from Simulation.Utilities.Dec import *
 
 def loadDataset(path):
     '''
@@ -28,7 +28,7 @@ def loadDataset(path):
     else:
         raise ValueError("Not supported dataset, try csv,hdf of excel file.")
     
-    return dataset
+    return dec(dataset)
 
 def saveDataset(dataset,path):
     ext=os.path.splitext(path)
@@ -93,7 +93,7 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
         dataset=pd.Panel(sp.random.normal(loc=loc,scale=scale, size=size),items=items, major_axis=index, minor_axis=columns)
     else:
         raise ValueError('1<=len(size)<=3, others not supported')
-    return dataset if not cumsum else dataset.cumsum()
+    return dec(dataset) if not cumsum else dec(dataset).cumsum()
 
 
 #----------------------------------------------------------------------------

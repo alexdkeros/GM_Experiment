@@ -91,7 +91,7 @@ if __name__=='__main__':
     print('DataFrames:')
     p=pd.DataFrame([p]*3)
     print(p)
-    dp=dec(p)
+    dp=dec(p).cumsum()
     print(type(dp))
     print(dp)
     print(type(dp.iloc[0,0]))
