@@ -21,14 +21,16 @@ def computeBallFromDiametralPoints(p1,p2):
     
     return (center,radius)
 
-def computeExtremesFuncValuesInBall(func,ball):
+def computeExtremesFuncValuesInBall(func,ball,type='both'):
     '''
     compute the extremes (min, max) of f(ball)
     args:
         @param func: the function
         @param ball: B(center, radius) tuple defining ball, 
                 center an sp.ndarray with ndim==1, len==dimentionallity of vector
-    @return (func_min, func_max) tuple
+    @return type=='max': func_max
+            type=='min': func_min
+            type=='both':(func_min, func_max) tuple
     '''
     
     #bounding sphere constraint
@@ -45,12 +47,23 @@ def computeExtremesFuncValuesInBall(func,ball):
     #starting point
     sP={p:sp.array(c)}
     
-    #results
-    resMin=s.minimize(f,sP)
-    print(resMin.xf)
-    resMax=s.maximize(f,sP)
-    print(resMax.xf)
-    return f(resMin),f(resMax)
+    if type=='max':
+        res=s.maximize(f,sP)
+        return f(res)
+    elif type=='min':
+        res=s.minimize(f,sP)
+        return f(res)
+    elif type=='both':
+        #results
+        resMin=s.minimize(f,sP)
+        #DBG
+        #print(resMin.xf)
+        
+        resMax=s.maximize(f,sP)
+        #DBG
+        #print(resMax.xf)
+        
+        return f(resMin),f(resMax)
 
 
 #----------------------------------------------------------------------------

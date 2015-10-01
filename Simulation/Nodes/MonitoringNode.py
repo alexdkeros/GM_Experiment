@@ -4,6 +4,7 @@
 import uuid
 import scipy as sp
 from Simulation.Nodes.GenericNode import GenericNode
+from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
 
 class MonitoringNode(GenericNode):
@@ -43,7 +44,7 @@ class MonitoringNode(GenericNode):
         self.u=0
         self.delta=0
         self.e=0
-        self.monFuncVel=0
+        self.monFuncVel=0 #current velocity of f(u)
         
         #EXP
         self.uLog=[0]
@@ -145,11 +146,13 @@ class MonitoringNode(GenericNode):
         '''
         performs threshold check of drift vector's function value: f(u)
         '''
+        #bounding sphere
+        ball=computeBallFromDiametralPoints(self.e,self.u)
         
-        #DBG
-        print('--Node %s reporting u: %f'%(self.id,self.u))
+        #monochromaticity check
+        funcMax=computeExtremesFuncValuesInBall(self.monFunc,ball,type='max')
         
-        if self.monitoringFunction(self.u)>=self.threshold:
+        if funcMax>=self.threshold:
             self.rep()
             
     def run(self):
@@ -157,16 +160,17 @@ class MonitoringNode(GenericNode):
         main Monitoring Node function
         receive, process updates
         '''
-        self.v=dec(self.inputStream.next())
+        self.v=dec(self.update.next())
         
         #EXP
-        self.uLog.append(self.u)
+        #self.uLog.append(self.u)
         
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
         #EXP
         self.uLog.append(self.u)
     
-    
+        #current velocity computation
+        self.monFuncVel=self.monFunc(self.uLog[-1])-self.monFunc(self.uLog[-2])
         
     

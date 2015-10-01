@@ -10,7 +10,11 @@ class GenericNode:
     generic Node class
     '''
     
-    def __init__(self,network, dataset, nid=uuid.uuid4(), weight=1):
+    def __init__(self,
+                 network,
+                 dataset,
+                 nid=uuid.uuid4(),
+                 weight=1):
         '''
         Constructor
         args:
