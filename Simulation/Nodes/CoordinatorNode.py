@@ -2,11 +2,15 @@
 @author: ak
 '''
 from Simulation.Nodes.GenericNode import GenericNode
+from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
 
 class CoordinatorNode(GenericNode):
     '''
     geometric monitoring, Coordinator node
+    
+    must setattr() functions selectNodeReq
+                             balancer
     '''
 
 
@@ -15,7 +19,8 @@ class CoordinatorNode(GenericNode):
                  nid="Coord",
                  nodes, 
                  threshold, 
-                 monFunc):
+                 monFunc,
+                 autoBalance=True):
         '''
         Constructor
         args:
@@ -26,6 +31,8 @@ class CoordinatorNode(GenericNode):
             @param nodes: node id list
             @param threshold: monitoring threshold
             @param monFunc: monitoring function
+            @param autoBalance: True=perform balancing automatically at received req msg
+                                False=must implicitly call CoordinatorNode.balance()
         '''
         GenericNode.__init__(self, network, nid=nid, weight=0)
         
@@ -35,6 +42,8 @@ class CoordinatorNode(GenericNode):
         self.nodes=dict(zip(nodes,len(nodes)*[0])) #{'id':weight,}
         
         self.balancingSet=set() #set containing tuples (nodeId,v,u,monFuncVel)
+        self.pendingReps=0  #keeps track of pending reports produced by Coordinator request
+        self.autoBalance=autoBalance
         self.sumW=0
         
         self.e=0
@@ -70,13 +79,15 @@ class CoordinatorNode(GenericNode):
                 self.balancingSet.clear()
                 self.newEst()   #dispach estimate vector
     
-    def rep(self,dat, sender):
+    def rep(self,dat,sender):
         '''
             "rep" signal
             "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
         '''
-        raise NotImplementedError
-    
+        self.balancingSet.add((sender,)+dat)
+        if self.autoBalance or self.pendingReps>0:
+            self.pendingReps=max([self.pendingReps-1,0])
+            self.balance()
     
     '''
     ----------------------------------------------------------------------
@@ -113,18 +124,86 @@ class CoordinatorNode(GenericNode):
         self.send(self.nodes.keys(),"globalViolation",None)
         
         
-        
+    '''
+    ----------------------------------------------------------------------
+    other methods:
+    ----------------------------------------------------------------------
+    '''
+    def selectNodeReq(self,balSet,nodeSet):
+        '''
+        select node to request data for further balancing
+        args:
+            @param balSet: balancing set (only node ids)
+            @param nodeSet: set of all node ids
+        @return set of node ids to send requests
+        '''
+        raise NotImplementedError
+    
+    def balancer(self,balSet,balVec,threshold,monFunc,nodeWeightDict):
+        '''
+        computes dDeltas
+        args:
+            @param balSet: balancing set containing (nodeID,v,u,velocity) tuples
+            @param balVec: balancing vector
+            @param threshold: monitoring threshold
+            @param monFunc: the monitoring function
+            @param nodeWeightDict: {nodeID:weight dictionary}
+        @return {nodeId: dDelta}
+        '''
+        raise NotImplementedError
+    
     '''
     ----------------------------------------------------------------------------------------------------------------
-    ********************************************BALANCING FUNCTIONS*************************************************
+    ********************************************BALANCING FUNCTION**************************************************
     ----------------------------------------------------------------------------------------------------------------
 
     '''
     def balance(self):
-        '''
-        balancing handler
-        dispaches to selected balancing scheme method
-        '''
-        raise NotImplementedError
-    
+        
+        b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        
+        #bounding sphere
+        ball=computeBallFromDiametralPoints(self.e,b)
+        
+        #monochromaticity check
+        funcMax=computeExtremesFuncValuesInBall(self.monFunc,ball,type='max')
+        
+        if funcMax>=self.threshold:
+            #===================================================================
+            # FAILED BALANCING
+            #===================================================================
+            
+            reqNodesId=self.selectNodeReq((i for i[0] in self.balancingSet),set(self.nodes.keys()))
+            
+            self.pendingReps=len(reqNodesId)
+            
+            if reqNodesId:
+                #===============================================================
+                # FAILED BALANCING - request nodes
+                #===============================================================
+                self.req(reqNodesId)
+            else:
+                #===============================================================
+                # FAILED BALANCING - GLOBAL VIOLATION
+                #===============================================================
                 
+                vGl=sum(v*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
+                uGl=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                
+                #new Estimate
+                self.e=vGl
+                
+                #self.newEst()
+                
+                self.balancingSet.clear()
+                self.globalViolation()
+        else:
+            #===================================================================
+            # SUCCESSFUL BALANCING
+            #===================================================================
+            
+            dDeltaDict=self.balancer(self.balancingSet,b,self.threshold,self.monFunc,self.nodes)
+            
+            self.balancingSet.clear()
+            
+            self.adjSlk(dDeltaDict.keys(), dDeltaDict.values())
