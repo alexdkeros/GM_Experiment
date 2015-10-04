@@ -92,6 +92,9 @@ class MonitoringNode(GenericNode):
         
         self.u=self.u+(dDelta/self.weight)  #recalculate last drift vector value with new slack vector(needed in case of "req" msg before run is called
         
+        #EXP
+        self.uLog.append(self.u)
+
         
     def newEst(self,dat,sender):
         '''
