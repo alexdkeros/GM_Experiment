@@ -5,8 +5,6 @@ import itertools
 import pandas as pd
 import scipy as sp
 import networkx as nx
-from cryptography.hazmat.bindings.commoncrypto.cf import FUNCTIONS
-from compiler.ast import Function
 
 class OptimalPairer:
     '''

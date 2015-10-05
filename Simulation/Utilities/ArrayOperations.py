@@ -1,6 +1,7 @@
 '''
 @author: ak
 '''
+import pandas as pd
 import scipy as sp
 
 def avgListsOverIters(array2d):
@@ -31,6 +32,25 @@ def toNdArray(array2d):
         return nda
     else:
         return array2d
+
+
+def computeMean(dataset, weightDict=None):
+        '''
+        computes global mean time series from a collection of node updates
+        args:
+            @param dataset: training dataset, a pandas panel
+            @param weightDict: weight dictionary, dataset.items must match weightDict.keys()
+        @return pandas DataFrame containing Global mean, index==dataset.major_axis, columns==dataset.minor_axis
+        '''
+        if weightDict:
+            return pd.DataFrame(sp.average(dataset.values,axis=0,weights=[weightDict[nid] for nid in dataset.items]),
+                                     index=dataset.major_axis,
+                                     columns=dataset.minor_axis)
+        else:
+            return pd.DataFrame(sp.average(dataset.values,axis=0),
+                                     index=dataset.major_axis,
+                                     columns=dataset.minor_axis)
+    
 
 
 #----------------------------------------------------------------------------
