@@ -70,7 +70,7 @@ class OptimalPairer:
     main function: OPTIMIZER
     ----------------------------------------------
     '''
-    def optimize(self):
+    def __optimize(self):
         '''
         main optimizing function setting things up
         @return: typeDict dictionary of pairings OR None at fail

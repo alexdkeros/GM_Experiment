@@ -36,7 +36,7 @@ class DistributionPairer(OptimalPairer):
     optimizing helper functions
     ----------------------------------------------
     '''
-    def _computeAvgFuncDistr(self,nodes):
+    def __computeAvgFuncDistr(self,nodes):
         '''
         args:
             @param nodes: pandas of training dataset
@@ -86,7 +86,7 @@ class DistributionPairer(OptimalPairer):
             
         #add edge weights
         for (i,j) in g.edges():
-            g[i][j]['weight']=self.__computeWeight(self._computeAvgFuncDistr(list(i.union(j))))
+            g[i][j]['weight']=self.__computeWeight(self.__computeAvgFuncDistr(list(i.union(j))))
             self.weightDict[i.union(j)]=g[i][j]['weight']
 
         #max weight matching
