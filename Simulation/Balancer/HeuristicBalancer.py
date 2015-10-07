@@ -86,12 +86,12 @@ if __name__=='__main__':
     from Simulation.Utilities.Dec import *
     
     bSet=set([
-              ('n1', hashable(sp.array([400])), hashable(sp.array([11])), 5.5),
-              ('n2', hashable(sp.array([400])), hashable(sp.array([6])), 3)])
-    b=dec(sp.array([8.5]))
-    threshold=10
-    monFunc=lambda x:x
-    nodeWeightDict={'n1':1, 'n2':1, 'n3':1}
+              ('n1', hashable(dec(sp.array([400]))), hashable(dec(sp.array([11,6]))), 5.5),
+              ('n2', hashable(dec(sp.array([400]))), hashable(dec(sp.array([6,11]))), 3)])
+    b=dec(sp.array([8.5,2]))
+    threshold=20
+    monFunc=lambda x:sum(x)
+    nodeWeightDict={'n1':dec(1.0), 'n2':dec(1.0), 'n3':dec(1.0)}
     
     
     res=heuristicBalancer(bSet, b, threshold, monFunc, nodeWeightDict)
