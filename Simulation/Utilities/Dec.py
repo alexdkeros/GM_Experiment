@@ -11,7 +11,7 @@ def dec(data):
         @param data(single value or array/list): data to convert to decimal
     @return decimal representation of data
     '''
-    if isinstance(data, list) or isinstance(data,sp.ndarray):
+    if isinstance(data, list):
         return list(dec(d) for d in data) 
     elif isinstance(data,sp.ndarray):
         return sp.array([dec(d) for d in data])
@@ -34,7 +34,7 @@ def deDec(data):
         @param data(single value or array/list): data to de-convert from decimal
     @return decoded data, float
     '''
-    if isinstance(data, list) or isinstance(data,sp.ndarray):
+    if isinstance(data, list):
         return list(deDec(d) for d in data) 
     elif isinstance(data,sp.ndarray):
         return sp.array([deDec(d) for d in data])

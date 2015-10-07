@@ -4,6 +4,7 @@
 from Simulation.Nodes.GenericNode import GenericNode
 from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
+from Simulation.Utilities.ArrayOperations import hashable
 
 class CoordinatorNode(GenericNode):
     '''
@@ -129,7 +130,7 @@ class CoordinatorNode(GenericNode):
     other methods:
     ----------------------------------------------------------------------
     '''
-    def selectNodeReq(self,balSet,nodeSet):
+    def selectNodeReq(self,balSet):
         '''
         select node to request data for further balancing
         args:
@@ -176,7 +177,7 @@ class CoordinatorNode(GenericNode):
         if not self.balancingSet:
             return
         
-        b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        b=sum(u.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
         
         #bounding sphere
         ball=computeBallFromDiametralPoints(self.e,b)
@@ -189,7 +190,7 @@ class CoordinatorNode(GenericNode):
             # FAILED BALANCING
             #===================================================================
             
-            reqNodesId=self.selectNodeReq((i for i[0] in self.balancingSet),set(self.nodes.keys()))
+            reqNodesId=self.selectNodeReq(set(i for i[0] in self.balancingSet))
             
             self.pendingReps=len(reqNodesId)
             
@@ -203,8 +204,8 @@ class CoordinatorNode(GenericNode):
                 # FAILED BALANCING - GLOBAL VIOLATION
                 #===============================================================
                 
-                vGl=sum(v*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
-                uGl=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                vGl=sum(v.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
+                uGl=sum(u.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
                 
                 #new Estimate
                 self.e=vGl

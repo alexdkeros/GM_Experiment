@@ -6,6 +6,7 @@ import scipy as sp
 from Simulation.Nodes.GenericNode import GenericNode
 from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
+from Simulation.Utilities.ArrayOperations import hashable
 
 class MonitoringNode(GenericNode):
     '''
@@ -125,7 +126,7 @@ class MonitoringNode(GenericNode):
             "rep" signal
             in classic balancing velocity is not used
         '''
-        self.send(self.network.getCoordId(), "rep", (self.v,self.u,self.monFuncVel))
+        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),self.monFuncVel))
         
     
     '''
