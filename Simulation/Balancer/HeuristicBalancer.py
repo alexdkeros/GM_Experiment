@@ -4,7 +4,7 @@
 from FuncDesigner import *
 from openopt import *
 import scipy as sp
-from Simulation.Utilities.ArrayOperations import hashable
+from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
 
 def heuristicBalancer(balSet, b, threshold, monFunc, nodeWeightDict):
     '''
@@ -16,9 +16,11 @@ def heuristicBalancer(balSet, b, threshold, monFunc, nodeWeightDict):
         @param monFunc: the monitoring function
         @param nodeWeightDict: dictionary containing {id: w, }
     @return {id: dDelta} dictionary
+    
+    NOTE: PAY ATTENTION TO DECIMALS, openopt and sp.average() do not accept them!
     '''
     #fix order, unwrap hashable sp.arrays
-    bS=list( (id,v.unwrap(),u.unwrap(),fvel) for (id,v,u,fvel) in balSet )
+    bS=list( (id,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel)) for (id,v,u,fvel) in balSet )
     
     x=oovars([nid for nid,v,u,vel in bS])   #oovars
     
@@ -30,31 +32,31 @@ def heuristicBalancer(balSet, b, threshold, monFunc, nodeWeightDict):
     
     for i in range(len(bS)):
         #func
-        f.append(__optFunc(x[i],bS[i],threshold,monFunc))
+        f.append(__optFunc(x[i],bS[i],deDec(threshold),monFunc))
         
         #point
-        startPoint[x[i]]=b
+        startPoint[x[i]]=deDec(b)
     
         #constraints
-        constraints.append(monFunc(x[i])<threshold)
-        constraints.append(__optFunc(x[i],bS[i],threshold,monFunc)>=0)
+        constraints.append(monFunc(x[i])<deDec(threshold))
+        constraints.append(__optFunc(x[i],bS[i],deDec(threshold),monFunc)>=0)
     #min
     fmin=min(f)
     objective=fmin('maxmin_f')
     
-    constraints.append(sp.average(x,weights=[nodeWeightDict[x_i.name] for x_i in x], axis=0)==b)
+    constraints.append(weightedAverage(x,[deDec(nodeWeightDict[x_i.name]) for x_i in x])==deDec(b))
     
     #maxmin
     p=NLP(objective,startPoint,constraints=constraints)
     
-    #FIX wrong bounds
-    #p.implicitBounds=[None,threshold]
     r=p.maximize('ralg',plot=False)
 
-    resDict={x_i.name:r(x_i) for x_i in x} #optimal point dictionary
+    resDict={x_i.name:dec(r(x_i)) for x_i in x} #optimal point dictionary
     
+    #DBG
+    print(resDict)
     
-    return {nid:(nodeWeightDict[nid]*resDict[nid]-nodeWeightDict[nid]*u) for nid,v,u,fvel in bS} #(w_i*result_i-w_i*u_i), i in balancingSet
+    return {nid:(nodeWeightDict[nid]*resDict[nid]-nodeWeightDict[nid]*u.unwrap()) for nid,v,u,fvel in balSet} #(w_i*result_i-w_i*u_i), i in balancingSet
     
        
 def __optFunc(var,(nid,v,u,fvel),threshold,monFunc):
@@ -73,3 +75,29 @@ def __optFunc(var,(nid,v,u,fvel),threshold,monFunc):
     '''
     return (threshold-monFunc(var))/fvel
 
+
+#----------------------------------------------------------------------------
+#---------------------------------TEST---------------------------------------
+#----------------------------------------------------------------------------
+if __name__=='__main__':
+    
+    #decimals
+    import scipy as sp
+    from Simulation.Utilities.Dec import *
+    
+    bSet=set([
+              ('n1', hashable(sp.array([400])), hashable(sp.array([11])), 5.5),
+              ('n2', hashable(sp.array([400])), hashable(sp.array([6])), 3)])
+    b=dec(sp.array([8.5]))
+    threshold=10
+    monFunc=lambda x:x
+    nodeWeightDict={'n1':1, 'n2':1, 'n3':1}
+    
+    
+    res=heuristicBalancer(bSet, b, threshold, monFunc, nodeWeightDict)
+    print('--------------collected data--------------')
+    print(bSet)
+    print(b)
+    print(threshold)
+    print(nodeWeightDict)
+    print(res)

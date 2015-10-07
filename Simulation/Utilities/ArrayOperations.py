@@ -103,6 +103,28 @@ def computeMean(dataset, weightDict=None):
             return pd.DataFrame(sp.average(dataset.values,axis=0),
                                      index=dataset.major_axis,
                                      columns=dataset.minor_axis)
+
+
+def weightedAverage(itemList, weightList):
+    '''
+    computes weighted average of iterable of sp.arrays
+    args:
+        @param itemList: items to be averaged in list like form
+        @param weightList: list of weights
+    @return weightedAverage
+    '''    
+    if len(itemList)!=len(weightList):
+        raise ValueError('itemList and weightList must match')
+    else:
+        size=len(itemList)
+    
+    nominator=sum([itemList[i]*weightList[i] for i in range(size)])
+    denominator=sum(weightList)
+    
+    if not denominator:
+        raise ValueError('division by zero,sum of weights equals zero')
+    return nominator/denominator
+
     
 
 
@@ -141,3 +163,7 @@ if __name__=='__main__':
     hashable(g)
     print(hashable(g).unwrap())
     
+    print('-------weighted average test---------')
+    nL=sp.array([sp.array([3,4,5]),sp.array([10,11,12])])
+    w=[1.0,0.01]
+    print(weightedAverage(nL,w))

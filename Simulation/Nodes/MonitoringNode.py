@@ -19,7 +19,7 @@ class MonitoringNode(GenericNode):
                  threshold,
                  monFunc,
                  nid=uuid.uuid4(), 
-                 weight=1):
+                 weight=dec(1)):
         '''
         Constructor
         args:

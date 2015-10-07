@@ -35,7 +35,7 @@ class CoordinatorNode(GenericNode):
             @param autoBalance: True=perform balancing automatically at received req msg
                                 False=must implicitly call CoordinatorNode.balance()
         '''
-        GenericNode.__init__(self, network, nid=nid, weight=0)
+        GenericNode.__init__(self, network, nid=nid, weight=dec(0))
         
         self.threshold=threshold
         self.monFunc=monFunc

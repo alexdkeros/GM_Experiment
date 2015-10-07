@@ -33,7 +33,7 @@ if __name__=='__main__':
     b=dec(sp.array([0,0]))
     threshold=10
     monFunc=lambda x:x**2
-    nodeWeightDict={'n1':1, 'n2':1, 'n3':1}
+    nodeWeightDict={'n1':dec(1), 'n2':dec(1), 'n3':dec(1)}
     
     res=classicBalancer(bSet, b, threshold, monFunc, nodeWeightDict)
     print(res)
