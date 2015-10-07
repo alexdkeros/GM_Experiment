@@ -16,7 +16,7 @@ class CoordinatorNode(GenericNode):
 
     def __init__(self, 
                  network, 
-                 nid="Coord",
+                 nid="Coordinator",
                  nodes, 
                  threshold, 
                  monFunc,
@@ -152,6 +152,18 @@ class CoordinatorNode(GenericNode):
         '''
         raise NotImplementedError
     
+    def check(self):
+        '''
+        do nothing
+        '''
+        pass
+    
+    def run(self):
+        '''
+        do nothing
+        '''
+        pass
+    
     '''
     ----------------------------------------------------------------------------------------------------------------
     ********************************************BALANCING FUNCTION**************************************************
@@ -159,6 +171,10 @@ class CoordinatorNode(GenericNode):
 
     '''
     def balance(self):
+        
+        #return if nothing in balancingSet
+        if not self.balancingSet:
+            return
         
         b=sum(u*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
         
