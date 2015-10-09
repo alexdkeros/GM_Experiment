@@ -24,12 +24,17 @@ class DistancePairer(OptimalPairer):
             @param nodeWeightDict: dictionary of node weights {id:w, }
             @param monFunc: the monitoring function
         '''
-        OptimalPairer.__init__(dataset)
+        OptimalPairer.__init__(self,dataset)
         
         self.monFunc=monFunc
         self.nodeWeightDict=nodeWeightDict
         #optimization procedure
         self.globalMean=ArrayOp.computeMean(self.dataset, self.nodeWeightDict)
+        
+        #DBG
+        print('--Gmean:')
+        print(self.globalMean)
+        
         self.typeDict=self.__optimize([frozenset([n]) for n in self.dataset.items])
         
     
@@ -46,13 +51,36 @@ class DistancePairer(OptimalPairer):
         @return weight
         '''
         #mean of node subset
-        subsetMean=ArrayOp.computeMean(self.dataset.loc[nodes,:,:], weightDict=self.weightDict)
+        subsetMean=ArrayOp.computeMean(self.dataset.loc[nodes,:,:], weightDict=self.nodeWeightDict)
+        
+        #DBG
+        print('----Weight:')
+        print(nodes)
+        print('--subMean:')
+        print(subsetMean)
         
         #cumulative distance of node subset
-        cumDist=[sum(linalg.norm(self.dataset.loc[it1,i,:]-self.dataset.loc[it2,i,:])
-                for it1,it2 in itertools.combinations(nodes,2)) for i in self.dataset.major_axis]
+        cumDist=pd.DataFrame([sum(linalg.norm(self.dataset.loc[it1,i,:]-self.dataset.loc[it2,i,:])
+                for it1,it2 in itertools.combinations(nodes,2)) for i in self.dataset.major_axis])
         
-        weight=sum(-abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))+cumDist)
+        #DBG
+        print('--cumDist,%d'%len(cumDist))
+        print(cumDist)
+        
+        #DBG
+        print('--meanDiff:')
+        print(pd.DataFrame(abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))))
+        
+        #DBG
+        print('--mDiff+cumDist:')
+        print(pd.DataFrame(-abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))).add(cumDist,axis=0))
+
+        weight=(pd.DataFrame(-abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))).add(cumDist,axis=0)).sum(axis=0).values[0]
+        
+        
+        #DBG
+        print('--weight:')
+        print(weight)
         
         return weight
         
@@ -98,4 +126,47 @@ class DistancePairer(OptimalPairer):
             
         #recurse
         return self.__optimize(list(set(n.union(pairs[n]) for n in pairs.keys())))
+    
+#----------------------------------------------------------------------------
+#---------------------------------TEST---------------------------------------
+#----------------------------------------------------------------------------
+if __name__=='__main__':
+    
+    import time
+    import random
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    from Simulation.Utilities.DatasetHandler import createNormalsDataset
+    from Simulation.Utilities.Dec import *
+    
+    r=random.Random()
+    
+    #ds=pd.Panel({i:createNormalsDataset(r.randint(0, 10), 0.01, [20,2], cumsum=True) for i in range(4)})
+    ds=createNormalsDataset(loc=5, scale=3, size=[4,20,2], cumsum=True)
+    
+    ds=deDec(ds)
+    nWd={i:1.0 for i in range(4)}
+    mf=lambda x:sum(x)
+    t=40
+    
+    print('---------------the dataset-------------------')
+    print(ds)
+    print(ds.values)
+    fig=plt.figure()
+    ax=fig.add_subplot(1,1,1,projection='3d') #3D -  projection='3d'
+    for item in ds.items:
+        #ax.plot(ds.loc[item,:,:],label=item)
+        ax.plot(ds.loc[item,:,1], ds.loc[item,:,0],zs=ds.major_axis,label=item)
+        ax.legend()
+    ax.view_init(30,45)
+    ax.legend()
+    
+    print('---------------------------------------------')
+    p=DistancePairer(ds,nWd,mf)
+    print(p.getTypeDict())
+    print(p.getWeightDict())
+    
+    fig.show()
+    #time.sleep(2)
     

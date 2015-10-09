@@ -118,7 +118,7 @@ if __name__=='__main__':
     
     r=random.Random()
     
-    ds=createNormalsDataset(1, 1, [4,20,2], cumsum=True)
+    ds=pd.Panel({i:createNormalsDataset(r.randint(0, 7), 0.01, [20,2], cumsum=True) for i in range(4)})
     
     ds=deDec(ds)
     mf=lambda x:sum(x)

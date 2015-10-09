@@ -4,7 +4,6 @@
 from FuncDesigner import *
 from openopt import *
 import scipy as sp
-
 from scipy import linalg
 
 def computeBallFromDiametralPoints(p1,p2):

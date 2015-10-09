@@ -167,3 +167,16 @@ if __name__=='__main__':
     nL=sp.array([sp.array([3,4,5]),sp.array([10,11,12])])
     w=[1.0,0.01]
     print(weightedAverage(nL,w))
+    
+    print('------weighted mean test--------------')
+    import random as r
+    from Simulation.Utilities.DatasetHandler import createNormalsDataset
+
+    ds=pd.Panel({i:createNormalsDataset(r.randint(0, 7), 0.01, [20,2], cumsum=True) for i in range(4)})
+    ds=deDec(ds)
+    print(ds)
+    print(ds.values)
+    wd={i:1.0 for i in range(4)}
+    mds=computeMean(ds, wd)
+    
+    print(mds)
