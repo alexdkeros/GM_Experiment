@@ -7,13 +7,12 @@ class Network:
     '''
     Network, handles message passing, logging and simulation instrumentation
     '''
-    def __init__(self, nodes):
+    def __init__(self):
         '''
         constructor
         args:
-            @param nodes: dictionary {id: node_instance, }, node_instance instance of MonitoringNode or CoordinatorNode.
         '''
-        self.nodes=nodes
+        self.nodes={}
         self.coordId=None
         
         self.iterationCount=0
@@ -21,13 +20,23 @@ class Network:
         self.msgLog={}  #EXP-msg logging
         
         #extract coordId
-        self.coordId=[id for id in self.nodes if isinstance(self.nodes[id],CoordinatorNode)]
-        if len(self.coordId)==1:
-            self.coordId=self.coordId[0]
-        else:
-            raise ValueError('One and Only One Coordinator must exist!')
+        self.coordId=None
         
         
+    '''
+    --------------------------------------------
+    other functions
+    --------------------------------------------
+    '''
+    def registerNode(self,node):
+        '''
+        function used by Monitoring Nodes to register themselves to the network
+        args:
+            @param node: node instance
+        '''
+        self.nodes[node.getId()]=node
+        if isinstance(node, CoordinatorNode):
+            self.coordId=node.getId()
         
     '''
     --------------------------------------------

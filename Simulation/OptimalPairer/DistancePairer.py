@@ -31,10 +31,6 @@ class DistancePairer(OptimalPairer):
         #optimization procedure
         self.globalMean=ArrayOp.computeMean(self.dataset, self.nodeWeightDict)
         
-        #DBG
-        print('--Gmean:')
-        print(self.globalMean)
-        
         self.typeDict=self.__optimize([frozenset([n]) for n in self.dataset.items])
         
     
@@ -53,34 +49,11 @@ class DistancePairer(OptimalPairer):
         #mean of node subset
         subsetMean=ArrayOp.computeMean(self.dataset.loc[nodes,:,:], weightDict=self.nodeWeightDict)
         
-        #DBG
-        print('----Weight:')
-        print(nodes)
-        print('--subMean:')
-        print(subsetMean)
-        
         #cumulative distance of node subset
         cumDist=pd.DataFrame([sum(linalg.norm(self.dataset.loc[it1,i,:]-self.dataset.loc[it2,i,:])
                 for it1,it2 in itertools.combinations(nodes,2)) for i in self.dataset.major_axis])
         
-        #DBG
-        print('--cumDist,%d'%len(cumDist))
-        print(cumDist)
-        
-        #DBG
-        print('--meanDiff:')
-        print(pd.DataFrame(abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))))
-        
-        #DBG
-        print('--mDiff+cumDist:')
-        print(pd.DataFrame(-abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))).add(cumDist,axis=0))
-
         weight=(pd.DataFrame(-abs(self.globalMean.apply(self.monFunc, axis=1)-subsetMean.apply(self.monFunc, axis=1))).add(cumDist,axis=0)).sum(axis=0).values[0]
-        
-        
-        #DBG
-        print('--weight:')
-        print(weight)
         
         return weight
         

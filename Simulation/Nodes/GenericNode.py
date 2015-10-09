@@ -28,6 +28,9 @@ class GenericNode:
         self.id=nid
         self.weight=dec(weight)
         
+        #register node to the network
+        self.network.registerNode(self)
+        
     '''
     --------------getters
     '''

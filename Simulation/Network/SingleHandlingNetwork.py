@@ -9,14 +9,13 @@ class SingleHandlingNetwork(Network):
     Network implementing independent node handling
     see Simulation.Network.Network
     '''
-    def __init__(self,nodes):
+    def __init__(self):
         '''
         constructor
         see Simulation.Network.Network
         args:
-            @param nodes: dictionary {id: node_instance, }, node_instance instance of MonitoringNode or CoordinatorNode.
         '''
-        Network.__init__(self, nodes)  
+        Network.__init__(self)  
     
     
     '''
