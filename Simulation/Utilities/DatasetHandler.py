@@ -77,6 +77,7 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
     args:
         @param loc: distribution mean
         @param scale: distribution std (can use sys.float_info.min)
+        @param size: dataset size as list of dimentions
         @param cumsum: return as cumulative sums
         @param indexes: [,] of index names
         @param columns: [,] of column names

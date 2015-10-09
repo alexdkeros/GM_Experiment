@@ -39,7 +39,7 @@ class OptimalPairer:
         '''
         @return dictionary of pair weights
         '''
-        return self.percentageDict
+        return self.weightDict
     
     def getOptPairing(self, nodes):
         '''

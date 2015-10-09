@@ -75,7 +75,7 @@ class DistancePairer(OptimalPairer):
         '''
         #----recursion finish, all nodes grouped together
         if len(nodeSetCollection)==1:
-            self.typeDict[len(nodeSetCollection[0])]=nodeSetCollection[0]
+            self.typeDict[len(nodeSetCollection[0])]={nodeSetCollection[0]:nodeSetCollection[0]}
             return self.typeDict
         
         #----recursion operation, graph and weight maximal matching
@@ -97,5 +97,5 @@ class DistancePairer(OptimalPairer):
         self.typeDict[len(pairs.keys()[0])]=pairs
             
         #recurse
-        self.__optimize(list(set(n.union(pairs[n]) for n in pairs.keys())))
+        return self.__optimize(list(set(n.union(pairs[n]) for n in pairs.keys())))
     

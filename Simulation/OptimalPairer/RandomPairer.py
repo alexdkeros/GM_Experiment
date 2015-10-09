@@ -57,3 +57,47 @@ class RandomPairer(OptimalPairer):
         do nothing
         '''
         pass
+    
+    
+    
+    
+#----------------------------------------------------------------------------
+#---------------------------------TEST-OK------------------------------------
+#----------------------------------------------------------------------------
+if __name__=='__main__':
+    
+    import pandas as pd
+    from Simulation.Utilities.DatasetHandler import createNormalsDataset
+    
+    ds=createNormalsDataset(3, 3, [4,20,1], cumsum=True, items=['n1','n2','n3','n4'])
+    
+    print('---------------the dataset-------------------')
+    print(ds)
+    print(ds.values)
+    print('---------------------------------------------')
+    pairer=RandomPairer(ds)
+    
+    print(pairer.getOptPairing(set()))
+    
+    
+    print(pairer.getOptPairing(set(['n1'])))
+    
+    
+    print(pairer.getOptPairing(set(['n1','n2'])))
+    
+    
+    print(pairer.getOptPairing(set(['n1','n2','n3','n4'])))
+    
+    
+    print(pairer.getOptPairing(set()))
+    
+    
+    print(pairer.getOptPairing(set(['n1'])))
+    
+    
+    print(pairer.getOptPairing(set(['n1','n2'])))
+    
+    
+    print(pairer.getOptPairing(set(['n1','n2','n3','n4'])))
+    
+    

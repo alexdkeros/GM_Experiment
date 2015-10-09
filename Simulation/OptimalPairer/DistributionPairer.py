@@ -21,7 +21,7 @@ class DistributionPairer(OptimalPairer):
             @param monFunc: the monitoring function
             @param threshold: f(x)<=threshold
         '''
-        OptimalPairer.__init__(dataset)
+        OptimalPairer.__init__(self,dataset)
         
         self.monFunc=monFunc
         self.threshold=threshold
@@ -74,7 +74,8 @@ class DistributionPairer(OptimalPairer):
         
         #----recursion finish, all nodes grouped together
         if len(nodeSetCollection)==1:
-            self.typeDict[len(nodeSetCollection[0])]=nodeSetCollection[0]
+            self.typeDict[len(nodeSetCollection[0])]={nodeSetCollection[0]:nodeSetCollection[0]}
+            
             return self.typeDict
         
         #----recursion operation, graph and weight maximal matching
@@ -92,9 +93,52 @@ class DistributionPairer(OptimalPairer):
         #max weight matching
         pairs=nx.max_weight_matching(g, maxcardinality=True)
         
+        
         #store type i pairs
         self.typeDict[len(pairs.keys()[0])]=pairs
+
             
         #recurse
-        self.__optimize(list(set(n.union(pairs[n]) for n in pairs.keys())))
+        return self.__optimize(list(set(n.union(pairs[n]) for n in pairs.keys())))
+        
+        
+    
+#----------------------------------------------------------------------------
+#---------------------------------TEST-OK------------------------------------
+#----------------------------------------------------------------------------
+if __name__=='__main__':
+    
+    import time
+    import random
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    from Simulation.Utilities.DatasetHandler import createNormalsDataset
+    from Simulation.Utilities.Dec import *
+    
+    r=random.Random()
+    
+    ds=createNormalsDataset(1, 1, [4,20,2], cumsum=True)
+    
+    ds=deDec(ds)
+    mf=lambda x:sum(x)
+    t=40
+    print('---------------the dataset-------------------')
+    print(ds)
+    print(ds.values)
+    fig=plt.figure()
+    ax=fig.add_subplot(1,1,1, projection='3d')
+    for item in ds.items:
+        ax.plot(ds.loc[item,:,1], ds.loc[item,:,0],zs=ds.major_axis,label=item)
+        ax.legend()
+    ax.view_init(45,28)
+    ax.legend()
+
+    print('---------------------------------------------')
+    p=DistributionPairer(ds,mf,t)
+    print(p.getTypeDict())
+    print(p.getWeightDict())
+    
+    fig.show()
+    time.sleep(2)
     
