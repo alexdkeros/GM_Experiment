@@ -69,10 +69,11 @@ class GenericNode:
         '''
         if not isinstance(target, list):
             target=[target]
-        if not isinstance(data, sp.ndarray):
-            data=sp.array(data) if isinstance(data,list) else sp.array([data])
-        for targ,dat in zip(target,len(target)==len(data) and data or data*len(target)): #to cover cases of multiple targets, one data | multiple targets, multiple data
-            self.network.signal((self.id, target , msg, dat))
+        if not isinstance(data, list):
+            data=[data]
+        
+        for targ,dat in zip(target,(len(target)==len(data)) and data or data*len(target)): #to cover cases of multiple targets, one data | multiple targets, multiple data
+            self.network.signal((self.id, targ , msg, dat))
         
     def rcv(self,data):
         '''

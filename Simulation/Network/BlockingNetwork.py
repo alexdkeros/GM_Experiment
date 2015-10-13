@@ -59,11 +59,11 @@ class BlockingNetwork(Network):
             
             #node updates
             for node in self.nodes:
-                node.run()
+                self.nodes[node].run()
             
             #node checking
             for node in self.nodes:
-                node.check()
+                self.nodes[node].check()
             
             #balancing
             self.nodes[self.coordId].balance()

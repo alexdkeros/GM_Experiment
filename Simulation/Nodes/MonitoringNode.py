@@ -151,7 +151,7 @@ class MonitoringNode(GenericNode):
         performs threshold check of drift vector's function value: f(u)
         '''
         #bounding sphere
-        ball=computeBallFromDiametralPoints(self.e,self.u)
+        ball=computeBallFromDiametralPoints(deDec(self.e),deDec(self.u))
         
         #monochromaticity check
         funcMax=computeExtremesFuncValuesInBall(self.monFunc,ball,type='max')
@@ -164,7 +164,8 @@ class MonitoringNode(GenericNode):
         main Monitoring Node function
         receive, process updates
         '''
-        self.v=dec(self.update.next())
+        
+        self.v=dec(self.update.next()[1].as_matrix())
         
         #EXP
         #self.uLog.append(self.u)

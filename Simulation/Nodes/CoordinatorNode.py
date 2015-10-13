@@ -1,6 +1,7 @@
 '''
 @author: ak
 '''
+from decimal import *
 from Simulation.Nodes.GenericNode import GenericNode
 from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
@@ -17,10 +18,10 @@ class CoordinatorNode(GenericNode):
 
     def __init__(self, 
                  network, 
-                 nid="Coordinator",
                  nodes, 
                  threshold, 
                  monFunc,
+                 nid="Coordinator",
                  autoBalance=True):
         '''
         Constructor
@@ -35,7 +36,7 @@ class CoordinatorNode(GenericNode):
             @param autoBalance: True=perform balancing automatically at received req msg
                                 False=must implicitly call CoordinatorNode.balance()
         '''
-        GenericNode.__init__(self, network, nid=nid, weight=dec(0))
+        GenericNode.__init__(self, network, dataset=None, nid=nid, weight=dec(0))
         
         self.threshold=threshold
         self.monFunc=monFunc
@@ -73,8 +74,9 @@ class CoordinatorNode(GenericNode):
             w=dec(dat[1])
             self.nodes[sender]=w    #append node weight to dictionary
             self.e+=(w*v)   #compute estimate vector nominator
+            self.sumW+=w    #compute estimate vector denominator, i.e. sum of weights
             if len(self.balancingSet)==len(self.nodes):
-                self.sumW=sum(self.nodes.values())  #compute estimate vector denominator, i.e. sum of weights
+                
                 self.e=self.e/self.sumW #compute estimate vector
                 
                 self.balancingSet.clear()
@@ -85,6 +87,9 @@ class CoordinatorNode(GenericNode):
             "rep" signal
             "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
         '''
+        #DBG
+        print(dat)
+        
         self.balancingSet.add((sender,)+dat)
         if self.autoBalance or self.pendingReps>0:
             self.pendingReps=max([self.pendingReps-1,0])
@@ -180,7 +185,7 @@ class CoordinatorNode(GenericNode):
         b=sum(u.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
         
         #bounding sphere
-        ball=computeBallFromDiametralPoints(self.e,b)
+        ball=computeBallFromDiametralPoints(deDec(self.e),deDec(b))
         
         #monochromaticity check
         funcMax=computeExtremesFuncValuesInBall(self.monFunc,ball,type='max')
