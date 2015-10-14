@@ -209,7 +209,7 @@ class CoordinatorNode(GenericNode):
                 #===============================================================
                 self.pendingReps=len(reqNodesId)
                 
-                self.req(reqNodesId)
+                self.req(list(reqNodesId))
             else:
                 #===============================================================
                 # FAILED BALANCING - GLOBAL VIOLATION

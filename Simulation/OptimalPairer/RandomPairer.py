@@ -32,7 +32,7 @@ class RandomPairer(OptimalPairer):
         '''
         diffSet=set(self.dataset.items)-set(nodes)
         if diffSet:
-            return random.sample(diffSet,1)[0]
+            return set([random.sample(diffSet,1)[0]])
         else:
             return None
         

@@ -13,6 +13,7 @@ from Simulation.Nodes.MonitoringNode import MonitoringNode
 from Simulation.Balancer.ClassicBalancer import classicBalancer
 from Simulation.Utilities.ArrayOperations import hashable
 from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
+from Simulation.OptimalPairer.DistributionPairer import DistributionPairer
 
 def monFunc1D(x):
     
@@ -24,6 +25,7 @@ def monFunc1D(x):
 def monFunc2D(x):
     return x[0]+x[1]
 
+
 def test_enviroment():
     #number of nodes
     nodeNum=2
@@ -32,16 +34,19 @@ def test_enviroment():
     thresh=60
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc2D
+    monFunc=monFunc1D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,2], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,1], cumsum=True) for i in range(nodeNum)})
 
     #split dataset
     train,test=splitTrainTestDataset(ds)
     
     #create OptimalPairer
     pairer=RandomPairer(train)
+    distrPairer=DistributionPairer(train,monFunc,thresh)
+    
+    selectNodeReq=lambda coordInstance,x: distrPairer.getOptPairing(x) and distrPairer.getOptPairing(x) or pairer.getOptPairing(x)
     
     #create network
     ntw=SingleHandlingNetwork()
@@ -53,7 +58,7 @@ def test_enviroment():
     coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=thresh, monFunc=monFunc)
     
     #set node request mechanism
-    setattr(CoordinatorNode,'selectNodeReq',pairer.getOptPairing)
+    setattr(CoordinatorNode,'selectNodeReq',selectNodeReq)
     
     #set balancing method
     setattr(CoordinatorNode,'balancer', heuristicBalancer)

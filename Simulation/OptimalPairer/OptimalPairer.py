@@ -49,7 +49,11 @@ class OptimalPairer:
         '''
         if len(nodes) in self.typeDict:
             if frozenset(nodes) in self.typeDict[len(nodes)]:
-                return set(self.typeDict[len(nodes)][frozenset(nodes)])
+                diffSet=set(self.typeDict[len(nodes)][frozenset(nodes)])-nodes
+                if diffSet:
+                    return diffSet
+                else:
+                    return None
         return None
     
     def getOptPairingOfTypeFromSet(self,t,s):
