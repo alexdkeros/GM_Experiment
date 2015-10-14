@@ -12,6 +12,7 @@ from Simulation.Nodes.CoordinatorNode import CoordinatorNode
 from Simulation.Nodes.MonitoringNode import MonitoringNode
 from Simulation.Balancer.ClassicBalancer import classicBalancer
 from Simulation.Utilities.ArrayOperations import hashable
+from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 
 def monFunc1D(x):
     
@@ -28,13 +29,13 @@ def test_enviroment():
     nodeNum=2
     
     #threshold
-    thresh=30
+    thresh=60
     
     #monFunc !!!x is always an sp.ndarray
     monFunc=monFunc2D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [50,2], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,2], cumsum=True) for i in range(nodeNum)})
 
     #split dataset
     train,test=splitTrainTestDataset(ds)
@@ -55,7 +56,7 @@ def test_enviroment():
     setattr(CoordinatorNode,'selectNodeReq',pairer.getOptPairing)
     
     #set balancing method
-    setattr(CoordinatorNode,'balancer', classicBalancer)
+    setattr(CoordinatorNode,'balancer', heuristicBalancer)
     
     ntw.simulate()
     

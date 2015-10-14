@@ -5,6 +5,7 @@ from FuncDesigner import *
 from openopt import *
 import scipy as sp
 from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
+from Simulation.Utilities.Dec import *
 
 def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict):
     '''
@@ -22,6 +23,9 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     '''
     #fix order, unwrap hashable sp.arrays
     bS=list( (id,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel)) for (id,v,u,fvel) in balSet )
+    
+    #DBG
+    print(bS)
     
     x=oovars([nid for nid,v,u,vel in bS])   #oovars
     
