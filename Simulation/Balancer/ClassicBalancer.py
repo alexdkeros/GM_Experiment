@@ -3,10 +3,11 @@
 '''
 from Simulation.Utilities.ArrayOperations import hashable
 
-def classicBalancer(balSet, b, threshold, monFunc, nodeWeightDict):
+def classicBalancer(coordInstance,balSet, b, threshold, monFunc, nodeWeightDict):
     '''
     Classic balancing function, as in the original Geometric Monitoring Method
     args:
+        @param coordInstance: to successfully setattr in Coordinator
         @param balSet: balancing set containing (nodeId, v, u, vel) tuples
         @param b: balancing vector
         @param threshold: the monitoring threshold

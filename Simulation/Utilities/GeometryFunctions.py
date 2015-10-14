@@ -69,8 +69,15 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
 #---------------------------------TEST-OK------------------------------------
 #----------------------------------------------------------------------------
 
+def monFunc(x):
+    if (isinstance(x,sp.ndarray) and len(x)==1):
+        return x[0]
+    else:
+        return sum(x)
+    
     
 if __name__=='__main__':
+    '''
     #1D test
     print('--------------1D test-------------------')
     computeExtremesFuncValuesInBall(lambda x:x, (1.0,1.0))
@@ -78,9 +85,10 @@ if __name__=='__main__':
     
     #2D test
     print('--------------2D test-------------------')
+    import scipy as sp
     computeExtremesFuncValuesInBall(lambda x:x[0], ([1.0,1.0],1.0))
     computeExtremesFuncValuesInBall(lambda x:x[1], ([1.0,1.0],1.0))
-    computeExtremesFuncValuesInBall(lambda x:x[0]+x[1], ([1.0,1.0],1.0))
+    computeExtremesFuncValuesInBall(lambda x:sum(x), (sp.array([1.0,1.0]),1.0))
     
     #3D test
     print('--------------3D test-------------------')
@@ -88,3 +96,6 @@ if __name__=='__main__':
     computeExtremesFuncValuesInBall(lambda x:x[1], ([1.0,1.0,1.0],2.0))
     computeExtremesFuncValuesInBall(lambda x:x[2], ([1.0,1.0,1.0],2.0))
     computeExtremesFuncValuesInBall(lambda x:x[0]+x[1]+x[2], ([1.0,1.0,1.0],2.0))
+    '''
+    computeExtremesFuncValuesInBall(monFunc, (sp.array([1.0,1.0]),1.0))
+    

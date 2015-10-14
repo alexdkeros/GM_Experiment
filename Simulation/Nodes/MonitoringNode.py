@@ -41,14 +41,14 @@ class MonitoringNode(GenericNode):
         self.update=dataset.iterrows()
         
         self.v=self.update.next()[1].as_matrix() #initial update
-        self.vLast=0
-        self.u=0
-        self.delta=0
-        self.e=0
-        self.monFuncVel=0 #current velocity of f(u)
+        self.vLast=sp.repeat([0.0],len(self.v))
+        self.u=sp.repeat([0.0],len(self.v))
+        self.delta=sp.repeat([0.0],len(self.v))
+        self.e=sp.repeat([0.0],len(self.v))
+        self.monFuncVel=0.0 #current velocity of f(u)
         
         #EXP
-        self.uLog=[0]
+        self.uLog=[sp.repeat([0.0],len(self.v))]
 
         
         #convert to decimals
@@ -141,6 +141,17 @@ class MonitoringNode(GenericNode):
         '''
         return self.uLog
     
+    
+    def computeMonFuncVel(self,func,uLog):
+        '''
+            computes monitoring function velocity for heuristic optimization
+            args:
+                @param func: the monitoring function
+                @param uLog: log of drift vectors
+            @return monitoring function velocity
+        ''' 
+        return func(uLog[-1])-func(uLog[-2])
+    
     '''
     ----------------------------------------------------------------------
     monitoring operation
@@ -150,6 +161,10 @@ class MonitoringNode(GenericNode):
         '''
         performs threshold check of drift vector's function value: f(u)
         '''
+        
+        #DBG
+        print('--Check: Node: %s u:%s'%(self.id, self.u))
+        
         #bounding sphere
         ball=computeBallFromDiametralPoints(deDec(self.e),deDec(self.u))
         
@@ -176,6 +191,8 @@ class MonitoringNode(GenericNode):
         self.uLog.append(self.u)
     
         #current velocity computation
-        self.monFuncVel=self.monFunc(self.uLog[-1])-self.monFunc(self.uLog[-2])
+        self.monFuncVel=self.computeMonFuncVel(self.monFunc, self.uLog)
         
-    
+        #DBG
+        print('--Run: Node: %s u:%s'%(self.id, self.u))
+        

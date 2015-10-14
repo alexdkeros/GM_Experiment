@@ -6,10 +6,11 @@ from openopt import *
 import scipy as sp
 from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
 
-def heuristicBalancer(balSet, b, threshold, monFunc, nodeWeightDict):
+def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict):
     '''
     Heuristic balancing function maximizing the expected time until next violation
     args:
+        @param coordInstance: to successfully setattr in Coordinator
         @param balSet: balancing set containing (nodeId, v, u, fvel) tuples
         @param b: balancing vector
         @param threshold: the monitoring threshold

@@ -195,14 +195,15 @@ class CoordinatorNode(GenericNode):
             # FAILED BALANCING
             #===================================================================
             
-            reqNodesId=self.selectNodeReq(set(i for i[0] in self.balancingSet))
+            reqNodesId=self.selectNodeReq(set([i[0] for i in self.balancingSet]))
             
-            self.pendingReps=len(reqNodesId)
             
             if reqNodesId:
                 #===============================================================
                 # FAILED BALANCING - request nodes
                 #===============================================================
+                self.pendingReps=len(reqNodesId)
+                
                 self.req(reqNodesId)
             else:
                 #===============================================================
@@ -224,7 +225,7 @@ class CoordinatorNode(GenericNode):
             # SUCCESSFUL BALANCING
             #===================================================================
             
-            dDeltaDict=self.balancer(self.balancingSet,b,self.threshold,self.monFunc,self.nodes)
+            dDeltaDict=self.balancer(self.balancingSet, b, self.threshold, self.monFunc, self.nodes)
             
             self.balancingSet.clear()
             
