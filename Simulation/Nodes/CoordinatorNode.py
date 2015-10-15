@@ -87,14 +87,20 @@ class CoordinatorNode(GenericNode):
             "rep" signal
             "rep" msg to dispach, varies between Balancing methods, dispach to appropriate method
         '''
-        #DBG
-        print(dat)
-        
         self.balancingSet.add((sender,)+dat)
-        if self.autoBalance or self.pendingReps>0:
-            self.pendingReps=max([self.pendingReps-1,0])
-            self.balance()
-    
+        
+        prev=self.pendingReps
+        self.pendingReps=max([self.pendingReps-1,0])
+        
+        if self.autoBalance:
+            #autoBalance engaged    
+            if self.pendingReps==0:
+                self.balance()
+        else:
+            #autoBalance disengaged
+            if prev==1: #balance only after balancing process has begun and request msgs have been dispached
+                self.balance()
+        
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -207,6 +213,10 @@ class CoordinatorNode(GenericNode):
                 #===============================================================
                 # FAILED BALANCING - request nodes
                 #===============================================================
+                
+                #DBG
+                print('Coord: Requesting nodes %s'%reqNodesId)
+                
                 self.pendingReps=len(reqNodesId)
                 
                 self.req(list(reqNodesId))

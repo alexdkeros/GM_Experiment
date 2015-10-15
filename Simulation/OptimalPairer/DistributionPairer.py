@@ -118,7 +118,7 @@ if __name__=='__main__':
     
     r=random.Random()
     
-    ds=pd.Panel({i:createNormalsDataset(r.randint(0, 7), 0.01, [20,100], cumsum=True) for i in range(4)})
+    ds=pd.Panel({i:createNormalsDataset(r.randint(0, 7), 0.01, [20,3], cumsum=True) for i in range(5)})
     
     ds=deDec(ds)
     mf=lambda x:sum(x)
@@ -139,6 +139,8 @@ if __name__=='__main__':
     print(p.getTypeDict())
     print(p.getWeightDict())
     
-    fig.show()
-    time.sleep(2)
+    print(p.getOptPairingfromSubset(set([1,2,3])))
+    
+    #fig.show()
+    #time.sleep(2)
     

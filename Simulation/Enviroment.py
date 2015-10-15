@@ -28,16 +28,16 @@ def monFunc2D(x):
 
 def test_enviroment():
     #number of nodes
-    nodeNum=2
+    nodeNum=5
     
     #threshold
     thresh=60
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc1D
+    monFunc=monFunc2D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,1], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,2], cumsum=True) for i in range(nodeNum)})
 
     #split dataset
     train,test=splitTrainTestDataset(ds)
@@ -46,7 +46,9 @@ def test_enviroment():
     pairer=RandomPairer(train)
     distrPairer=DistributionPairer(train,monFunc,thresh)
     
-    selectNodeReq=lambda coordInstance,x: distrPairer.getOptPairing(x) and distrPairer.getOptPairing(x) or pairer.getOptPairing(x)
+    print(distrPairer.getTypeDict())
+    
+    selectNodeReq=lambda coordInstance,x: distrPairer.getOptPairing(x) and distrPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
     
     #create network
     ntw=SingleHandlingNetwork()
@@ -61,7 +63,7 @@ def test_enviroment():
     setattr(CoordinatorNode,'selectNodeReq',selectNodeReq)
     
     #set balancing method
-    setattr(CoordinatorNode,'balancer', heuristicBalancer)
+    setattr(CoordinatorNode,'balancer', classicBalancer)
     
     ntw.simulate()
     

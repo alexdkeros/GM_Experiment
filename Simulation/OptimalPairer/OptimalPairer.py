@@ -5,6 +5,7 @@ import itertools
 import pandas as pd
 import scipy as sp
 import networkx as nx
+from scipy import math
 
 class OptimalPairer:
     '''
@@ -56,6 +57,28 @@ class OptimalPairer:
                     return None
         return None
     
+    def getOptPairingfromSubset(self,nodes):
+        '''
+        args:
+            @param nodes: set of nodeIds
+        @param set with optimal pair of whole set or union of matching subsets, or None
+        '''
+        t=2**int(math.log(len(nodes),2)/1)
+        
+        retSet=self.getOptPairingOfTypeFromSet(t, nodes)
+        
+        while not retSet:
+            t=t/2
+            
+            if not t:
+                return None
+            
+            retSet=self.getOptPairingOfTypeFromSet(t, nodes)
+        
+        return retSet
+            
+            
+            
     def getOptPairingOfTypeFromSet(self,t,s):
         '''
         args:
