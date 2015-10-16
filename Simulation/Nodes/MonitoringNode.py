@@ -49,7 +49,7 @@ class MonitoringNode(GenericNode):
         
         #EXP
         self.uLog=[sp.repeat([0.0],len(self.v))]
-
+        self.vLog=[self.v]
         
         #convert to decimals
         self.threshold=dec(self.threshold)
@@ -142,7 +142,7 @@ class MonitoringNode(GenericNode):
         return self.uLog
     
     
-    def computeMonFuncVel(self,func,uLog):
+    def computeMonFuncVel(self,func,dataLog):
         '''
             computes monitoring function velocity for heuristic optimization
             args:
@@ -150,7 +150,7 @@ class MonitoringNode(GenericNode):
                 @param uLog: log of drift vectors
             @return monitoring function velocity
         ''' 
-        return func(uLog[-1])-func(uLog[-2])
+        return func(dataLog[-1])-func(dataLog[-2])
     
     '''
     ----------------------------------------------------------------------
@@ -183,7 +183,7 @@ class MonitoringNode(GenericNode):
         self.v=dec(self.update.next()[1].as_matrix())
         
         #EXP
-        #self.uLog.append(self.u)
+        self.vLog.append(self.v)
         
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
@@ -191,7 +191,7 @@ class MonitoringNode(GenericNode):
         self.uLog.append(self.u)
     
         #current velocity computation
-        self.monFuncVel=self.computeMonFuncVel(self.monFunc, self.uLog)
+        self.monFuncVel=self.computeMonFuncVel(self.monFunc, self.vLog)
         
         #DBG
         print('--Run: Node: %s u:%s'%(self.id, self.u))
