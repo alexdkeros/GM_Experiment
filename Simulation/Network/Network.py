@@ -56,6 +56,12 @@ class Network:
         @return: message log containing {msgType:[(iteration,sender id, target id, msg, data),...], ...}
         '''
         return self.msgLog
+    
+    def getIterationCount(self):
+        '''
+        @return: current iteration number
+        '''
+        return self.iterationCount
     '''
     --------------------------------------------
     message handling

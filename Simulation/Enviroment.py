@@ -26,10 +26,7 @@ def monFunc1D(x):
         return x
 
 def monFunc3D(x):
-    if x[2]!=0:
-        return (x[0]+x[1])/x[2]
-    else:
-        return x[0]+x[1]
+        return x[0]+x[1]+x[2]
 
 
 def test_enviroment():
@@ -37,13 +34,13 @@ def test_enviroment():
     nodeNum=5
     
     #threshold
-    thresh=30
+    thresh=200
     
     #monFunc !!!x is always an sp.ndarray
     monFunc=monFunc3D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,3], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [200,3], cumsum=True) for i in range(nodeNum)})
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
@@ -61,7 +58,7 @@ def test_enviroment():
     selectNodeReq=lambda coordInstance,x: distPairer.getOptPairingfromSubset(x) and distPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
     
     #create network
-    ntw=BlockingNetwork()
+    ntw=SingleHandlingNetwork()
     
     #create nodes
     nodes={'n'+str(i):MonitoringNode(ntw,test.loc['n'+str(i),:,:],thresh,monFunc,nid='n'+str(i)) for i in range(nodeNum)}
@@ -86,7 +83,8 @@ def test_enviroment():
                 print('Iter:%s, Sender:%s, Target:%s, MsgType:%s, Msg:%s'%(msg[0],msg[1],msg[2],msg[3],[msg[4][0].unwrap(),msg[4][1].unwrap(), msg[4][2]]))
             else:
                 print(msg)
-                
+    
+    print(coord.getbLog())
     
 if __name__=='__main__':
     test_enviroment()

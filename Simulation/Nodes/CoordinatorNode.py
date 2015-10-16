@@ -50,12 +50,24 @@ class CoordinatorNode(GenericNode):
         
         self.e=0
         
+        #EXP
+        self.bLog=[]
+        
         #converting to decimals
         self.threshold=dec(self.threshold)
         self.sumW=dec(self.sumW)
         self.e=dec(self.e)
-        
-        
+      
+    '''
+    --------------------------------------------
+    getters
+    --------------------------------------------
+    '''
+    def getbLog(self):
+        '''
+        @return: log of balancing vectors [ (iterCount, balSet, array([,]) ) ]
+        '''
+        return self.bLog
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -197,6 +209,9 @@ class CoordinatorNode(GenericNode):
         print('===========================================================================================================')
         
         b=sum(u.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        
+        #EXP
+        self.bLog.append((self.network.getIterationCount(), frozenset(self.balancingSet), hashable(b)))
         
         #bounding sphere
         ball=computeBallFromDiametralPoints(deDec(self.e),deDec(b))
