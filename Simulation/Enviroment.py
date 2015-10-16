@@ -8,12 +8,15 @@ from Simulation.Utilities.DatasetHandler import createNormalsDataset,\
     splitTrainTestDataset
 from Simulation.OptimalPairer.RandomPairer import RandomPairer
 from Simulation.Network.SingleHandlingNetwork import SingleHandlingNetwork
+from Simulation.Network.BlockingNetwork import BlockingNetwork
 from Simulation.Nodes.CoordinatorNode import CoordinatorNode
 from Simulation.Nodes.MonitoringNode import MonitoringNode
 from Simulation.Balancer.ClassicBalancer import classicBalancer
 from Simulation.Utilities.ArrayOperations import hashable
 from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 from Simulation.OptimalPairer.DistributionPairer import DistributionPairer
+from Simulation.OptimalPairer.DistancePairer import DistancePairer
+from Simulation.Utilities.Dec import *
 
 def monFunc1D(x):
     
@@ -22,8 +25,11 @@ def monFunc1D(x):
     else:
         return x
 
-def monFunc2D(x):
-    return x[0]+x[1]
+def monFunc3D(x):
+    if x[2]!=0:
+        return (x[0]+x[1])/x[2]
+    else:
+        return x[0]+x[1]
 
 
 def test_enviroment():
@@ -31,27 +37,31 @@ def test_enviroment():
     nodeNum=5
     
     #threshold
-    thresh=60
+    thresh=30
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc2D
+    monFunc=monFunc3D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,2], cumsum=True) for i in range(nodeNum)})
-
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [100,3], cumsum=True) for i in range(nodeNum)})
+    
+    #create node weight dictionary
+    nWd={'n'+str(i):1.0 for i in range(nodeNum)}
+    
     #split dataset
     train,test=splitTrainTestDataset(ds)
     
     #create OptimalPairer
     pairer=RandomPairer(train)
-    distrPairer=DistributionPairer(train,monFunc,thresh)
+    distPairer=DistributionPairer(deDec(train),monFunc,thresh)
     
-    print(distrPairer.getTypeDict())
+    print(distPairer.getTypeDict())
+    print(distPairer.getWeightDict())
     
-    selectNodeReq=lambda coordInstance,x: distrPairer.getOptPairing(x) and distrPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
+    selectNodeReq=lambda coordInstance,x: distPairer.getOptPairingfromSubset(x) and distPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
     
     #create network
-    ntw=SingleHandlingNetwork()
+    ntw=BlockingNetwork()
     
     #create nodes
     nodes={'n'+str(i):MonitoringNode(ntw,test.loc['n'+str(i),:,:],thresh,monFunc,nid='n'+str(i)) for i in range(nodeNum)}
@@ -63,7 +73,7 @@ def test_enviroment():
     setattr(CoordinatorNode,'selectNodeReq',selectNodeReq)
     
     #set balancing method
-    setattr(CoordinatorNode,'balancer', classicBalancer)
+    setattr(CoordinatorNode,'balancer', heuristicBalancer)
     
     ntw.simulate()
     

@@ -139,7 +139,7 @@ if __name__=='__main__':
     print(p.getTypeDict())
     print(p.getWeightDict())
     
-    print(p.getOptPairingfromSubset(set([1,2,3])))
+    print(p.getOptPairingfromSubset(set([1,3])))
     
     #fig.show()
     #time.sleep(2)

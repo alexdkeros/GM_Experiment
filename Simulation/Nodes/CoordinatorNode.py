@@ -89,6 +89,9 @@ class CoordinatorNode(GenericNode):
         '''
         self.balancingSet.add((sender,)+dat)
         
+        #DBG
+        print(self.balancingSet)
+        
         prev=self.pendingReps
         self.pendingReps=max([self.pendingReps-1,0])
         
