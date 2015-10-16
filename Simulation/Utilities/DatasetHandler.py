@@ -75,8 +75,8 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
     '''
     create dataset drawn from normal distribution
     args:
-        @param loc: distribution mean
-        @param scale: distribution std (can use sys.float_info.min)
+        @param loc: distribution mean or list of means, len==size[0]
+        @param scale: distribution std (can use sys.float_info.min) or list of stds, len==size[0]
         @param size: dataset size as list of dimentions
         @param cumsum: return as cumulative sums
         @param indexes: [,] of index names
@@ -86,16 +86,25 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
     @return dataset
     '''
     dataset=None;
-    if len(size)==1:
-        dataset=pd.Series(sp.random.normal(loc=loc, scale=scale, size=size), index=index)
-    elif len(size)==2:
-        dataset=pd.DataFrame(sp.random.normal(loc=loc, scale=scale, size=size),index=index, columns=columns)
-    elif len(size)==3:
-        dataset=pd.Panel(sp.random.normal(loc=loc,scale=scale, size=size),items=items, major_axis=index, minor_axis=columns)
+    if not isinstance(loc,list) and not isinstance(scale,list):
+        if len(size)==1:
+            dataset=pd.Series(sp.random.normal(loc=loc, scale=scale, size=size), index=index)
+        elif len(size)==2:
+            dataset=pd.DataFrame(sp.random.normal(loc=loc, scale=scale, size=size),index=index, columns=columns)
+        elif len(size)==3:
+            dataset=pd.Panel(sp.random.normal(loc=loc,scale=scale, size=size),items=items, major_axis=index, minor_axis=columns)
+        else:
+            raise ValueError('1<=len(size)<=3, others not supported')
+        return dec(dataset) if not cumsum else dec(dataset).cumsum()
     else:
-        raise ValueError('1<=len(size)<=3, others not supported')
-    return dec(dataset) if not cumsum else dec(dataset).cumsum()
-
+        if len(loc)==len(scale)==size[0]:
+            itemCount=size.pop(0)
+            if not items:
+                items=range(itemCount)
+            
+            return pd.Panel({items[i]: createNormalsDataset(loc=loc[i], scale=scale[i], size=size, cumsum=cumsum, index=index, columns=columns) for i in range(itemCount)})
+        else:
+            raise ValueError('Dimensions of loc %d, scale %d, size %d do not match'%(len(loc),len(scale),size[0]))
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST-OK------------------------------------

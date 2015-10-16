@@ -118,7 +118,7 @@ if __name__=='__main__':
     
     r=random.Random()
     
-    ds=pd.Panel({i:createNormalsDataset(r.randint(0, 7), 0.01, [20,3], cumsum=True) for i in range(5)})
+    ds=pd.Panel({i:createNormalsDataset(r.randint(0, 7), 4, [20,3], cumsum=True) for i in range(5)})
     
     ds=deDec(ds)
     mf=lambda x:sum(x)
@@ -129,7 +129,7 @@ if __name__=='__main__':
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1, projection='3d')
     for item in ds.items:
-        ax.plot(ds.loc[item,:,1], ds.loc[item,:,0],zs=ds.major_axis,label=item)
+        ax.plot(ds.loc[item,:,0], ds.loc[item,:,1],zs=ds.major_axis,label=item)
         ax.legend()
     ax.view_init(45,28)
     ax.legend()
@@ -141,6 +141,6 @@ if __name__=='__main__':
     
     print(p.getOptPairingfromSubset(set([1,3])))
     
-    #fig.show()
-    #time.sleep(2)
+    fig.show()
+    time.sleep(2)
     
