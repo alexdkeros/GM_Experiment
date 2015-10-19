@@ -1,6 +1,7 @@
 '''
 @author: ak
 '''
+import cPickle as pickle
 import random as r
 import pandas as pd
 import scipy as sp
@@ -88,6 +89,7 @@ def test_enviroment():
     print(coord.getbLog())
     
     saveExpResults('test', '/home/ak/git/GM_Experiment/', {'test':'test'}, distPairer, nodes, coord, ntw, train, test)
+    
     
 if __name__=='__main__':
     test_enviroment()

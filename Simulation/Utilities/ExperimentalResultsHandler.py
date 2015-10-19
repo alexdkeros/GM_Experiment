@@ -3,7 +3,7 @@
 '''
 import os.path
 import cPickle as pickle
-from Simulation.Utilities.ArrayOperations import hashable
+from Simulation.Utilities.ArrayOperations import hashable, unhash
 from Simulation.Utilities.DatasetHandler import saveDataset
 
 def saveExpResults(experimentName,
@@ -55,11 +55,7 @@ def saveExpResults(experimentName,
     folderPath=folderPath+'/'
     print('===========================================================================================================')
     print('=====================================SAVING EXPERIMENTAL RESULTS===========================================')
-    print('==========================path: %s==========================================='%folderPath)
-    
-    
-    #unhash iterable
-    unhash=lambda x: x.unwrap() if isinstance(x,hashable) else x
+    print('path: %s'%folderPath)
         
     #save configData
     pickle.dump(configData,open(folderPath+'configData.p','wb'))
@@ -71,11 +67,11 @@ def saveExpResults(experimentName,
     
     #save nodeData
     wDict={node: nodes[node].getWeight() for node in nodes}
-    uLogDict={node: [map(unhash,i) for i in nodes[node].getuLog()] for node in nodes}
+    uLogDict={node: unhash(nodes[node].getuLog()) for node in nodes}
     pickle.dump({'weightDict':wDict, 'uLogDict':uLogDict}, open(folderPath+'nodeData.p','wb'))
     
     #save coordData
-    pickle.dump([map(unhash,i) for i in coord.getbLog()],open(folderPath+'coordData.p','wb'))
+    pickle.dump(unhash(coord.getbLog()),open(folderPath+'coordData.p','wb'))
     
     #save networkData
     msgLog=network.getMsgLog()

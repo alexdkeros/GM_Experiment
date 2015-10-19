@@ -5,7 +5,7 @@ import pandas as pd
 import scipy as sp
 
 from hashlib import sha1
-
+from collections import Iterable
 from numpy import all, array, uint8
 
 
@@ -55,6 +55,20 @@ class hashable(object):
             return array(self.__wrapped)
 
         return self.__wrapped
+    
+def unhash(x):
+    '''
+    unwraps hashable objects wherever they are
+    args:
+        @param hashable obj or containing hashable
+    @return unwrapped of hashable
+    '''
+    if isinstance(x,hashable):
+        return x.unwrap()
+    elif isinstance(x,Iterable) and not isinstance(x,str):
+        return [unhash(i) for i in x]
+    else:
+        return x
 
 
 def avgListsOverIters(array2d):
@@ -148,12 +162,11 @@ if __name__=='__main__':
     print('----hashable test----')
     a=sp.array([2,3])
     b=sp.array([34,34,34,34])
-    t0=(4,hashable(a),10)
+    t0=(4,frozenset([(4,hashable(a),hashable(b)),(5,hashable(b))]),10,hashable(b))
     t1=(10,hashable(b),3000)
-    s=set()
-    s.add(t0)
-    s.add(t1)
+    s=[t0,t1]
     print(s)
+    print(unhash(s))
     print([isinstance(b.unwrap(),sp.ndarray) for a,b,c in s])
     
     from Simulation.Utilities.Dec import *
