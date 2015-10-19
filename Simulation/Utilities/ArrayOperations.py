@@ -160,7 +160,8 @@ if __name__=='__main__':
     
     print('------dec hashable test---------')
     g=dec(sp.array([2,3]))
-    hashable(g)
+    gh=hashable(g)
+    print(isinstance(gh,hashable))
     print(hashable(g).unwrap())
     
     print('-------weighted average test---------')

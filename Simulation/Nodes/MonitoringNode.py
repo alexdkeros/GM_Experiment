@@ -48,7 +48,7 @@ class MonitoringNode(GenericNode):
         self.monFuncVel=0.0 #current velocity of f(u)
         
         #EXP
-        self.uLog=[sp.repeat([0.0],len(self.v))]
+        self.uLog=[(self.network.getIterationCount(),hashable(dec(sp.repeat([0.0],len(self.v)))))]
         self.vLog=[self.v]
         
         #convert to decimals
@@ -58,7 +58,6 @@ class MonitoringNode(GenericNode):
         self.u=dec(self.u)
         self.delta=dec(self.delta)
         self.e=dec(self.e)
-        self.uLog=dec(self.uLog)
         
     '''
     ----------------------------------------------------------------------
@@ -94,7 +93,7 @@ class MonitoringNode(GenericNode):
         self.u=self.u+(dDelta/self.weight)  #recalculate last drift vector value with new slack vector(needed in case of "req" msg before run is called
         
         #EXP
-        self.uLog.append(self.u)
+        self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
 
         
     def newEst(self,dat,sender):
@@ -188,7 +187,7 @@ class MonitoringNode(GenericNode):
         self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
         
         #EXP
-        self.uLog.append(self.u)
+        self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
     
         #current velocity computation
         self.monFuncVel=self.computeMonFuncVel(self.monFunc, self.vLog)

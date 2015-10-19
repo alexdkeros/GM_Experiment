@@ -17,6 +17,7 @@ from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 from Simulation.OptimalPairer.DistributionPairer import DistributionPairer
 from Simulation.OptimalPairer.DistancePairer import DistancePairer
 from Simulation.Utilities.Dec import *
+from Simulation.Utilities.ExperimentalResultsHandler import saveExpResults
 
 def monFunc1D(x):
     
@@ -31,10 +32,10 @@ def monFunc3D(x):
 
 def test_enviroment():
     #number of nodes
-    nodeNum=5
+    nodeNum=2
     
     #threshold
-    thresh=200
+    thresh=100
     
     #monFunc !!!x is always an sp.ndarray
     monFunc=monFunc3D
@@ -85,6 +86,8 @@ def test_enviroment():
                 print(msg)
     
     print(coord.getbLog())
+    
+    saveExpResults('test', '/home/ak/git/GM_Experiment/', {'test':'test'}, distPairer, nodes, coord, ntw, train, test)
     
 if __name__=='__main__':
     test_enviroment()

@@ -17,7 +17,7 @@ def loadDataset(path):
         @param path: path to dataset
     @return loaded dataset
     '''
-    ext=os.path.splitext(path)
+    ext=os.path.splitext(path)[1]
     
     if ext==".csv":
         dataset=pd.read_csv(path)
@@ -25,22 +25,26 @@ def loadDataset(path):
         dataset=pd.read_hdf(path, "h5")
     elif ext==".xlsx" or ext==".xls":
         dataset=pd.read_excel(path)
+    elif ext==".p":
+        dataset=pd.read_pickle(path)
     else:
         raise ValueError("Not supported dataset, try csv,hdf of excel file.")
     
     return dec(dataset)
 
 def saveDataset(dataset,path):
-    ext=os.path.splitext(path)
-
+    ext=os.path.splitext(path)[1]
+    
     if ext==".csv":
         dataset.to_csv(path)
     elif ext==".h5":
         dataset.to_hdf(path,'df')
     elif ext==".xlsx" or ext==".xls":
         dataset.to_excel(path)
+    elif ext==".p":
+        dataset.to_pickle(path)
     else:
-        raise ValueError("Not supported dataset, try csv,hdf of excel file.")
+        raise ValueError("Not supported dataset, try csv,hdf,pickle or excel file.")
      
 
 def splitTrainTestDataset(dataset,percentage=0.8):
@@ -123,4 +127,5 @@ if __name__=='__main__':
         print('Train and Test datasets:')
         print(train)
         print(test)
+    saveDataset(ds3D, '/home/ak/git/test.p')
     
