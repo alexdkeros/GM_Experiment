@@ -28,7 +28,7 @@ def monFunc1D(x):
         return x
 
 def monFunc3D(x):
-        return x[0]+x[1]+x[2]
+        return (x[0]+x[1])/x[2] if x[2]!=0.0 else (x[0]+x[1])
 
 
 def test_enviroment():

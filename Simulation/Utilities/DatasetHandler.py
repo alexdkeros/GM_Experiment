@@ -91,7 +91,7 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
     '''
     dataset=None;
     if not isinstance(loc,list) and not isinstance(scale,list):
-        if len(size)==1:
+        if isinstance(size,int) or len(size)==1:
             dataset=pd.Series(sp.random.normal(loc=loc, scale=scale, size=size), index=index)
         elif len(size)==2:
             dataset=pd.DataFrame(sp.random.normal(loc=loc, scale=scale, size=size),index=index, columns=columns)
@@ -99,17 +99,21 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
             dataset=pd.Panel(sp.random.normal(loc=loc,scale=scale, size=size),items=items, major_axis=index, minor_axis=columns)
         else:
             raise ValueError('1<=len(size)<=3, others not supported')
+        
+        #DBG
+        print(type(dataset))
         return dec(dataset) if not cumsum else dec(dataset).cumsum()
     else:
-        if len(loc)==len(scale)==size[0]:
-            itemCount=size.pop(0)
+        if len(size)==3:
             if not items:
-                items=range(itemCount)
-            
-            return pd.Panel({items[i]: createNormalsDataset(loc=loc[i], scale=scale[i], size=size, cumsum=cumsum, index=index, columns=columns) for i in range(itemCount)})
-        else:
-            raise ValueError('Dimensions of loc %d, scale %d, size %d do not match'%(len(loc),len(scale),size[0]))
-
+                items=range(size[0])
+            dataset=pd.Panel({items[i]:createNormalsDataset(loc=loc[i], scale=scale[i], size=size[1:], cumsum=cumsum, index=index, columns=columns) for i in range(size[0])})
+        elif len(size)==2:
+            if not columns:
+                columns=range(size[1])
+            dataset=pd.DataFrame({columns[i]:createNormalsDataset(loc=loc[i], scale=scale[i], size=size[0], cumsum=cumsum, index=index) for i in range(size[1])})
+        
+        return dec(dataset)
 #----------------------------------------------------------------------------
 #---------------------------------TEST-OK------------------------------------
 #----------------------------------------------------------------------------
@@ -127,5 +131,7 @@ if __name__=='__main__':
         print('Train and Test datasets:')
         print(train)
         print(test)
-    saveDataset(ds3D, '/home/ak/git/test.p')
-    
+    print('----------------------')
+    ds=createNormalsDataset(loc=[[4,5],[100,200]], scale=[[0.01,10],[0.001,1000]], size=[2,4,2], cumsum=True,index=['a','b','c','d'])
+    print(ds)
+    print(ds.values)
