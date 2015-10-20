@@ -1,6 +1,9 @@
 '''
 @author: ak
 '''
+import sys
+sys.path.append('/home/ak/git/GM_Experiment/')
+
 from Simulation.Utilities.DatasetHandler import splitTrainTestDataset
 from Simulation.OptimalPairer.RandomPairer import RandomPairer
 from Simulation.Network.SingleHandlingNetwork import SingleHandlingNetwork
@@ -25,7 +28,7 @@ def classic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescr
     
     #create nodes
     nWd={nId: 1.0 for nId in dataset.items}
-    nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc) for nId in dataset.items}
+    nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId) for nId in dataset.items}
     
     #create coordinator Node
     coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)
@@ -68,7 +71,7 @@ def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFu
     
     #create nodes
     nWd={nId: 1.0 for nId in dataset.items}
-    nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc) for nId in dataset.items}
+    nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId) for nId in dataset.items}
     
     #create coordinator Node
     coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)
@@ -96,4 +99,47 @@ def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFu
           'node_dict':nWd}
     saveExpResults(expName, '/home/ak/git/GM_Experiment/Experiments/', conf, pairer, nodes, coord, ntw, train, test)
 
+#===============================================================================
+# MONITORING FUNCTIONS
+#===============================================================================
+def monFunc1D(x):
+    
+    if (isinstance(x,sp.ndarray) and len(x)==1):
+        return x[0]
+    else:
+        return x
+    
+def monFunc5D(x):
+    nom=x[0]+x[4]+x[3]
+    denom=x[1]+x[2]
+    
+    return nom**2-denom
+#===============================================================================
+# RUN
+#===============================================================================
+if __name__=='__main__':
+    
+    #datasets Load
+    datasetPath='/home/ak/git/GM_Experiment/Experiments/datasets/'
+    
+    dslinear1D2N=pd.read_pickle(datasetPath+'linear1D2N.p')
+    dsrandom1D2N=pd.read_pickle(datasetPath+'random1D2N.p')
+    
+    dslinear5D5N=pd.read_pickle(datasetPath+'linear5D5N.p')
+    dsrandom5D5N=pd.read_pickle(datasetPath+'random5D5N.p')
+    
+    
+    #classic random experiments
+    classic_random_experiment('singleH_classic_random_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600)
+    classic_random_experiment('singleH_classic_random_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600)
+    
+    classic_random_experiment('singleH_classic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 12000)
+    classic_random_experiment('singleH_classic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 12000)
+    
+    #heuristic optpair experiments
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600)
+    
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 12000)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 12000)
     

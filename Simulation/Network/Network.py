@@ -76,8 +76,8 @@ class Network:
         self.sniffMsg(data)
         
         #DBG
-        print("signal received")
-        print("Sender: %s, Target: %s , msg: %s , data: %s, complete msg:%s"%(data[0],data[1],data[2],str(data[3]),str(data)))
+        #print("signal received")
+        #print("Sender: %s, Target: %s , msg: %s , data: %s, complete msg:%s"%(data[0],data[1],data[2],str(data[3]),str(data)))
         
         if data[1]:
             self.nodes[data[1]].rcv(data)

@@ -162,7 +162,7 @@ class MonitoringNode(GenericNode):
         '''
         
         #DBG
-        print('--Check: Node: %s u:%s'%(self.id, self.u))
+        #print('--Check: Node: %s u:%s'%(self.id, self.u))
         
         #bounding sphere
         ball=computeBallFromDiametralPoints(deDec(self.e),deDec(self.u))
@@ -193,5 +193,5 @@ class MonitoringNode(GenericNode):
         self.monFuncVel=self.computeMonFuncVel(self.monFunc, self.vLog)
         
         #DBG
-        print('--Run: Node: %s u:%s'%(self.id, self.u))
+        #print('--Run: Node: %s u:%s'%(self.id, self.u))
         

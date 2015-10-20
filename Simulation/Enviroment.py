@@ -30,19 +30,24 @@ def monFunc1D(x):
 def monFunc3D(x):
         return (x[0]+x[1])/x[2] if x[2]!=0.0 else (x[0]+x[1])
 
-
+def monFunc5D(x):
+    nom=x[0]+x[4]+x[3]
+    denom=x[1]+x[2]
+    
+    return nom**2-denom
+    
 def test_enviroment():
     #number of nodes
-    nodeNum=2
+    nodeNum=5
     
     #threshold
-    thresh=100
+    thresh=10000
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc3D
+    monFunc=monFunc5D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 5), 0.01, [200,3], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
