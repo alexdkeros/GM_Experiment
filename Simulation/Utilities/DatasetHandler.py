@@ -99,9 +99,7 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
             dataset=pd.Panel(sp.random.normal(loc=loc,scale=scale, size=size),items=items, major_axis=index, minor_axis=columns)
         else:
             raise ValueError('1<=len(size)<=3, others not supported')
-        
-        #DBG
-        print(type(dataset))
+
         return dec(dataset) if not cumsum else dec(dataset).cumsum()
     else:
         if len(size)==3:
@@ -114,11 +112,13 @@ def createNormalsDataset(loc, scale, size, cumsum=True, index=None, columns=None
             dataset=pd.DataFrame({columns[i]:createNormalsDataset(loc=loc[i], scale=scale[i], size=size[0], cumsum=cumsum, index=index) for i in range(size[1])})
         
         return dec(dataset)
+    
+
 #----------------------------------------------------------------------------
 #---------------------------------TEST-OK------------------------------------
 #----------------------------------------------------------------------------
 if __name__=='__main__':
-    
+    '''
     ds1D=createNormalsDataset(loc=10, scale=3, size=[4], cumsum=True, index=['a','b','c','d'])
     ds2D=createNormalsDataset(loc=10, scale=3, size=[4,2], cumsum=True, index=['a','b','c','d'],columns=['col1','col2'])
     ds3D=createNormalsDataset(loc=10, scale=3, size=[2,4,2], cumsum=True,items=['it1','it2'], index=['a','b','c','d'],columns=['col1','col2'])
@@ -135,3 +135,7 @@ if __name__=='__main__':
     ds=createNormalsDataset(loc=[[4,5],[100,200]], scale=[[0.01,10],[0.001,1000]], size=[2,4,2], cumsum=True,index=['a','b','c','d'])
     print(ds)
     print(ds.values)
+    '''
+    ds=createNormalsDataset(loc=[1,10], scale=[1,10], size=[2,600,2], cumsum=True, items=['n'+str(i) for i in range(2)])
+    saveDataset(ds, '/home/ak/git/GM_Experiment/Experiments/datasets/random2D2N.p')
+    
