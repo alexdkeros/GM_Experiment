@@ -136,6 +136,6 @@ if __name__=='__main__':
     print(ds)
     print(ds.values)
     '''
-    ds=createNormalsDataset(loc=[1,10], scale=[1,10], size=[2,600,2], cumsum=True, items=['n'+str(i) for i in range(2)])
-    saveDataset(ds, '/home/ak/git/GM_Experiment/Experiments/datasets/random2D2N.p')
+    ds=createNormalsDataset(loc=[1,4,-5,-7,2,8,10,-3,0,3], scale=[0.001]*10, size=[10,1200,10], cumsum=True, items=['n'+str(i) for i in range(10)])
+    saveDataset(ds, '/home/ak/git/GM_Experiment/Experiments/datasets/linear10D10N.p')
     

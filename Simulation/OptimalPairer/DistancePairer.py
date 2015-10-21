@@ -103,6 +103,13 @@ class DistancePairer(OptimalPairer):
 #----------------------------------------------------------------------------
 #---------------------------------TEST---------------------------------------
 #----------------------------------------------------------------------------
+def monFunc10D(x):
+    nom=x[0]+x[1]+x[2]+x[3]+x[4]+x[9]
+    denom=x[5]+x[6]+x[7]+x[8]
+    
+    return (nom/denom)**2
+
+
 if __name__=='__main__':
     
     import time
@@ -111,8 +118,9 @@ if __name__=='__main__':
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
     from Simulation.Utilities.DatasetHandler import createNormalsDataset
-    from Simulation.Utilities.Dec import *
-    
+    from Simulation.Utilities.Dec import *   
+    from Simulation.Utilities.DatasetHandler import splitTrainTestDataset
+    '''
     r=random.Random()
     
     #ds=pd.Panel({i:createNormalsDataset(r.randint(0, 10), 0.01, [20,2], cumsum=True) for i in range(4)})
@@ -142,4 +150,10 @@ if __name__=='__main__':
     
     fig.show()
     #time.sleep(2)
-    
+    '''
+    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/linear10D10N.p')
+    nWd={nId:1.0 for nId in ds.items}
+    train, test=splitTrainTestDataset(ds)
+    p=DistancePairer(deDec(train),nWd,monFunc10D)
+    print(p.getTypeDict())
+    print(p.getWeightDict())

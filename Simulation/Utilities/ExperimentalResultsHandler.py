@@ -31,7 +31,7 @@ def saveExpResults(experimentName,
                                         weightDict:{}}
         3.nodeData, dict containing {nId:uLog}
         4.coordData, dict containing {coordId: bLog}
-        5.networkData, dict containing {msg_type: list of msgs}
+        5.networkData, dict containing {iterations: int, msgLogDict:{msg_type: list of msgs}}
         6.dataset_train, pandas Panel in csv form with training data
         7.dataset_test, pandas Panel in csv form with testing data
     args:
@@ -61,7 +61,7 @@ def saveExpResults(experimentName,
     pickle.dump(configData,open(folderPath+'configData.p','wb'))
     
     #save pairerData
-    if (pairer.getWeightDict() and pairer.getTypeDict()):
+    if pairer.getTypeDict():
         pDict={'weightDict':pairer.getWeightDict(), 'typeDict':pairer.getTypeDict()}
         pickle.dump(pDict, open(folderPath+'pairerData.p','wb'))
     
