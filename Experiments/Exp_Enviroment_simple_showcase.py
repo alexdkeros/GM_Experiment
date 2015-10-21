@@ -18,6 +18,8 @@ from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 def classic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescription, threshold, repeats):
     
     for i in range(repeats):
+        
+        print('**************************************REPEAT %d****************************************'%i)
         #split Dataset
         train, test=splitTrainTestDataset(dataset)
         
@@ -62,6 +64,9 @@ def classic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescr
 def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFuncDescription, threshold, repeats):
     
     for i in range(repeats):
+        
+        print('**************************************REPEAT %d****************************************'%i)
+        
         #create network
         ntw=SingleHandlingNetwork()
         
@@ -87,8 +92,6 @@ def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFu
         
         #set balancing method
         setattr(CoordinatorNode,'balancer', heuristicBalancer)
-        
-        
         
         #simulate
         ntw.simulate()
@@ -138,40 +141,40 @@ if __name__=='__main__':
     
     dslinear1D2N=pd.read_pickle(datasetPath+'linear1D2N.p')
     dsrandom1D2N=pd.read_pickle(datasetPath+'random1D2N.p')
-
+ 
     dslinear1D10N=pd.read_pickle(datasetPath+'linear1D10N.p')
     dsrandom1D10N=pd.read_pickle(datasetPath+'random1D10N.p')
-    
+     
     dslinear5D5N=pd.read_pickle(datasetPath+'linear5D5N.p')
     dsrandom5D5N=pd.read_pickle(datasetPath+'random5D5N.p')
-    
+     
     dslinear10D10N=pd.read_pickle(datasetPath+'linear10D10N.p')
     dsrandom10D10N=pd.read_pickle(datasetPath+'random10D10N.p')
-    
+     
     
     #classic random experiments
     classic_random_experiment('singleH_classic_random_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     classic_random_experiment('singleH_classic_random_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
-
+ 
     classic_random_experiment('singleH_classic_random_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
     classic_random_experiment('singleH_classic_random_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
-    
+     
     classic_random_experiment('singleH_classic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
     classic_random_experiment('singleH_classic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
-
+ 
     classic_random_experiment('singleH_classic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
     classic_random_experiment('singleH_classic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
-    
+     
     #heuristic optpair experiments
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
-
+ 
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
-
+ 
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
-
+ 
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
-    
+     

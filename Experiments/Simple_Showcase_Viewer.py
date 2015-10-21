@@ -22,10 +22,10 @@ def collectMeanMetricFromSubfolders(p,f):
     subfolders=[p+i+'/'+f for i in subfolders]
     
     #dictionary inside pickle file
-    resDicts=[map(pd.read_pickle,i) for i in subfolders]
+    resDicts=[pd.read_pickle(i) for i in subfolders]
     
     #get desired value from each one
-    res=[map(countMsgs,i) for i in resDicts]
+    res=[countMsgs(i) for i in resDicts]
     
     return mean(res)
 
@@ -37,7 +37,6 @@ if __name__=='__main__':
     #experimental result paths
     expRes=[[resPath+'singleH_classic_random_linear_1D2N/',resPath+'singleH_classic_random_random_1D2N/',resPath+'singleH_classic_random_linear_5D5N/',resPath+'singleH_classic_random_random_5D5N/',resPath+'singleH_classic_random_linear_10D10N/',resPath+'singleH_classic_random_random_10D10N/'],
             [resPath+'singleH_heuristic_distOptPair_linear_1D2N/',resPath+'singleH_heuristic_distOptPair_random_1D2N/',resPath+'singleH_heuristic_distOptPair_linear_5D5N/',resPath+'singleH_heuristic_distOptPair_random_5D5N/',resPath+'singleH_heuristic_distOptPair_linear_10D10N/',resPath+'singleH_heuristic_distOptPair_random_10D10N/']]
-    
     
     counts=[[collectMeanMetricFromSubfolders(fol, f) for fol in p] for p in expRes]
     

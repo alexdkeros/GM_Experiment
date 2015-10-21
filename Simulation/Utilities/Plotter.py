@@ -239,7 +239,7 @@ def barChart(data,
                     bar_width,
                     alpha=opacity,
                     color=next(colors),
-                    label=None if i>=len(labels) else labels[i])
+                    label=None if (not labels or i>=len(labels)) else labels[i])
         __autolabel(rect,axes)
     
     axes.set_ylim([0,max(max(k) for k in data)*1.5])
@@ -248,7 +248,8 @@ def barChart(data,
     axes.set_ylabel(yLabel)
     axes.set_title(title)
     axes.set_xticks((maxIndex) + bar_width)
-    axes.set_xticklabels(xticks,rotation=90)
+    if xticks:
+        axes.set_xticklabels(xticks,rotation=90)
     axes.legend()
 
     fig.tight_layout()
