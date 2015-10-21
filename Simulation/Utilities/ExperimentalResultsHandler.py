@@ -26,7 +26,8 @@ def saveExpResults(experimentName,
                                         node_num:int,
                                         data_dims:int,
                                         dataset_name:str
-                                        node_dict: {nId:w_i, }}
+                                        node_dict: {nId:w_i, },
+                                        repeat:int}
         2.pairerData, dict containing {typeDict: {},
                                         weightDict:{}}
         3.nodeData, dict containing {nId:uLog}
