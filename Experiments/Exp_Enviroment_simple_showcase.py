@@ -31,7 +31,7 @@ def classic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescr
         
         #create nodes
         nWd={nId: 1.0 for nId in dataset.items}
-        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId) for nId in dataset.items}
+        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,windowSize=7,approximationOrder=2) for nId in dataset.items}
         
         #create coordinator Node
         coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)
@@ -75,7 +75,7 @@ def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFu
            
         #create nodes
         nWd={nId: 1.0 for nId in dataset.items}
-        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId) for nId in dataset.items}
+        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,windowSize=7,approximationOrder=2) for nId in dataset.items}
         
         #create coordinator Node
         coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)

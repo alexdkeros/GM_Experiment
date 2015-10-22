@@ -30,7 +30,7 @@ def saveExpResults(experimentName,
                                         repeat:int}
         2.pairerData, dict containing {typeDict: {},
                                         weightDict:{}}
-        3.nodeData, dict containing {nId:uLog}
+        3.nodeData, dict containing {weightDict:{nId:w_i},uLog:{nId:uLog},monFuncVelLog:{nId:monFuncVelLog}}
         4.coordData, dict containing {coordId: bLog}
         5.networkData, dict containing {iterations: int, msgLogDict:{msg_type: list of msgs}}
         6.dataset_train, pandas Panel in csv form with training data
@@ -69,7 +69,8 @@ def saveExpResults(experimentName,
     #save nodeData
     wDict={node: nodes[node].getWeight() for node in nodes}
     uLogDict={node: unhash(nodes[node].getuLog()) for node in nodes}
-    pickle.dump({'weightDict':wDict, 'uLogDict':uLogDict}, open(folderPath+'nodeData.p','wb'))
+    monFuncVelDict={node:nodes[node].getMonFuncVelLog() for node in nodes}
+    pickle.dump({'weightDict':wDict, 'uLogDict':uLogDict, 'monFuncVelDict':monFuncVelDict}, open(folderPath+'nodeData.p','wb'))
     
     #save coordData
     pickle.dump(unhash(coord.getbLog()),open(folderPath+'coordData.p','wb'))

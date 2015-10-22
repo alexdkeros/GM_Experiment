@@ -35,9 +35,9 @@ if __name__=='__main__':
     f='networkData.p'
     
     #experimental result paths
-    expRes=[[resPath+'singleH_classic_random_linear_1D2N/',resPath+'singleH_classic_random_random_1D2N/',resPath+'singleH_classic_random_linear_5D5N/',resPath+'singleH_classic_random_random_5D5N/',resPath+'singleH_classic_random_linear_10D10N/',resPath+'singleH_classic_random_random_10D10N/'],
-            [resPath+'singleH_heuristic_distOptPair_linear_1D2N/',resPath+'singleH_heuristic_distOptPair_random_1D2N/',resPath+'singleH_heuristic_distOptPair_linear_5D5N/',resPath+'singleH_heuristic_distOptPair_random_5D5N/',resPath+'singleH_heuristic_distOptPair_linear_10D10N/',resPath+'singleH_heuristic_distOptPair_random_10D10N/']]
+    expRes=[[resPath+'singleH_classic_random_linear_1D2N/',resPath+'singleH_classic_random_random_1D2N/',resPath+'singleH_classic_random_linear_1D10N/',resPath+'singleH_classic_random_random_1D10N/',resPath+'singleH_classic_random_linear_5D5N/',resPath+'singleH_classic_random_random_5D5N/',resPath+'singleH_classic_random_linear_10D10N/',resPath+'singleH_classic_random_random_10D10N/'],
+            [resPath+'singleH_heuristic_distOptPair_linear_1D2N/',resPath+'singleH_heuristic_distOptPair_random_1D2N/',resPath+'singleH_heuristic_distOptPair_linear_1D10N/',resPath+'singleH_heuristic_distOptPair_random_1D10N/',resPath+'singleH_heuristic_distOptPair_linear_5D5N/',resPath+'singleH_heuristic_distOptPair_random_5D5N/',resPath+'singleH_heuristic_distOptPair_linear_10D10N/',resPath+'singleH_heuristic_distOptPair_random_10D10N/']]
     
     counts=[[collectMeanMetricFromSubfolders(fol, f) for fol in p] for p in expRes]
     
-    barChart(counts, labels=['classic random','heuristic dist opt pair'], xticks=['linear1D2N','random1D2N','linear5D5N','random5D5N','linear10D10N','random10D10N'], saveFlag=True, filename=resPath+'Simple_showcase_msg_count', showFlag=True,figsize=(20,10))
+    barChart(counts, labels=['classic random','heuristic dist opt pair'], xticks=['linear1D2N','random1D2N','linear1D10N','random1D10N','linear5D5N','random5D5N','linear10D10N','random10D10N'], saveFlag=True, filename=resPath+'Simple_showcase_msg_count', showFlag=False,figsize=(20,10))

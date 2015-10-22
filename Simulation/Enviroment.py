@@ -41,13 +41,13 @@ def test_enviroment():
     nodeNum=5
     
     #threshold
-    thresh=10000
+    thresh=200
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc5D
+    monFunc=monFunc1D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,1], cumsum=True) for i in range(nodeNum)})
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
@@ -91,7 +91,8 @@ def test_enviroment():
             else:
                 print(msg)
     
-    print(coord.getbLog())
+    for node in nodes:
+        print(nodes[node].getMonFuncVelLog())
     
     saveExpResults('test', '/home/ak/git/GM_Experiment/', {'test':'test'}, distPairer, nodes, coord, ntw, train, test)
     

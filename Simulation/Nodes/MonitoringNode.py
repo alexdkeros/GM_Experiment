@@ -7,6 +7,7 @@ from Simulation.Nodes.GenericNode import GenericNode
 from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
 from Simulation.Utilities.ArrayOperations import hashable
+from Simulation.Utilities.SavitzkyGolayFiltering import *
 
 class MonitoringNode(GenericNode):
     '''
@@ -19,7 +20,9 @@ class MonitoringNode(GenericNode):
                  threshold,
                  monFunc,
                  nid=uuid.uuid4(), 
-                 weight=dec(1)):
+                 weight=dec(1),
+                 windowSize=7,
+                 approximationOrder=2):
         '''
         Constructor
         args:
@@ -31,6 +34,9 @@ class MonitoringNode(GenericNode):
             @param dataset: pandas' Dataframe containing updates
             @param threshold: monitoring threshold
             @param monFunc: monitoring function
+            ------velocity computation params
+            @param windowSize: sliding window size
+            @param approximationOrder: order of velocity curve
         '''
         GenericNode.__init__(self, network, dataset, nid=nid, weight=weight)
         
@@ -45,11 +51,15 @@ class MonitoringNode(GenericNode):
         self.u=sp.repeat([0.0],len(self.v))
         self.delta=sp.repeat([0.0],len(self.v))
         self.e=sp.repeat([0.0],len(self.v))
-        self.monFuncVel=0.0 #current velocity of f(u)
+        
+        #velocity computation params
+        self.windowSize=windowSize
+        self.approximationOrder=approximationOrder
         
         #EXP
         self.uLog=[(self.network.getIterationCount(),hashable(dec(sp.repeat([0.0],len(self.v)))))]
         self.vLog=[self.v]
+        self.monFuncVelLog=None
         
         #convert to decimals
         self.threshold=dec(self.threshold)
@@ -125,7 +135,7 @@ class MonitoringNode(GenericNode):
             "rep" signal
             in classic balancing velocity is not used
         '''
-        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),self.monFuncVel))
+        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[-min([self.windowSize,len(self.monFuncVelLog)]):-1])))
         
     
     '''
@@ -133,6 +143,14 @@ class MonitoringNode(GenericNode):
     other functions
     ----------------------------------------------------------------------
     '''
+        
+    def getMonFuncVelLog(self):
+        '''
+            returns monitoring functions velocity log
+            @return: velocity array
+        '''
+        return self.monFuncVelLog
+    
     def getuLog(self):
         '''
             returns u's throught monitoring process
@@ -141,15 +159,21 @@ class MonitoringNode(GenericNode):
         return self.uLog
     
     
-    def computeMonFuncVel(self,func,dataLog):
+    def computeMonFuncVel(self,func,dataLog, windowSize, order):
         '''
             computes monitoring function velocity for heuristic optimization
             args:
                 @param func: the monitoring function
-                @param uLog: log of drift vectors
-            @return monitoring function velocity
+                @param dataLog: log of vectors
+                @param windowSize: window size
+                @param order: approximation order
+            @return monitoring function velocity array
         ''' 
-        return func(dataLog[-1])-func(dataLog[-2])
+        wS=min([windowSize,len(dataLog)])
+        
+        data=sp.array(map(func, dataLog))
+        
+        return smooth(sp.arange(len(dataLog)), deDec(data) ,size=wS,order=order,deriv=1)
     
     '''
     ----------------------------------------------------------------------
@@ -190,7 +214,7 @@ class MonitoringNode(GenericNode):
         self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
     
         #current velocity computation
-        self.monFuncVel=self.computeMonFuncVel(self.monFunc, self.vLog)
+        self.monFuncVelLog=dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.windowSize, self.approximationOrder))
         
         #DBG
         #print('--Run: Node: %s u:%s'%(self.id, self.u))
