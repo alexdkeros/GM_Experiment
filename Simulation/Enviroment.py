@@ -41,13 +41,13 @@ def test_enviroment():
     nodeNum=5
     
     #threshold
-    thresh=200
+    thresh=2000
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc1D
+    monFunc=monFunc5D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,1], cumsum=True) for i in range(nodeNum)})
+    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}

@@ -15,6 +15,9 @@ from Simulation.Utilities.ExperimentalResultsHandler import saveExpResults
 from Simulation.Utilities.Dec import *
 from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 
+#===============================================================================
+# CLASSIC RANDOM
+#===============================================================================
 def classic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescription, threshold, repeats):
     
     for i in range(repeats):
@@ -60,6 +63,111 @@ def classic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescr
               'repeat':i}
         saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, pairer, nodes, coord, ntw, train, test)
 
+#===============================================================================
+# HEURISIC RANDOM
+#===============================================================================
+
+def heuristic_random_experiment(expName, dataset,datasetName, monFunc,monFuncDescription, threshold, repeats):
+    
+    for i in range(repeats):
+        
+        print('**************************************REPEAT %d****************************************'%i)
+        #split Dataset
+        train, test=splitTrainTestDataset(dataset)
+        
+        #create OptimalPairer
+        pairer=RandomPairer(train)
+        
+        #create network
+        ntw=SingleHandlingNetwork()
+        
+        #create nodes
+        nWd={nId: 1.0 for nId in dataset.items}
+        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,windowSize=7,approximationOrder=2) for nId in dataset.items}
+        
+        #create coordinator Node
+        coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)
+        
+        #set node request mechanism
+        selectNodeReq=lambda coordInstance,x: pairer.getOptPairing(x)
+    
+        setattr(CoordinatorNode,'selectNodeReq',selectNodeReq)
+        
+        #set balancing method
+        setattr(CoordinatorNode,'balancer', heuristicBalancer)
+        
+        #simulate
+        ntw.simulate()
+        
+        #save results
+        conf={'threshold':threshold,
+              'monFunc':monFuncDescription,
+              'bal_type':'heuristic',
+              'pairer_type':'random',
+              'network_type':'singleHandling',
+              'node_num':len(dataset.items),
+              'data_dims':len(dataset.minor_axis),
+              'dataset_name':datasetName,
+              'node_dict':nWd,
+              'repeat':i}
+        saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, pairer, nodes, coord, ntw, train, test)
+
+#===============================================================================
+# CLASSIC DISTANCE OPTPAIR
+#===============================================================================
+
+def classic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFuncDescription, threshold, repeats):
+    
+    for i in range(repeats):
+        
+        print('**************************************REPEAT %d****************************************'%i)
+        
+        #create network
+        ntw=SingleHandlingNetwork()
+        
+        #split Dataset
+        train, test=splitTrainTestDataset(dataset)
+           
+        #create nodes
+        nWd={nId: 1.0 for nId in dataset.items}
+        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,windowSize=10,approximationOrder=2) for nId in dataset.items}
+        
+        #create coordinator Node
+        coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)
+        
+        #create OptimalPairer
+        pairer=RandomPairer(train)
+        distPairer=DistancePairer(deDec(train),nWd,monFunc)
+        
+        
+        #set node request mechanism
+        selectNodeReq=lambda coordInstance,x: distPairer.getOptPairingfromSubset(x) and distPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
+    
+        setattr(CoordinatorNode,'selectNodeReq',selectNodeReq)
+        
+        #set balancing method
+        setattr(CoordinatorNode,'balancer', classicBalancer)
+        
+        #simulate
+        ntw.simulate()
+        
+        #save results
+        conf={'threshold':threshold,
+              'monFunc':monFuncDescription,
+              'bal_type':'classic',
+              'pairer_type':'distance_opt_pair_and_random',
+              'network_type':'singleHandling',
+              'node_num':len(dataset.items),
+              'data_dims':len(dataset.minor_axis),
+              'dataset_name':datasetName,
+              'node_dict':nWd,
+              'repeat':i}
+        
+        saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, distPairer, nodes, coord, ntw, train, test)
+
+#===============================================================================
+# HEURISTIC DISTANCE OPTPAIR
+#===============================================================================
 
 def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFuncDescription, threshold, repeats):
     
@@ -75,7 +183,7 @@ def heuristic_distOptPair_experiment(expName, dataset,datasetName, monFunc,monFu
            
         #create nodes
         nWd={nId: 1.0 for nId in dataset.items}
-        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,windowSize=7,approximationOrder=2) for nId in dataset.items}
+        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,windowSize=10,approximationOrder=2) for nId in dataset.items}
         
         #create coordinator Node
         coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc)
@@ -165,6 +273,33 @@ if __name__=='__main__':
     classic_random_experiment('singleH_classic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
     classic_random_experiment('singleH_classic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
      
+    #heuristic random experiments
+    heuristic_random_experiment('singleH_heuristic_random_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
+ 
+    heuristic_random_experiment('singleH_heuristic_random_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
+     
+    heuristic_random_experiment('singleH_heuristic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
+ 
+    heuristic_random_experiment('singleH_heuristic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+    
+    #classic optpair experiments
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
+ 
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
+ 
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
+ 
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+     
+
     #heuristic optpair experiments
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
