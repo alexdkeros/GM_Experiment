@@ -250,11 +250,26 @@ if __name__=='__main__':
     dslinear1D2N=pd.read_pickle(datasetPath+'linear1D2N.p')
     dsrandom1D2N=pd.read_pickle(datasetPath+'random1D2N.p')
  
+    dslinear1D5N=pd.read_pickle(datasetPath+'linear1D5N.p')
+    dsrandom1D5N=pd.read_pickle(datasetPath+'random1D5N.p')
+    
     dslinear1D10N=pd.read_pickle(datasetPath+'linear1D10N.p')
     dsrandom1D10N=pd.read_pickle(datasetPath+'random1D10N.p')
+    
+    dslinear5D2N=pd.read_pickle(datasetPath+'linear5D2N.p')
+    dsrandom5D2N=pd.read_pickle(datasetPath+'random5D2N.p')
      
     dslinear5D5N=pd.read_pickle(datasetPath+'linear5D5N.p')
     dsrandom5D5N=pd.read_pickle(datasetPath+'random5D5N.p')
+    
+    dslinear5D10N=pd.read_pickle(datasetPath+'linear5D10N.p')
+    dsrandom5D10N=pd.read_pickle(datasetPath+'random5D10N.p')
+    
+    dslinear10D2N=pd.read_pickle(datasetPath+'linear10D2N.p')
+    dsrandom10D2N=pd.read_pickle(datasetPath+'random10D2N.p')
+    
+    dslinear10D5N=pd.read_pickle(datasetPath+'linear10D5N.p')
+    dsrandom10D5N=pd.read_pickle(datasetPath+'random10D5N.p')
      
     dslinear10D10N=pd.read_pickle(datasetPath+'linear10D10N.p')
     dsrandom10D10N=pd.read_pickle(datasetPath+'random10D10N.p')
@@ -263,53 +278,112 @@ if __name__=='__main__':
     #classic random experiments
     classic_random_experiment('singleH_classic_random_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     classic_random_experiment('singleH_classic_random_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
- 
+    
+    classic_random_experiment('singleH_classic_random_linear_1D5N', dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 600, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_1D5N', dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 600, repeats=10)
+    
     classic_random_experiment('singleH_classic_random_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
     classic_random_experiment('singleH_classic_random_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
+    
+    classic_random_experiment('singleH_classic_random_linear_5D2N', dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_5D2N', dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
      
-    classic_random_experiment('singleH_classic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
-    classic_random_experiment('singleH_classic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
+    classic_random_experiment('singleH_classic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
  
-    classic_random_experiment('singleH_classic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
-    classic_random_experiment('singleH_classic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+    classic_random_experiment('singleH_classic_random_linear_5D10N', dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_5D10N', dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    classic_random_experiment('singleH_classic_random_linear_10D2N', dslinear10D2N, 'linear10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_10D2N', dsrandom10D2N, 'random10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    classic_random_experiment('singleH_classic_random_linear_10D5N', dslinear10D5N, 'linear10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_10D5N', dsrandom10D5N, 'random10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    classic_random_experiment('singleH_classic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    classic_random_experiment('singleH_classic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
      
     #heuristic random experiments
     heuristic_random_experiment('singleH_heuristic_random_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     heuristic_random_experiment('singleH_heuristic_random_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
- 
+    
+    heuristic_random_experiment('singleH_heuristic_random_linear_1D5N', dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 600, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_1D5N', dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 600, repeats=10)
+    
     heuristic_random_experiment('singleH_heuristic_random_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
     heuristic_random_experiment('singleH_heuristic_random_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
-     
-    heuristic_random_experiment('singleH_heuristic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
-    heuristic_random_experiment('singleH_heuristic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
- 
-    heuristic_random_experiment('singleH_heuristic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
-    heuristic_random_experiment('singleH_heuristic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
     
+    heuristic_random_experiment('singleH_heuristic_random_linear_5D2N', dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_5D2N', dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+     
+    heuristic_random_experiment('singleH_heuristic_random_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    heuristic_random_experiment('singleH_heuristic_random_linear_5D10N', dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_5D10N', dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    heuristic_random_experiment('singleH_heuristic_random_linear_10D2N', dslinear10D2N, 'linear10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_10D2N', dsrandom10D2N, 'random10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    heuristic_random_experiment('singleH_heuristic_random_linear_10D5N', dslinear10D5N, 'linear10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_10D5N', dsrandom10D5N, 'random10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    heuristic_random_experiment('singleH_heuristic_random_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    heuristic_random_experiment('singleH_heuristic_random_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+   
     #classic optpair experiments
     classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
- 
+    
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D5N', dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 600, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D5N', dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 600, repeats=10)
+    
     classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
     classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
- 
-    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
-    classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
- 
-    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
-    classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+    
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D2N', dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D2N', dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
      
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D10N', dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D10N', dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D2N', dslinear10D2N, 'linear10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D2N', dsrandom10D2N, 'random10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D5N', dslinear10D5N, 'linear10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D5N', dsrandom10D5N, 'random10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
 
     #heuristic optpair experiments
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D2N', dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 600, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D2N', dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 600, repeats=10)
- 
+    
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D5N', dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 600, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D5N', dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 600, repeats=10)
+    
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 600, repeats=10)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D10N', dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 600, repeats=10)
- 
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 5000, repeats=10)
- 
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 5000, repeats=10)
+    
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D2N', dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D2N', dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
      
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D10N', dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D10N', dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 3000, repeats=10)
+ 
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D2N', dslinear10D2N, 'linear10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D2N', dsrandom10D2N, 'random10D2N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D5N', dslinear10D5N, 'linear10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D5N', dsrandom10D5N, 'random10D5N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D10N', dslinear10D10N, 'linear10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D10N', dsrandom10D10N, 'random10D10N', monFunc10D, '(sum(x_0-4)+x_9/sum(x_5-8))^2', 3000, repeats=10)
+    
