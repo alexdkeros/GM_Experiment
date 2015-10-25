@@ -35,19 +35,24 @@ def monFunc5D(x):
     denom=x[1]+x[2]
     
     return nom**2-denom
+
+
+def monFunc10D(x):
+    return ((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
     
 def test_enviroment():
     #number of nodes
     nodeNum=5
     
     #threshold
-    thresh=2000
+    thresh=50000
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc5D
+    monFunc=monFunc10D
     
     #create Dataset
-    ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
+    #ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
+    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/random10D5N.p')
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
@@ -57,12 +62,13 @@ def test_enviroment():
     
     #create OptimalPairer
     pairer=RandomPairer(train)
-    distPairer=DistributionPairer(deDec(train),monFunc,thresh)
+    #distPairer=DistributionPairer(deDec(train),monFunc,thresh)
     
-    print(distPairer.getTypeDict())
-    print(distPairer.getWeightDict())
+    #print(distPairer.getTypeDict())
+    #print(distPairer.getWeightDict())
     
-    selectNodeReq=lambda coordInstance,x: distPairer.getOptPairingfromSubset(x) and distPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
+    #selectNodeReq=lambda coordInstance,x: distPairer.getOptPairingfromSubset(x) and distPairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
+    selectNodeReq=lambda coordInstance,x: pairer.getOptPairing(x)
     
     #create network
     ntw=SingleHandlingNetwork()
@@ -94,7 +100,7 @@ def test_enviroment():
     for node in nodes:
         print(nodes[node].getMonFuncVelLog())
     
-    saveExpResults('test', '/home/ak/git/GM_Experiment/', {'test':'test'}, distPairer, nodes, coord, ntw, train, test)
+    saveExpResults('test', '/home/ak/git/GM_Experiment/', {'test':'test'}, pairer, nodes, coord, ntw, train, test)
     
     
 if __name__=='__main__':
