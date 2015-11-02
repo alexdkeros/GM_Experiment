@@ -56,11 +56,11 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
         #results
         resMin=s.minimize(f,sP)
         #DBG
-        #print(resMin.xf)
+        print(resMin.xf)
         
         resMax=s.maximize(f,sP)
         #DBG
-        #print(resMax.xf)
+        print(resMax.xf)
         
         return f(resMin),f(resMax)
 

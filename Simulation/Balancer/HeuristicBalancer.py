@@ -7,7 +7,7 @@ import scipy as sp
 from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
 from Simulation.Utilities.Dec import *
 
-def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict):
+def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict,residual=0.0):
     '''
     Heuristic balancing function maximizing the expected time until next violation
     args:
@@ -21,13 +21,19 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     NOTE: PAY ATTENTION TO DECIMALS, openopt and sp.average() do not accept them!
     '''
+    
+    if residual:
+        appliedThreshold=deDec(threshold)-residual
+    else:
+        appliedThreshold=threshold
+    
     #fix order, unwrap hashable sp.arrays
     bS=list( (id,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel)) for (id,v,u,fvel) in balSet )
     
     #DBG
-    print(bS)
+    print('balancing set:%s'%bS)
     
-    x=oovars([nid for nid,v,u,vel in bS])   #oovars
+    x=oovars([nid for nid,v,u,vel in bS],tol=0.0)   #oovars
     
     f=[]    #oofuns
     
@@ -37,29 +43,37 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     for i in range(len(bS)):
         #func
-        f.append(__optFunc(x[i],bS[i],deDec(threshold),monFunc))
+        f.append(__optFunc(x[i],bS[i],deDec(appliedThreshold),monFunc))
         
         #point
         startPoint[x[i]]=deDec(b)
     
         #constraints
-        constraints.append(monFunc(x[i])<deDec(threshold))
-        constraints.append(__optFunc(x[i],bS[i],deDec(threshold),monFunc)>=0)
+        constraints.append(monFunc(x[i])<deDec(appliedThreshold))
+        constraints.append(__optFunc(x[i],bS[i],deDec(appliedThreshold),monFunc)>=0)
+
+    constraints.append(weightedAverage(x,[deDec(nodeWeightDict[x_i.name]) for x_i in x])==deDec(b))
+    
     #min
     fmin=min(f)
     objective=fmin('maxmin_f')
     
-    constraints.append(weightedAverage(x,[deDec(nodeWeightDict[x_i.name]) for x_i in x])==deDec(b))
-    
     #maxmin
-    p=NLP(objective,startPoint,constraints=constraints)
+    p=NLP(objective,startPoint,constraints=constraints,tol=0.0,ftol=0.0,xtol=0.0)
     
     r=p.maximize('ralg',plot=False)
 
     resDict={x_i.name:dec(r(x_i)) for x_i in x} #optimal point dictionary
     
-    #DBG
-    print(resDict)
+    print('Result Points:%s'%resDict)
+    print(appliedThreshold)
+    print(r.rf)
+    
+    #repeat in case of threshold violation
+    if any([i>=threshold for i in resDict.values()]) and r.rf:
+        heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict, residual=residual+r.rf)
+    
+    
     
     return {nid:(nodeWeightDict[nid]*resDict[nid]-nodeWeightDict[nid]*u.unwrap()) for nid,v,u,fvel in balSet} #(w_i*result_i-w_i*u_i), i in balancingSet
     
@@ -90,19 +104,20 @@ if __name__=='__main__':
     import scipy as sp
     from Simulation.Utilities.Dec import *
     
+    #1D test
     bSet=set([
-              ('n1', hashable(dec(sp.array([400]))), hashable(dec(sp.array([11,6]))), 5.5),
-              ('n2', hashable(dec(sp.array([400]))), hashable(dec(sp.array([6,11]))), 3)])
-    b=dec(sp.array([8.5,2]))
-    threshold=20
-    monFunc=lambda x:sum(x)
+              ('n1', hashable(dec(sp.array([21]))), hashable(dec(sp.array([21]))), 5),
+              ('n2', hashable(dec(sp.array([12]))), hashable(dec(sp.array([12]))), 3)])
+    b=dec(sp.array([16.5]))
+    threshold=dec(20.0)
+    monFunc=lambda x:x
     nodeWeightDict={'n1':dec(1.0), 'n2':dec(1.0), 'n3':dec(1.0)}
     
     
-    res=heuristicBalancer(bSet, b, threshold, monFunc, nodeWeightDict)
+    res=heuristicBalancer(None,bSet, b, threshold, monFunc, nodeWeightDict)
     print('--------------collected data--------------')
-    print(bSet)
-    print(b)
-    print(threshold)
-    print(nodeWeightDict)
-    print(res)
+    print('Balancing set: %s'%bSet)
+    print('Balancing vector: %s'%b)
+    print('threshold: %s'%threshold)
+    print('node weights:%s'%nodeWeightDict)
+    print('Ddeltas:%s'%res)

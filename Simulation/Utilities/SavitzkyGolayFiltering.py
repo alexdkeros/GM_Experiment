@@ -60,7 +60,7 @@ if __name__=='__main__':
     from Simulation.Utilities.Plotter import plot2d
     from Simulation.Utilities.Dec import deDec
 
-    l=5
+    l=100
 
     time=sp.arange(l)
     position=deDec(createNormalsDataset(loc=10, scale=0.0001, size=l, cumsum=True))
