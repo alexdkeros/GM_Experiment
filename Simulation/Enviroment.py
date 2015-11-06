@@ -42,17 +42,17 @@ def monFunc10D(x):
     
 def test_enviroment():
     #number of nodes
-    nodeNum=2
+    nodeNum=10
     
     #threshold
-    thresh=10000
+    thresh=1*10**6
     
     #monFunc !!!x is always an sp.ndarray
     monFunc=monFunc10D
     
     #create Dataset
     #ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
-    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/random10D2N.p')
+    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/linear10D10N.p')
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
@@ -62,7 +62,7 @@ def test_enviroment():
     
     #create OptimalPairer
     pairer=RandomPairer(train)
-    #distPairer=DistributionPairer(deDec(train),monFunc,thresh)
+    distPairer=DistributionPairer(deDec(train),monFunc,thresh)
     
     #print(distPairer.getTypeDict())
     #print(distPairer.getWeightDict())

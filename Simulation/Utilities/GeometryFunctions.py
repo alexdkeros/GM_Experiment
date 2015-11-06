@@ -37,7 +37,7 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
     inb=lambda x,c,r: sum((x[i]-c[i])**2 for i in range(len(c)))<=r**2 if (isinstance(c,list or sp.array) and len(c)>1) else (x-c)**2<=r**2 #constraint (messy statement because we get complaints by openopt)
 
     #openopt specific vars
-    p=oovar('p')    #oovar
+    p=oovar('p',tol=0.0)   #oovar
     f=(func(p))('f')   #oofunc
     s=oosystem(f)
     
@@ -47,18 +47,18 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
     sP={p:sp.array(c)}
     
     if type=='max':
-        res=s.maximize(f,sP)
+        res=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
         return f(res)
     elif type=='min':
-        res=s.minimize(f,sP)
+        res=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
         return f(res)
     elif type=='both':
         #results
-        resMin=s.minimize(f,sP)
+        resMin=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
         #DBG
         print(resMin.xf)
         
-        resMax=s.maximize(f,sP)
+        resMax=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
         #DBG
         print(resMax.xf)
         
