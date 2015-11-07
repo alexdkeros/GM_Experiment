@@ -2,12 +2,16 @@
 @author: ak
 '''
 import sys
+import pickle
+import time
 from FuncDesigner import *
 from openopt import *
 import scipy as sp
-from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
+from scipy import linalg
 from Simulation.Utilities.Dec import *
-import pickle
+from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
+import pandas as pd
+from Simulation.Utilities.GeometryFunctions import *
 
 def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict,residual=0.0):
     '''
@@ -23,7 +27,6 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     NOTE: PAY ATTENTION TO DECIMALS, openopt and sp.average() do not accept them!
     '''
-    
     if residual:
         appliedThreshold=deDec(threshold)-residual
     else:
@@ -34,6 +37,7 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     #DBG
     #print('balancing set:%s'%bS)
+    
     
     x=oovars([nid for nid,v,u,vel in bS],tol=0.0)   #oovars
     
@@ -48,7 +52,7 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
         f.append(__optFunc(x[i],bS[i],deDec(appliedThreshold),monFunc))
         
         #point
-        startPoint[x[i]]=deDec(b)
+        startPoint[x[i]]=deDec(bS[i][1])
     
         #constraints
         constraints.append(monFunc(x[i])<deDec(appliedThreshold))
@@ -73,7 +77,7 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
             'thresh':threshold,
             'residual':residual,
             'nwd':nodeWeightDict}
-        pickle.dump(di,open('/home/ak/git/GM_Experiment/Experiments/errors.log.p','wb'))
+        pickle.dump(di,open('/home/ak/git/GM_Experiment/Experiments/heuristicError'+time.asctime()+'.log.p','wb'))
         #try again
         #heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict, residual=residual)
         raise
@@ -124,10 +128,6 @@ def __optFunc(var,(nid,v,u,fvel),threshold,monFunc):
 #----------------------------------------------------------------------------
 if __name__=='__main__':
     
-    #decimals
-    import scipy as sp
-    from Simulation.Utilities.Dec import *
-    
     #===========================================================================
     # #1D test
     # bSet=set([
@@ -172,19 +172,39 @@ if __name__=='__main__':
     # print('node weights:%s'%nodeWeightDict)
     # print('Ddeltas:%s'%res)
     #===========================================================================
-    import pandas as pd
+
     
     d=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/errors.log.p')
     bs=d['balset']
     bs=[(i[0],dec(i[1]),dec(i[2]), dec(i[3])) for i in bs]
-    
-    monfunc10D=lambda x:((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
-    
+
     b=d['b']
     t=d['thresh']
-    nwd={'n'+str(i):dec(1.0) for i in [4,7,5]}
+    nwd={'n'+str(i):dec(1.0) for i in [0,3]}
+
+    monfunc10D=lambda x:((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
     
+    print('---------initial checks---------------')    
+    print('f(b)<T:    (should be True)')
+    print(monfunc10D(b)<t)
+    print('el<T and maxballval<T for el in bset: (one must be False)')
+    for i in bs:
+        lm=computeExtremesFuncValuesInBall(monfunc10D, computeBallFromDiametralPoints(0.0, deDec(i[2])), 'max')
+        print('*NODE:'+i[0])
+        print(monfunc10D(i[2])<t)
+        print(lm<t)
+    print('ball from points:')
+    (c,r)=computeBallFromDiametralPoints(0.0, deDec(b))
+    (c,r)=(sp.array(list(c)),r)
+    ba=(c,r)
+    print(ba)
+    print('max value in ball:')
+    fmax=computeExtremesFuncValuesInBall(monfunc10D,ba,'max')
+
+    print(fmax)
+    print('FAILED BALANCE CHECK:    (MUST BE TRUE)')
+    print(fmax<t)
+    print('--------------------------------------')
     res=heuristicBalancer(None, bs, b, t, monfunc10D, nwd)
-    print(res)
-    print(b)
-    print(monfunc10D(b))
+    #print(res)
+    

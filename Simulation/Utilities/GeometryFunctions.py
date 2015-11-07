@@ -1,6 +1,8 @@
 '''
 @author: ak
 '''
+import pickle
+import time
 from FuncDesigner import *
 from openopt import *
 import scipy as sp
@@ -44,26 +46,31 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
     #constraint
     s&=inb(p,c,r)
     #starting point
-    sP={p:sp.array(c)}
-    
-    if type=='max':
-        res=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
-        return f(res)
-    elif type=='min':
-        res=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
-        return f(res)
-    elif type=='both':
-        #results
-        resMin=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
-        #DBG
-        print(resMin.xf)
-        
-        resMax=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
-        #DBG
-        print(resMax.xf)
-        
-        return f(resMin),f(resMax)
-
+    sP={p:sp.array(c)+r}
+    try:
+        if type=='max':
+            res=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
+            return f(res)
+        elif type=='min':
+            res=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
+            return f(res)
+        elif type=='both':
+            #results
+            resMin=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
+            #DBG
+            print(resMin.xf)
+            
+            resMax=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
+            #DBG
+            print(resMax.xf)
+            
+            return f(resMin),f(resMax)
+    except:
+        print "Error:", sys.exc_info()[0]
+        di={'Error':str(sys.exc_info()[0]),
+            'ball':ball}
+        pickle.dump(di,open('/home/ak/git/GM_Experiment/Experiments/geometryError'+time.asctime()+'.log.p','wb'))
+        raise
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST-OK------------------------------------
@@ -97,5 +104,10 @@ if __name__=='__main__':
     computeExtremesFuncValuesInBall(lambda x:x[2], ([1.0,1.0,1.0],2.0))
     computeExtremesFuncValuesInBall(lambda x:x[0]+x[1]+x[2], ([1.0,1.0,1.0],2.0))
     '''
-    computeExtremesFuncValuesInBall(monFunc, (sp.array([1.0,1.0]),1.0))
+    monfunc10D=lambda x:((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
+
+    ball2=(sp.array([ 306.20704698,  302.60053035,  298.60463946,  290.12901943,
+        282.53725689,  289.14401109,  294.52291643,  294.80142   ,
+        294.9899621 ,  300.18684099]), 934.2825154486918)
+    computeExtremesFuncValuesInBall(monfunc10D,ball2,'max')
     
