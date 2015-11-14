@@ -47,7 +47,7 @@ def saveDataset(dataset,path):
         raise ValueError("Not supported dataset, try csv,hdf,pickle or excel file.")
      
 
-def splitTrainTestDataset(dataset,percentage=0.8):
+def splitTrainTestDataset(dataset,percentage=0.2):
     '''
     split dataset into training and testing samples
     args:

@@ -35,41 +35,53 @@ if __name__=='__main__':
     f='networkData.p'
     
     #experimental result paths
-    expRes=[[resPath+'singleH_classic_random_linear_1D2N/',resPath+'singleH_classic_random_random_1D2N/',
-             resPath+'singleH_classic_random_linear_1D5N/',resPath+'singleH_classic_random_random_1D5N/',
-             resPath+'singleH_classic_random_linear_1D10N/',resPath+'singleH_classic_random_random_1D10N/',
-             resPath+'singleH_classic_random_linear_5D2N/',resPath+'singleH_classic_random_random_5D2N/',
-             resPath+'singleH_classic_random_linear_5D5N/',resPath+'singleH_classic_random_random_5D5N/',
-             resPath+'singleH_classic_random_linear_5D10N/',resPath+'singleH_classic_random_random_5D10N/',
-             resPath+'singleH_classic_random_linear_10D2N/',resPath+'singleH_classic_random_random_10D2N/',
-             resPath+'singleH_classic_random_linear_10D5N/',resPath+'singleH_classic_random_random_10D5N/',
+    expRes=[[
+             #==================================================================
+             # resPath+'singleH_classic_random_linear_1D2N/',resPath+'singleH_classic_random_random_1D2N/',
+             # resPath+'singleH_classic_random_linear_1D5N/',resPath+'singleH_classic_random_random_1D5N/',
+             # resPath+'singleH_classic_random_linear_1D10N/',resPath+'singleH_classic_random_random_1D10N/',
+             # resPath+'singleH_classic_random_linear_5D2N/',resPath+'singleH_classic_random_random_5D2N/',
+             # resPath+'singleH_classic_random_linear_5D5N/',resPath+'singleH_classic_random_random_5D5N/',
+             # resPath+'singleH_classic_random_linear_5D10N/',resPath+'singleH_classic_random_random_5D10N/',
+             # resPath+'singleH_classic_random_linear_10D2N/',resPath+'singleH_classic_random_random_10D2N/',
+             # resPath+'singleH_classic_random_linear_10D5N/',resPath+'singleH_classic_random_random_10D5N/',
+             #==================================================================
              resPath+'singleH_classic_random_linear_10D10N/',resPath+'singleH_classic_random_random_10D10N/'],
-            [resPath+'singleH_heuristic_random_linear_1D2N/',resPath+'singleH_heuristic_random_random_1D2N/',
-             resPath+'singleH_heuristic_random_linear_1D5N/',resPath+'singleH_heuristic_random_random_1D5N/',
-             resPath+'singleH_heuristic_random_linear_1D10N/',resPath+'singleH_heuristic_random_random_1D10N/',
-             resPath+'singleH_heuristic_random_linear_5D2N/',resPath+'singleH_heuristic_random_random_5D2N/',
-             resPath+'singleH_heuristic_random_linear_5D5N/',resPath+'singleH_heuristic_random_random_5D5N/',
-             resPath+'singleH_heuristic_random_linear_5D10N/',resPath+'singleH_heuristic_random_random_5D10N/',
-             resPath+'singleH_heuristic_random_linear_10D2N/',resPath+'singleH_heuristic_random_random_10D2N/',
-             resPath+'singleH_heuristic_random_linear_10D5N/',resPath+'singleH_heuristic_random_random_10D5N/',
+            [
+             #==================================================================
+             # resPath+'singleH_heuristic_random_linear_1D2N/',resPath+'singleH_heuristic_random_random_1D2N/',
+             # resPath+'singleH_heuristic_random_linear_1D5N/',resPath+'singleH_heuristic_random_random_1D5N/',
+             # resPath+'singleH_heuristic_random_linear_1D10N/',resPath+'singleH_heuristic_random_random_1D10N/',
+             # resPath+'singleH_heuristic_random_linear_5D2N/',resPath+'singleH_heuristic_random_random_5D2N/',
+             # resPath+'singleH_heuristic_random_linear_5D5N/',resPath+'singleH_heuristic_random_random_5D5N/',
+             # resPath+'singleH_heuristic_random_linear_5D10N/',resPath+'singleH_heuristic_random_random_5D10N/',
+             # resPath+'singleH_heuristic_random_linear_10D2N/',resPath+'singleH_heuristic_random_random_10D2N/',
+             # resPath+'singleH_heuristic_random_linear_10D5N/',resPath+'singleH_heuristic_random_random_10D5N/',
+             #==================================================================
              resPath+'singleH_heuristic_random_linear_10D10N/',resPath+'singleH_heuristic_random_random_10D10N/'],
-            [resPath+'singleH_classic_distOptPair_linear_1D2N/',resPath+'singleH_classic_distOptPair_random_1D2N/',
-             resPath+'singleH_classic_distOptPair_linear_1D5N/',resPath+'singleH_classic_distOptPair_random_1D5N/',
-             resPath+'singleH_classic_distOptPair_linear_1D10N/',resPath+'singleH_classic_distOptPair_random_1D10N/',
-             resPath+'singleH_classic_distOptPair_linear_5D2N/',resPath+'singleH_classic_distOptPair_random_5D2N/',
-             resPath+'singleH_classic_distOptPair_linear_5D5N/',resPath+'singleH_classic_distOptPair_random_5D5N/',
-             resPath+'singleH_classic_distOptPair_linear_5D10N/',resPath+'singleH_classic_distOptPair_random_5D10N/',
-             resPath+'singleH_classic_distOptPair_linear_10D2N/',resPath+'singleH_classic_distOptPair_random_10D2N/',
-             resPath+'singleH_classic_distOptPair_linear_10D5N/',resPath+'singleH_classic_distOptPair_random_10D5N/',
+            [
+             #==================================================================
+             # resPath+'singleH_classic_distOptPair_linear_1D2N/',resPath+'singleH_classic_distOptPair_random_1D2N/',
+             # resPath+'singleH_classic_distOptPair_linear_1D5N/',resPath+'singleH_classic_distOptPair_random_1D5N/',
+             # resPath+'singleH_classic_distOptPair_linear_1D10N/',resPath+'singleH_classic_distOptPair_random_1D10N/',
+             # resPath+'singleH_classic_distOptPair_linear_5D2N/',resPath+'singleH_classic_distOptPair_random_5D2N/',
+             # resPath+'singleH_classic_distOptPair_linear_5D5N/',resPath+'singleH_classic_distOptPair_random_5D5N/',
+             # resPath+'singleH_classic_distOptPair_linear_5D10N/',resPath+'singleH_classic_distOptPair_random_5D10N/',
+             # resPath+'singleH_classic_distOptPair_linear_10D2N/',resPath+'singleH_classic_distOptPair_random_10D2N/',
+             # resPath+'singleH_classic_distOptPair_linear_10D5N/',resPath+'singleH_classic_distOptPair_random_10D5N/',
+             #==================================================================
              resPath+'singleH_classic_distOptPair_linear_10D10N/',resPath+'singleH_classic_distOptPair_random_10D10N/'],
-            [resPath+'singleH_heuristic_distOptPair_linear_1D2N/',resPath+'singleH_heuristic_distOptPair_random_1D2N/',
-             resPath+'singleH_heuristic_distOptPair_linear_1D5N/',resPath+'singleH_heuristic_distOptPair_random_1D5N/',
-             resPath+'singleH_heuristic_distOptPair_linear_1D10N/',resPath+'singleH_heuristic_distOptPair_random_1D10N/',
-             resPath+'singleH_heuristic_distOptPair_linear_5D2N/',resPath+'singleH_heuristic_distOptPair_random_5D2N/',
-             resPath+'singleH_heuristic_distOptPair_linear_5D5N/',resPath+'singleH_heuristic_distOptPair_random_5D5N/',
-             resPath+'singleH_heuristic_distOptPair_linear_5D10N/',resPath+'singleH_heuristic_distOptPair_random_5D10N/',
-             resPath+'singleH_heuristic_distOptPair_linear_10D2N/',resPath+'singleH_heuristic_distOptPair_random_10D2N/',
-             resPath+'singleH_heuristic_distOptPair_linear_10D5N/',resPath+'singleH_heuristic_distOptPair_random_10D5N/',
+            [
+             #==================================================================
+             # resPath+'singleH_heuristic_distOptPair_linear_1D2N/',resPath+'singleH_heuristic_distOptPair_random_1D2N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_1D5N/',resPath+'singleH_heuristic_distOptPair_random_1D5N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_1D10N/',resPath+'singleH_heuristic_distOptPair_random_1D10N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_5D2N/',resPath+'singleH_heuristic_distOptPair_random_5D2N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_5D5N/',resPath+'singleH_heuristic_distOptPair_random_5D5N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_5D10N/',resPath+'singleH_heuristic_distOptPair_random_5D10N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_10D2N/',resPath+'singleH_heuristic_distOptPair_random_10D2N/',
+             # resPath+'singleH_heuristic_distOptPair_linear_10D5N/',resPath+'singleH_heuristic_distOptPair_random_10D5N/',
+             #==================================================================
              resPath+'singleH_heuristic_distOptPair_linear_10D10N/',resPath+'singleH_heuristic_distOptPair_random_10D10N/']]
     counts=[[collectMeanMetricFromSubfolders(fol, f) for fol in p] for p in expRes]
     

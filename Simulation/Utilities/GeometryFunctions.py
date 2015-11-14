@@ -7,6 +7,8 @@ from FuncDesigner import *
 from openopt import *
 import scipy as sp
 from scipy import linalg
+from Simulation.Utilities.Dec import *
+from decimal import Decimal
 
 def computeBallFromDiametralPoints(p1,p2):
     '''
@@ -16,13 +18,13 @@ def computeBallFromDiametralPoints(p1,p2):
         @param p2: point vector
     @return (center point vector,radius)
     '''
-    d=(p1-p2)/2.0
+    d=(p1-p2)/(dec(2.0) if (isinstance(p2,Decimal) and isinstance(p1,Decimal)) else 2.0)
     center=p2+d
     radius=linalg.norm(d)
     
     return (center,radius)
 
-def computeExtremesFuncValuesInBall(func,ball,type='both'):
+def computeExtremesFuncValuesInBall(func,ball,type='both',residual=0.0):
     '''
     compute the extremes (min, max) of f(ball)
     args:
@@ -36,7 +38,9 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
     
     #bounding sphere constraint
     c,r=ball
-    inb=lambda x,c,r: sum((x[i]-c[i])**2 for i in range(len(c)))<=r**2 if (isinstance(c,list or sp.array) and len(c)>1) else (x-c)**2<=r**2 #constraint (messy statement because we get complaints by openopt)
+    
+    #check function
+    inb=lambda x,c,r: sum((x[i]-c[i])**2 for i in range(len(c)))<=r**2 if (isinstance(c,list) or isinstance(c,sp.ndarray) and len(c)>1) else sum((x-c)**2)<=r**2 #constraint (messy statement because we get complaints by openopt)
 
     #openopt specific vars
     p=oovar('p',tol=0.0)   #oovar
@@ -44,27 +48,56 @@ def computeExtremesFuncValuesInBall(func,ball,type='both'):
     s=oosystem(f)
     
     #constraint
-    s&=inb(p,c,r)
+    s&=(sum((p[i]-c[i])**2 for i in range(len(c)))<=r**2-residual if (isinstance(c,list) or isinstance(c,sp.ndarray) and len(c)>1) else sum((p-c)**2)<=r**2-residual)('inball',tol=0.0)
     #starting point
     sP={p:sp.array(c)+r}
     try:
         if type=='max':
             res=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
-            return f(res)
+            
+            point=res(p)
+            if not inb(point,c,r):
+                residual=sum((point-c)**2)-r**2
+                assert residual<1e-5
+            else:
+                return f(res),point
         elif type=='min':
             res=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
-            return f(res)
+            
+            point=res(p)
+            if not inb(point,c,r):
+                residual=sum((point-c)**2)-r**2
+                assert residual<1e-5
+            else:
+                return f(res)
+            
         elif type=='both':
             #results
             resMin=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
             #DBG
             print(resMin.xf)
             
+            minPoint=resMin(p)
+            
+            
             resMax=s.maximize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
             #DBG
             print(resMax.xf)
             
-            return f(resMin),f(resMax)
+            maxPoint=resMax(p)
+            
+            if not inb(minPoint,c,r) or not inb(maxPoint,c,r):
+                raise
+            else:
+                return f(resMin),f(resMax)
+        
+        print('*********************************************************************')
+        print('********************************REPEAT*******************************')
+        print('*********************************************************************')
+        print(ball)
+        print(residual)
+        return computeExtremesFuncValuesInBall(func, ball, type, residual)
+    
     except:
         print "Error:", sys.exc_info()[0]
         di={'Error':str(sys.exc_info()[0]),
@@ -105,9 +138,13 @@ if __name__=='__main__':
     computeExtremesFuncValuesInBall(lambda x:x[0]+x[1]+x[2], ([1.0,1.0,1.0],2.0))
     '''
     monfunc10D=lambda x:((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
-
-    ball2=(sp.array([ 306.20704698,  302.60053035,  298.60463946,  290.12901943,
-        282.53725689,  289.14401109,  294.52291643,  294.80142   ,
-        294.9899621 ,  300.18684099]), 934.2825154486918)
-    computeExtremesFuncValuesInBall(monfunc10D,ball2,'max')
+    inb=lambda x,c,r: sum((x-c)**2)<=r**2 
+    
+    c,r=(sp.array([ 475.39881759,  475.40572972,  475.40520089,  475.40929382,
+         475.39886487,  475.40345798,  475.39859597,  475.39966051,
+         475.40450612,  475.40586027]), 1438.8456229000603)
+    res,p=computeExtremesFuncValuesInBall(monfunc10D,(c,r),'max')
+    
+    print(res)
+    print(inb(p,c,r))
     
