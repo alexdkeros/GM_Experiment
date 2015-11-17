@@ -21,7 +21,8 @@ class MonitoringNode(GenericNode):
                  monFunc,
                  nid=uuid.uuid4(), 
                  weight=dec(1),
-                 windowSize=7,
+                 wl=40,
+                 wr=0,
                  approximationOrder=2):
         '''
         Constructor
@@ -53,7 +54,8 @@ class MonitoringNode(GenericNode):
         self.e=sp.repeat([0.0],len(self.v))
         
         #velocity computation params
-        self.windowSize=windowSize
+        self.wl=wl
+        self.wr=wr
         self.approximationOrder=approximationOrder
         
         #EXP
@@ -159,7 +161,7 @@ class MonitoringNode(GenericNode):
         return self.uLog
     
     
-    def computeMonFuncVel(self,func,dataLog, windowSize, order):
+    def computeMonFuncVel(self,func,dataLog, wl,wr, order):
         '''
             computes monitoring function velocity for heuristic optimization
             args:
@@ -169,11 +171,10 @@ class MonitoringNode(GenericNode):
                 @param order: approximation order
             @return monitoring function velocity array
         ''' 
-        wS=min([windowSize,len(dataLog)])
         
         data=sp.array(map(func, dataLog))
         
-        return smooth(sp.arange(len(dataLog)), deDec(data) ,size=wS,order=order,deriv=1)
+        return savitzky_golay(deDec(data) ,wl=wl,wr=wr,order=order,deriv=1)
     
     '''
     ----------------------------------------------------------------------
@@ -214,7 +215,7 @@ class MonitoringNode(GenericNode):
         self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
     
         #current velocity computation
-        self.monFuncVelLog=dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.windowSize, self.approximationOrder))
+        self.monFuncVelLog=dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.wl, self.wr, self.approximationOrder))
         
         #DBG
         #print('--Run: Node: %s u:%s'%(self.id, self.u))

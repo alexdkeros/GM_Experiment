@@ -60,7 +60,7 @@ def computeExtremesFuncValuesInBall(func,ball,type='both',residual=0.0):
                 residual=sum((point-c)**2)-r**2
                 assert residual<1e-5
             else:
-                return f(res),point
+                return f(res)
         elif type=='min':
             res=s.minimize(f,sP,tol=0.0,ftol=0.0,xtol=0.0)
             
