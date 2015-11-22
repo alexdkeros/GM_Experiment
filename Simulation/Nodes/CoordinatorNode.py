@@ -22,7 +22,8 @@ class CoordinatorNode(GenericNode):
                  threshold, 
                  monFunc,
                  nid="Coordinator",
-                 autoBalance=True):
+                 autoBalance=True,
+                 tolerance=1e-7):
         '''
         Constructor
         args:
@@ -35,8 +36,9 @@ class CoordinatorNode(GenericNode):
             @param monFunc: monitoring function
             @param autoBalance: True=perform balancing automatically at received req msg
                                 False=must implicitly call CoordinatorNode.balance()
+            @param tolerance: error tolerance
         '''
-        GenericNode.__init__(self, network, dataset=None, nid=nid, weight=dec(0))
+        GenericNode.__init__(self, network, dataset=None, nid=nid, weight=dec(0),tolerance=tolerance)
         
         self.threshold=threshold
         self.monFunc=monFunc
@@ -263,7 +265,7 @@ class CoordinatorNode(GenericNode):
             # print('===============================================BALANCE=====================================================')
             # print('===========================================================================================================')
             
-            dDeltaDict=self.balancer(self.balancingSet, b, self.threshold, self.monFunc, self.nodes)
+            dDeltaDict=self.balancer(self.balancingSet, b, self.threshold, self.monFunc, self.nodes,self.tolerance)
             
             self.balancingSet.clear()
             

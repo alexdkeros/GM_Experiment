@@ -48,7 +48,7 @@ def deDec(data):
         return pd.Panel({i:deDec(data[i]) for i in data})
     else:
         if isinstance(data,decimal.Decimal):
-            return float(data)
+            return round(float(data),decimal.getcontext().prec)
         else:
             return data
         

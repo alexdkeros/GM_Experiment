@@ -232,6 +232,11 @@ def monFunc10D(x):
 #===============================================================================
 if __name__=='__main__':
     
+    #global decimal context
+    context=decimal.getcontext()
+    context.prec=16
+    context.rounding=getattr(decimal,'ROUND_HALF_EVEN')
+    
     #datasets Load
     datasetPath='/home/ak/git/GM_Experiment/Experiments/datasets/'
     

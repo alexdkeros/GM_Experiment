@@ -14,7 +14,8 @@ class GenericNode:
                  network,
                  dataset,
                  nid=uuid.uuid4(),
-                 weight=1):
+                 weight=1,
+                 tolerance=1e-7):
         '''
         Constructor
         args:
@@ -22,11 +23,14 @@ class GenericNode:
             @param dataset: pandas' Dataframe containing updates
             @param nid: unique node id
             @param weight: node's weight
+            @param tolerance: error tolerance
+
         '''
         self.network=network
         self.dataset=dataset
         self.id=nid
         self.weight=dec(weight)
+        self.tolerance=tolerance
         
         #register node to the network
         self.network.registerNode(self)

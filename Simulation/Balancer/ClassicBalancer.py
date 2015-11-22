@@ -3,7 +3,7 @@
 '''
 from Simulation.Utilities.ArrayOperations import hashable
 
-def classicBalancer(coordInstance,balSet, b, threshold, monFunc, nodeWeightDict):
+def classicBalancer(coordInstance,balSet, b, threshold, monFunc, nodeWeightDict,tolerance=None):
     '''
     Classic balancing function, as in the original Geometric Monitoring Method
     args:

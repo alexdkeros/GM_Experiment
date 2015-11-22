@@ -21,9 +21,10 @@ class MonitoringNode(GenericNode):
                  monFunc,
                  nid=uuid.uuid4(), 
                  weight=dec(1),
-                 wl=40,
+                 wl=200,
                  wr=0,
-                 approximationOrder=2):
+                 approximationOrder=3,
+                 tolerance=1e-7):
         '''
         Constructor
         args:
@@ -35,11 +36,13 @@ class MonitoringNode(GenericNode):
             @param dataset: pandas' Dataframe containing updates
             @param threshold: monitoring threshold
             @param monFunc: monitoring function
+            @param tolerance: error tolerance
+
             ------velocity computation params
             @param windowSize: sliding window size
             @param approximationOrder: order of velocity curve
         '''
-        GenericNode.__init__(self, network, dataset, nid=nid, weight=weight)
+        GenericNode.__init__(self, network, dataset, nid=nid, weight=weight,tolerance=tolerance)
         
         self.threshold=threshold
         self.monFunc=monFunc
@@ -137,7 +140,7 @@ class MonitoringNode(GenericNode):
             "rep" signal
             in classic balancing velocity is not used
         '''
-        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[-min([self.windowSize,len(self.monFuncVelLog)]):-1])))
+        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[-1])))
         
     
     '''
@@ -187,15 +190,15 @@ class MonitoringNode(GenericNode):
         '''
         
         #DBG
-        #print('--Check: Node: %s u:%s'%(self.id, self.u))
+        print('--Check: Node: %s u:%s'%(self.id, self.u))
         
         #bounding sphere
-        ball=computeBallFromDiametralPoints(deDec(self.e),deDec(self.u))
+        ball=computeBallFromDiametralPoints(self.e,self.u)
         
         #monochromaticity check
-        funcMax=computeExtremesFuncValuesInBall(self.monFunc,ball,type='max')
+        funcMax=computeExtremesFuncValuesInBall(self.monFunc,(deDec(ball[0]),deDec(ball[1])),type='max',tolerance=self.tolerance)
         
-        if funcMax>=self.threshold:
+        if dec(funcMax)>=self.threshold:
             self.rep()
             
     def run(self):

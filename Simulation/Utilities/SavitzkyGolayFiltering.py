@@ -1,5 +1,5 @@
 '''
-script taken from 
+script taken from http://pythonmining.com/posts/smoothing-noisy-data-with-polynomials.html
 '''
 import math
 from math import factorial
@@ -132,18 +132,18 @@ if __name__=='__main__':
     fTrain=sp.array([monfunc10D(i) for i in dsTrain.loc[node,:,:].values])
     fTest=sp.array([monfunc10D(i) for i in dsTest.loc[node,:,:].values])
     
-    velTrain=savitzky_golay(deDec(fTrain),wl=40,wr=0,order=3,deriv=1)
-    velTrain2=savitzky_golay(deDec(fTrain[100:500]),wl=40,wr=0,order=4,deriv=1)
+    velTrain=savitzky_golay(deDec(fTrain),wl=10,wr=0,order=3,deriv=1)
+    velTrain2=savitzky_golay(deDec(fTrain[100:500]),wl=200,wr=0,order=3,deriv=1)
     
     print(velTrain[-50:-1])
     print(velTrain2[-50:-1])
     print(velTrain[-50:-1]-velTrain2[-50:-1])
     
-    
-    multiplePlots2d([timeTrain[100:500],timeTrain[100:500],timeTrain[100:500]], [velTrain[100:500],velTrain2, sp.absolute(velTrain[100:500]-velTrain2)] ,title='velocity',labels=['full','partial','diff'], saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainCompareN',showFlag=False)
+    # sp.absolute(velTrain[100:500]-velTrain2), ,timeTrain[100:500]
+    multiplePlots2d([timeTrain[100:500],timeTrain[100:500]], [velTrain[100:500],velTrain2] ,title='velocity',labels=['full','partial','diff'], saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainCompareN',showFlag=False)
 
     
-    velTest=savitzky_golay(deDec(fTest),wl=40,wr=0,order=3,deriv=1)
+    velTest=savitzky_golay(deDec(fTest),wl=200,wr=0,order=3,deriv=1)
     
     plot2d(timeTrain, deDec(fTrain) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTrainN',showFlag=False)
     plot2d(timeTrain, velTrain ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainN',showFlag=False)
