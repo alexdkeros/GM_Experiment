@@ -197,10 +197,14 @@ class MonitoringNode(GenericNode):
         
         #monochromaticity check
         funcMax=computeExtremesFuncValuesInBall(self.monFunc,(deDec(ball[0]),deDec(ball[1])),type='max',tolerance=self.tolerance)
+        try:
+            if dec(funcMax)>=self.threshold:
+                self.rep()
+        except:
+            print(' ! ! ! ! Exception raised ! ! ! !')
+            print(funcMax)
+            raise
         
-        if dec(funcMax)>=self.threshold:
-            self.rep()
-            
     def run(self):
         '''
         main Monitoring Node function

@@ -15,7 +15,7 @@ def classicBalancer(coordInstance,balSet, b, threshold, monFunc, nodeWeightDict,
         @param nodeWeightDict: dictionary containing {id: w, }
     @return {id: dDelta} dictionary
     '''
-    return {nid:(nodeWeightDict[nid]*b-nodeWeightDict[nid]*u.unwrap()) for (nid,v,u,vel) in balSet}
+    return {nid:(nodeWeightDict[nid]*b-nodeWeightDict[nid]*u) for (nid,v,u,vel) in balSet}
     
     
 #----------------------------------------------------------------------------

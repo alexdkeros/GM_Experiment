@@ -1,107 +1,23 @@
 '''
 @author: ak
 '''
+
 import sys
 import pickle
 import time
 import decimal
-from FuncDesigner import *
-from openopt import *
 import scipy as sp
 from scipy import linalg
 from Simulation.Utilities.Dec import *
 from Simulation.Utilities.ArrayOperations import hashable,weightedAverage
 import pandas as pd
+from pyOpt import Optimization
 from Simulation.Utilities.GeometryFunctions import *
+from pyOpt.pySLSQP.pySLSQP import SLSQP
 
-def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict,residual=0.0, tolerance=1e-7):
-    '''
-    Heuristic balancing function maximizing the expected time until next violation
-    args:
-        @param coordInstance: to successfully setattr in Coordinator
-        @param balSet: balancing set containing (nodeId, v, u, fvel) tuples
-        @param b: balancing vector
-        @param threshold: the monitoring threshold
-        @param monFunc: the monitoring function
-        @param nodeWeightDict: dictionary containing {id: w, }
-        @param residual: residual for correct value convergence (i.e. not violating constraint)
-        @param tolerance: error tolerance
-    @return {id: dDelta} dictionary
-    
-    NOTE: PAY ATTENTION TO DECIMALS, openopt and sp.average() do not accept them!
-    '''
-    #fix order, unwrap hashable sp.arrays
-    bS=list( (id,deDec(v.unwrap() if isinstance(v,hashable) else v),deDec(u.unwrap() if isinstance(u,hashable) else u),deDec(fvel)) for (id,v,u,fvel) in balSet )
-        
-    x=oovars([nid for nid,v,u,vel in bS])   #oovars
-    
-    f=[]    #oofuns
-    
-    startPoint={}
-    
-    constraints=[]
-    
-    for i in range(len(bS)):
-        #func
-        f.append(__optFunc(x[i],bS[i],deDec(threshold),monFunc))
-        
-        #point
-        startPoint[x[i]]=deDec(b)+(deDec(b)-deDec(bS[i][2]))
-    
-        #constraints
-        constraints.append((monFunc(x[i])<deDec(threshold))(tol=-residual))
-        constraints.append(__optFunc(x[i],bS[i],deDec(threshold),monFunc)>=0.0)
 
-    constraints.append(weightedAverage(x,[deDec(nodeWeightDict[x_i.name]) for x_i in x])==deDec(b))
-    
-    #min
-    fmin=min(f)
-    objective=fmin('maxmin_f')
-    
-    #maxmin
-    p=NLP(objective,startPoint,constraints=constraints)
-    
-    try:
-        r=p.maximize('ralg',plot=False) #,tol=1e-4,ftol=1e-4,xtol=0.0
-    except:
-        print "Error:", sys.exc_info()[0]
-        di={'Error':str(sys.exc_info()[0]),
-            'balset':bS,
-            'b':b,
-            'thresh':threshold,
-            'residual':residual,
-            'nwd':nodeWeightDict}
-        pickle.dump(di,open('/home/ak/git/GM_Experiment/Experiments/heuristicError'+time.asctime()+'.log.p','wb'))
-        raise
-        
-    resDict={x_i.name:dec(r(x_i)) for x_i in x} #optimal point dictionary
-    
-    #DBG
-    print('-------in function---------')
-    print('Result Points:%s'%resDict)
-    print(threshold)
-    print(r.rf)
-    print({i:monFunc(resDict[i]) for i in resDict})
-    print(weightedAverage(deDec(resDict.values()),[1.0]*len(resDict)))
-    print('---------------------------')
-    
-    if not r.isFeasible:
-        print('*********************************************************************')
-        print('***********************NOT FEASIBLE, SET TO b************************')
-        print('*********************************************************************')
-        return {nid:(nodeWeightDict[nid]*b-nodeWeightDict[nid]*(u.unwrap() if isinstance(u,hashable) else u)) for nid,v,u,fvel in balSet}
-    
-    if any([monFunc(i)>=threshold for i in resDict.values()]) or not weightedAverage(deDec(resDict.values()),[deDec(nodeWeightDict[x_i.name]) for x_i in x])==deDec(b):
-        print('*********************************************************************')
-        print('********************************REPEAT*******************************')
-        print('*********************************************************************')
-        return heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict, residual=residual+r.rf,tolerance=tolerance)
-    
-    
-    return {nid:(nodeWeightDict[nid]*resDict[nid]-nodeWeightDict[nid]*(u.unwrap() if isinstance(u,hashable) else u)) for nid,v,u,fvel in balSet} #(w_i*result_i-w_i*u_i), i in balancingSet
-    
-       
-def __optFunc(var,(nid,v,u,fvel),threshold,monFunc):
+
+def __objfunc(x,**kwargs):
     '''
     optimization function
     estimate time until next local violation
@@ -115,8 +31,130 @@ def __optFunc(var,(nid,v,u,fvel),threshold,monFunc):
             ----------
             vel(f(u))
     '''
-    return (threshold-monFunc(var))/(fvel if fvel!=0.0 else sys.float_info.min)
+    keys=x.keys()
+    
+    z=x['z']
+    keys.remove('z')
+    
+    bS=kwargs['balSet']
+    b=kwargs['b']
+    e=kwargs['e']
+    threshold=kwargs['threshold']
+    fu=kwargs['func']
+    nwd=kwargs['nodeWeightDict']
+    tolerance=kwargs['tolerance']
+    
+    #optimizing func
+    f=-z #maximize
 
+    #constraints
+    g=[]
+    #mean cond
+    for dim in range(len(b)):
+        g.append((sum([nwd[nid]*x[nid][dim] for nid in keys])/len(keys))-b[dim])
+    #min conds
+    for (nid,v,u,fvel) in bS:
+        g.append(z-__optFunc(x[nid][0:len(b)],(nid,v,u,fvel),threshold,fu,tolerance))
+    #max val in balls conds
+    for (nid,v,u,fvel) in bS:
+        g.append(computeExtremesFuncValuesInBall(fu,
+                                                 computeBallFromDiametralPoints(e, x[nid][0:len(b)]), 
+                                                 type='max',
+                                                 tolerance=tolerance)-threshold)
+     
+    fail=0
+    
+    return f,g,fail
+    
+    
+def __optFunc(var,(nid,v,u,fvel),threshold,monFunc,tolerance):
+    '''
+    optimization function
+    estimate time until next local violation
+    args:
+        @param var: oovar
+        @param (nid,v,u,fvel): balancing set element containing (nodeId, update, drift, velocity of f(drift))
+        @param threshold: monitoring threshold
+        @param monFunc: the monitoring function
+    @return estimated time until next local violation, computed as 
+            (T-f(var))
+            ----------
+            vel(f(u))
+    '''
+    return (threshold-monFunc(var))/(fvel if fvel!=0.0 else tolerance)  
+
+ 
+    
+def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict,tolerance=1e-7):
+    '''
+    Heuristic balancing function maximizing the expected time until next violation
+    args:
+        @param coordInstance: to successfully setattr in Coordinator
+        @param balSet: balancing set containing (nodeId, v, u, fvel) tuples
+        @param b: balancing vector
+        @param threshold: the monitoring threshold
+        @param monFunc: the monitoring function
+        @param nodeWeightDict: dictionary containing {id: w, }
+        @param residual: residual for correct value convergence (i.e. not violating constraint)
+        @param tolerance: error tolerance
+    @return {id: dDelta} dictionary
+    
+    NOTE: PAY ATTENTION TO DECIMALS, pyOpt and sp.average() do not accept them!
+    '''
+    print('#######in heuristic ffunc##############')
+    print(balSet)
+    print(b)
+    
+    #optimization instance
+    optProb=Optimization('optimal_points', __objfunc, use_groups=True)
+    
+    #variables
+    optProb.addVar('z',type='c',lower=0.0)
+    
+    
+    for (nid,v,u,fvel) in balSet:
+        optProb.addVarGroup(nid,
+                            (2 if len(b)<=1 else len(b)),   #add dummy variable in 1D case in order to handle sp.arrays
+                            type='c',
+                            value=(b if len(b)>1 else list(b)+[0.0]),
+                            upper=[1.00e+21]*len(b)+([] if len(b)>1 else [0.1]),
+                            lower=[-1.00e+21]*len(b)+([] if len(b)>1 else [0]))
+    
+    #objective function
+    optProb.addObj('helper function')
+    
+    #constraints
+    optProb.addConGroup('mean_cond',len(b),type='e')
+    optProb.addConGroup('min_conds',len(balSet), type='i')
+    optProb.addConGroup('max_val_in_balls_conds', len(balSet), type='i',upper=0.0)
+
+    print(optProb)
+    
+    opt=SLSQP()
+
+    #solver options
+    opt.setOption('ACC', tolerance)
+    opt.setOption('MAXIT', 100)
+
+                                                #!!!must add coordInstance.e here
+    opt(optProb,sens_type='FD',
+        balSet=balSet,
+        b=b,
+        e=sp.zeros(1), #coordInstance.getEst(),
+        threshold=threshold,
+        func=monFunc,
+        nodeWeightDict=nodeWeightDict,
+        tolerance=tolerance)
+    
+    points={}
+    for i in optProb.getVarGroups():
+        if any([nid==optProb.getVarGroups()[i]['name'] for (nid,v,u,fvel) in balSet]):
+            respectiveIds=optProb.getVarGroups()[i]['ids'].values()
+            respectiveIds.sort()
+            points[optProb.getVarGroups()[i]['name']]=sp.array([optProb._solutions[0].getVar(j).value for j in respectiveIds[0:len(b)]]) 
+            
+    print(optProb._solutions[0]) 
+    return {nid:(nodeWeightDict[nid]*points[nid]-nodeWeightDict[nid]*u) for (nid,v,u,vel) in balSet}
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST-OK------------------------------------
@@ -145,9 +183,37 @@ if __name__=='__main__':
     # print('node weights:%s'%nodeWeightDict)
     # print('Ddeltas:%s'%res)
     #===========================================================================
-    
+    #1D test
+    c=decimal.getcontext()
+    c.prec=4
+    tolerance=1e-3
     #===========================================================================
+    # bSet=[
+    #           ('n1',sp.array([21]), sp.array([21]), 1),
+    #           ('n2', sp.array([12]), sp.array([12]), 3),
+    #           ('n3', sp.array([16.5]), sp.array([16.5]),20)]
+    # b=sp.array([16.5])
+    # threshold=20.0
+    # monFunc=lambda x:x[0]
+    # nodeWeightDict={'n1':1.0, 'n2':1.0, 'n3':1.0}
+    #    
+    #    
+    # res=heuristicBalancer(None,bSet, b, threshold, monFunc, nodeWeightDict,tolerance=tolerance)
+    # print('--------------collected data--------------')
+    # print('Balancing set: %s'%bSet)
+    # print('Balancing vector: %s'%b)
+    # print('threshold: %s'%threshold)
+    # print('node weights:%s'%nodeWeightDict)
+    # print('Ddeltas:%s'%res)
+    #===========================================================================
+    #===========================================================================
+    # 
     # #2D test
+    # 
+    # c=decimal.getcontext()
+    # c.prec=4
+    # tolerance=1e-3
+    # 
     # bSet=set([
     #           ('n1', hashable(dec(sp.array([21,21]))), hashable(dec(sp.array([21,21]))), -5),
     #           ('n2', hashable(dec(sp.array([12,12]))), hashable(dec(sp.array([12,12]))), 3)])
@@ -157,10 +223,10 @@ if __name__=='__main__':
     # for i in bSet:
     #     print(i[0])
     #     print(monFunc(i[1].unwrap()))
-    # 
+    #  
     # nodeWeightDict={'n1':dec(1.0), 'n2':dec(1.0), 'n3':dec(1.0)}
-    # 
-    # 
+    #  
+    #  
     # res=heuristicBalancer(None,bSet, b, threshold, monFunc, nodeWeightDict)
     # print('--------------collected data--------------')
     # print('Balancing set: %s'%bSet)
@@ -168,7 +234,35 @@ if __name__=='__main__':
     # print('threshold: %s'%threshold)
     # print('node weights:%s'%nodeWeightDict)
     # print('Ddeltas:%s'%res)
+    # 
     #===========================================================================
+    
+         
+    #2D test
+       
+    c=decimal.getcontext()
+    c.prec=4
+    tolerance=1e-3
+       
+    bSet=[('n1', sp.array([ 8211.0174]), sp.array([ 3984.]), 8.622), ('n7', sp.array([ 0.0063]), sp.array([ 4000.]), 0.0)]
+
+    b=sp.array([3992.])
+    threshold=4*10**3
+    monFunc=lambda x:x[0]
+    for i in bSet:
+        print(i[0])
+        print(monFunc(i[1]))
+        
+    nodeWeightDict={'n1':1.0, 'n2':1.0, 'n7':1.0}
+        
+        
+    res=heuristicBalancer(None,bSet, b, threshold, monFunc, nodeWeightDict,tolerance=tolerance)
+    print('--------------collected data--------------')
+    print('Balancing set: %s'%bSet)
+    print('Balancing vector: %s'%b)
+    print('threshold: %s'%threshold)
+    print('node weights:%s'%nodeWeightDict)
+    print('Ddeltas:%s'%res)
     
 #===============================================================================
 #     
@@ -210,22 +304,24 @@ if __name__=='__main__':
 #     res=heuristicBalancer(None, bs, b, t, monfunc10D, nwd)
 #     #print(res)
 #===============================================================================
-
-    c=decimal.getcontext()
-    c.prec=4
-    tolerance=1e-3
-    
-    d=pd.read_pickle('/home/ak/git/GM_Experiment/test/coordData.p')
-    
-    bset=d[1][1]
-
-    bs=[tuple(i) for i in bset]
-    print(bs)
-    b=d[1][2]
-    print(b)
-    t=5000
-    print(t)
-    nwd={'n'+str(i):dec(1.0) for i in [0,1]}
-
-    res=heuristicBalancer(None, bs, b, t, monFunc1D, nwd)
-    print(res)
+#===============================================================================
+# 
+#     c=decimal.getcontext()
+#     c.prec=4
+#     tolerance=1e-3
+#     
+#     d=pd.read_pickle('/home/ak/git/GM_Experiment/test/coordData.p')
+#     
+#     bset=d[1][1]
+# 
+#     bs=[tuple(i) for i in bset]
+#     print(bs)
+#     b=d[1][2]
+#     print(b)
+#     t=5000
+#     print(t)
+#     nwd={'n'+str(i):dec(1.0) for i in [0,1]}
+# 
+#     res=heuristicBalancer(None, bs, b, t, monFunc1D, nwd)
+#     print(res)
+#===============================================================================

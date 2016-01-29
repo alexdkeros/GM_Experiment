@@ -70,6 +70,12 @@ class CoordinatorNode(GenericNode):
         @return: log of balancing vectors [ (iterCount, balSet, array([,]) ) ]
         '''
         return self.bLog
+    
+    def getEst(self):
+        '''
+        @return: estimate vector
+        '''
+        return deDec(self.e)
     '''
     ----------------------------------------------------------------------
     messages methods:
@@ -265,8 +271,13 @@ class CoordinatorNode(GenericNode):
             # print('===============================================BALANCE=====================================================')
             # print('===========================================================================================================')
             
-            dDeltaDict=self.balancer(self.balancingSet, b, self.threshold, self.monFunc, self.nodes,self.tolerance)
+            dDeltaDict=self.balancer([(nid,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel)) for (nid,v,u,fvel) in self.balancingSet],
+                                    deDec(b),
+                                    deDec(self.threshold), 
+                                    self.monFunc, 
+                                    {nid:deDec(self.nodes[nid]) for nid in self.nodes},
+                                    self.tolerance)
             
             self.balancingSet.clear()
             
-            self.adjSlk(dDeltaDict.keys(), dDeltaDict.values())
+            self.adjSlk(dDeltaDict.keys(), dec(dDeltaDict.values()))
