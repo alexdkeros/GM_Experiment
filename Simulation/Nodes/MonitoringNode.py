@@ -190,19 +190,27 @@ class MonitoringNode(GenericNode):
         '''
         
         #DBG
-        print('--Check: Node: %s u:%s'%(self.id, self.u))
+        #print('--Check: Node: %s u:%s'%(self.id, self.u))
         
         #bounding sphere
         ball=computeBallFromDiametralPoints(self.e,self.u)
         
         #monochromaticity check
         funcMax=computeExtremesFuncValuesInBall(self.monFunc,(deDec(ball[0]),deDec(ball[1])),type='max',tolerance=self.tolerance)
+                    
+                    
+        #DBG            
+        #print(dec(funcMax)>=self.threshold)
+
         try:
             if dec(funcMax)>=self.threshold:
+                
                 self.rep()
         except:
             print(' ! ! ! ! Exception raised ! ! ! !')
             print(funcMax)
+            print(dec(funcMax))
+            print(dec(funcMax)>=self.threshold)
             raise
         
     def run(self):

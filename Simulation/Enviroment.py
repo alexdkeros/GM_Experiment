@@ -38,7 +38,7 @@ def monFunc5D(x):
 
 
 def monFunc10D(x):
-    return ((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
+    return ((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2
     
 def test_enviroment():
     #tolerance
@@ -53,14 +53,14 @@ def test_enviroment():
     nodeNum=2
     
     #threshold
-    thresh=1*10**6
+    thresh=1*10**4
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc5D
+    monFunc=monFunc1D
     
     #create Dataset
     #ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
-    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/linear5D2N.p')
+    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/random1D2N.p')
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
@@ -75,8 +75,8 @@ def test_enviroment():
     #print(distPairer.getTypeDict())
     #print(distPairer.getWeightDict())
     
-    #selectNodeReq=lambda coordInstance,x: distancePairer.getOptPairingfromSubset(x) and distancePairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
-    selectNodeReq=lambda coordInstance,x: pairer.getOptPairing(x)
+    selectNodeReq=lambda coordInstance,x: distancePairer.getOptPairingfromSubset(x) and distancePairer.getOptPairingfromSubset(x) or pairer.getOptPairing(x)
+    #selectNodeReq=lambda coordInstance,x: pairer.getOptPairing(x)
     
     #create network
     ntw=SingleHandlingNetwork()

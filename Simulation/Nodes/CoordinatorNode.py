@@ -227,7 +227,10 @@ class CoordinatorNode(GenericNode):
         #monochromaticity check
         funcMax=computeExtremesFuncValuesInBall(self.monFunc,ball,type='max')
         
-        if funcMax>=self.threshold:
+        print('MAX FUNC VAL %10f:'%funcMax)
+        print('proceed to balancing:'+str(funcMax<self.threshold))
+        
+        if funcMax>=self.threshold or len(self.balancingSet)<=1:
             #===================================================================
             # FAILED BALANCING
             #===================================================================
@@ -267,9 +270,9 @@ class CoordinatorNode(GenericNode):
             #===================================================================
             
             #DBG
-            # print('===========================================================================================================')
-            # print('===============================================BALANCE=====================================================')
-            # print('===========================================================================================================')
+            print('===========================================================================================================')
+            print('===============================================BALANCE=====================================================')
+            print('===========================================================================================================')
             
             dDeltaDict=self.balancer([(nid,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel)) for (nid,v,u,fvel) in self.balancingSet],
                                     deDec(b),

@@ -5,12 +5,11 @@ import pickle
 import time
 import math
 from pyOpt import Optimization
-from pyOpt import SOLVOPT
 import scipy as sp
 from scipy import linalg
 from Simulation.Utilities.Dec import *
 from decimal import Decimal
-from pyOpt.pySLSQP.pySLSQP import SLSQP
+from pyOpt.pyCONMIN.pyCONMIN import CONMIN
 
 def computeBallFromDiametralPoints(p1,p2):
     '''
@@ -59,7 +58,7 @@ def computeExtremesFuncValuesInBall(func,ball,type='max',tolerance=1e-7):
     '''
     #DBG
     #print('--------------Ext Val COMPUTATION-------------')
-    print(ball)
+    #print(ball)
     c,r=ball
     
     if type=='max':
@@ -82,19 +81,16 @@ def computeExtremesFuncValuesInBall(func,ball,type='max',tolerance=1e-7):
     #DBG
     #print(optProb)
     
-    opt=SLSQP()
-    opt.setOption('ACC', optTol)
+    opt=CONMIN()
     #opt.setOption('IPRINT', 0)
-    #opt.setOption('xtol',tolerance)
-    #opt.setOption('ftol',tolerance)
     opt(optProb,sens_type='FD',ball=ball,func=f)
     
     #the point
     p=sp.array([optProb._solutions[0].getVar(i).value for i in range(len(c))])
     
     #DBG
-    print("POINT CAUSING MAX VAL:")
-    print(p)
+    #print("POINT CAUSING MAX VAL:")
+    #print(p)
 
     #if (sum((p-c)**2)<=r**2):
     #    print('-----OK %.10f > %.10f'%(sum((p-c)**2),r**2))
@@ -102,13 +98,12 @@ def computeExtremesFuncValuesInBall(func,ball,type='max',tolerance=1e-7):
     #    print('-----FAIL %.10f > %.10f'%(sum((p-c)**2),r**2))
        
     #print(optProb._solutions[0])
-    
     if sp.isnan(optProb._solutions[0].getObj(0).value):
-        return computeExtremesFuncValuesInBall(func, (c,r-optTol),type, tolerance) #hack to not return nan
+        return computeExtremesFuncValuesInBall(func, (c,r-tolerance),type, tolerance) #hack to not return nan
     
     if type=='max':
         #DBG
-        print('========================= %.10f'%-optProb._solutions[0].getObj(0).value)
+        #print('========================= %.10f'%-optProb._solutions[0].getObj(0).value)
         return -optProb._solutions[0].getObj(0).value
     else:
         #DBG
@@ -191,8 +186,34 @@ if __name__=='__main__':
     #                                 tolerance=tolerance)
     # 
     #===========================================================================
+    #===========================================================================
+    # print(monFunc5D(sp.array([ -6.60378012e+07,  -2.35134034e+08,  -2.34504426e+08,1.72184751e+07,   4.85269403e+07])))
+    # computeExtremesFuncValuesInBall(monFunc5D,
+    #                                 (sp.array([ -6.60378012e+07,  -2.35134034e+08,  -2.34504426e+08,1.72184751e+07,   4.85269403e+07]), 342480175.7627804),
+    #                                 type='max',
+    #                                 tolerance=tolerance)
+    #===========================================================================
+    
     computeExtremesFuncValuesInBall(monFunc10D,
-                                    (sp.array([-477.0,-477.0,-477.0,-477.0,-477.0,-477.0,-477.0,-477.0,-477.0,-477.0]),1527.0),
-                                    type='max',
-                                    tolerance=tolerance)
+                                    computeBallFromDiametralPoints(
+                                                                   sp.zeros(10),
+                                                                   sp.array([23.99,6.316,27.25,3.962,19.91,38.04,23.69,12.92,3.360,27.98])),
+                                                                    type='max', tolerance=tolerance)
+    
+    computeExtremesFuncValuesInBall(monFunc10D,
+                                    computeBallFromDiametralPoints(
+                                                                   sp.zeros(10),
+                                                                   sp.array([6.385,5.217,10.49,5.300,4.014,12.38,7.153,5.289,9.161,7.913])),
+                                                                    type='max', tolerance=tolerance)
+    
+    b=sp.array([23.99,6.316,27.25,3.962,19.91,38.04,23.69,12.92,3.360,27.98])+sp.array([6.385,5.217,10.49,5.300,4.014,12.38,7.153,5.289,9.161,7.913])
+    b=b/2
+    print("!!!! B IS:")
+    print(b)
+    
+    computeExtremesFuncValuesInBall(monFunc10D,
+                                    computeBallFromDiametralPoints(
+                                                                   sp.zeros(10),
+                                                                   b),
+                                                                    type='max', tolerance=tolerance)
     

@@ -134,13 +134,15 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
 
     #solver options
     opt.setOption('ACC', tolerance)
-    opt.setOption('MAXIT', 100)
+    opt.setOption('MAXIT', 100000)
+    opt.setOption('IPRINT',1)
+
 
                                                 #!!!must add coordInstance.e here
     opt(optProb,sens_type='FD',
         balSet=balSet,
         b=b,
-        e=sp.zeros(1), #coordInstance.getEst(),
+        e=coordInstance.getEst(),
         threshold=threshold,
         func=monFunc,
         nodeWeightDict=nodeWeightDict,
@@ -304,24 +306,22 @@ if __name__=='__main__':
 #     res=heuristicBalancer(None, bs, b, t, monfunc10D, nwd)
 #     #print(res)
 #===============================================================================
-#===============================================================================
-# 
-#     c=decimal.getcontext()
-#     c.prec=4
-#     tolerance=1e-3
-#     
-#     d=pd.read_pickle('/home/ak/git/GM_Experiment/test/coordData.p')
-#     
-#     bset=d[1][1]
-# 
-#     bs=[tuple(i) for i in bset]
-#     print(bs)
-#     b=d[1][2]
-#     print(b)
-#     t=5000
-#     print(t)
-#     nwd={'n'+str(i):dec(1.0) for i in [0,1]}
-# 
-#     res=heuristicBalancer(None, bs, b, t, monFunc1D, nwd)
-#     print(res)
-#===============================================================================
+ 
+    c=decimal.getcontext()
+    c.prec=4
+    tolerance=1e-3
+     
+    d=pd.read_pickle('/home/ak/git/GM_Experiment/test/coordData.p')
+     
+    bset=d[1][1]
+ 
+    bs=[tuple(i) for i in bset]
+    print(bs)
+    b=d[1][2]
+    print(b)
+    t=5000
+    print(t)
+    nwd={'n'+str(i):dec(1.0) for i in [0,1]}
+ 
+    res=heuristicBalancer(None, bs, b, t, monFunc1D, nwd)
+    print(res)

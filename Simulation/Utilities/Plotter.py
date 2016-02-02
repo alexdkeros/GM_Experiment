@@ -123,7 +123,7 @@ def multiplePlots2d(plotRanges, data,
             print('No filename specified,not saving')
     if showFlag:
         fig.show()
-        time.sleep(5)
+        time.sleep(10)
     pl.close()
         
 def plot3d(xRange, yRange, data, 

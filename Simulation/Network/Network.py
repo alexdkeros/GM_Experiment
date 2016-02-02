@@ -97,6 +97,12 @@ class Network:
             self.msgLog[data[2]]=[]
         #add to field, append iteration
         self.msgLog[data[2]].append((self.iterationCount,)+data)
+        
+        #DBG
+        #print('--------->msg exchange:')
+        #print(self.iterationCount)
+        #print(data)
+        #print('-----------------------')
     
     '''
     -------------------------------------------
