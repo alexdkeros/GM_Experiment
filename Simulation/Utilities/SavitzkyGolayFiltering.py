@@ -108,16 +108,17 @@ if __name__=='__main__':
     import pandas as pd
     from Simulation.Utilities.DatasetHandler import *
     
+    monfunc1D=lambda x:x[0]
     monfunc10D=lambda x:((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
     
-    node='n0'
+    node='n1'
     
     
-    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/linear10D10N.p')
+    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_random_1D2N/singleH_heuristic_distOptPair_random_1D2N_0/dataset_train.p')
     
     ds=ds.loc[:,:,:]
     
-    dsTrain,dsTest=splitTrainTestDataset(ds)
+    dsTrain,dsTest=splitTrainTestDataset(ds,percentage=0.8)
     
     print(dsTrain)
     print(len(dsTrain.major_axis))
@@ -129,19 +130,19 @@ if __name__=='__main__':
     timeTrain=sp.arange(len(dsTrain.major_axis))
     timeTest=sp.arange(len(dsTest.major_axis))
     
-    fTrain=sp.array([monfunc10D(i) for i in dsTrain.loc[node,:,:].values])
-    fTest=sp.array([monfunc10D(i) for i in dsTest.loc[node,:,:].values])
+    fTrain=sp.array([monfunc1D(i) for i in dsTrain.loc[node,:,:].values])
+    fTest=sp.array([monfunc1D(i) for i in dsTest.loc[node,:,:].values])
     
     velTrain=savitzky_golay(deDec(fTrain),wl=10,wr=0,order=3,deriv=1)
-    velTrain2=savitzky_golay(deDec(fTrain[100:500]),wl=200,wr=0,order=3,deriv=1)
+    velTrain2=savitzky_golay(deDec(fTrain),wl=200,wr=0,order=3,deriv=1)
     
-    print(velTrain[-50:-1])
-    print(velTrain2[-50:-1])
-    print(velTrain[-50:-1]-velTrain2[-50:-1])
-    
-    # sp.absolute(velTrain[100:500]-velTrain2), ,timeTrain[100:500]
-    multiplePlots2d([timeTrain[100:500],timeTrain[100:500]], [velTrain[100:500],velTrain2] ,title='velocity',labels=['full','partial','diff'], saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainCompareN',showFlag=False)
+    #print(velTrain[-50:-1])
+    print(sp.mean(velTrain2))
+    #print(velTrain[-50:-1]-velTrain2[-50:-1])
 
+    # sp.absolute(velTrain[100:500]-velTrain2), ,timeTrain[100:500]
+    #multiplePlots2d([timeTrain[100:500],timeTrain[100:500]], [velTrain[100:500],velTrain2] ,title='velocity',labels=['full','partial','diff'], saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainCompareN',showFlag=False)
+    multiplePlots2d([timeTrain[-50:-1], timeTrain[-50:-1]], [fTrain[-50:-1], velTrain2[-50:-1]], ['val','vel'],saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posveltrain', showFlag=False)
     
     velTest=savitzky_golay(deDec(fTest),wl=200,wr=0,order=3,deriv=1)
     

@@ -108,7 +108,7 @@ def multiplePlots2d(plotRanges, data,
             axes.plot(plotRanges[i],data[i],styles[i],label=(labels[i] if labels else None))
         else:
             axes.plot(plotRanges[i],data[i],label=(labels[i] if labels else None))
-    axes.legend()
+    axes.legend(loc=4)
     axes.grid(grid)
     axes.set_xlim([min(i[0] for i in plotRanges), max(i[-1] for i in plotRanges)])
     axes.set_xlabel(xLabel)
@@ -118,7 +118,7 @@ def multiplePlots2d(plotRanges, data,
     fig.tight_layout()
     if saveFlag:
         if filename:
-            fig.savefig(filename+'.png')
+            fig.savefig(filename+'.pdf')
         else:
             print('No filename specified,not saving')
     if showFlag:
@@ -172,7 +172,7 @@ def plot3d(xRange, yRange, data,
     axes.set_title(title)
     if saveFlag:
         if filename:
-            fig.savefig(filename+'.png')
+            fig.savefig(filename+'.pdf')
         else:
             print('No filename specified, not saving')
     if showFlag:

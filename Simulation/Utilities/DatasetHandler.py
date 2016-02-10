@@ -51,7 +51,7 @@ def splitTrainTestDataset(dataset,percentage=0.2):
     '''
     split dataset into training and testing samples
     args:
-        @param percentage: percentage of dataset for testing, rest for training
+        @param percentage: percentage of dataset for training, rest for testing
     @return (training, testing) dataset subsets
     '''
     assert percentage<1.0

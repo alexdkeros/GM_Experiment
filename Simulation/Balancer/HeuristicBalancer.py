@@ -44,6 +44,10 @@ def __objfunc(x,**kwargs):
     nwd=kwargs['nodeWeightDict']
     tolerance=kwargs['tolerance']
     
+    #precision hack with decimals to avoid LV after balancing (in case of setting optimal point == threshold)
+    context=decimal.getcontext()
+    
+    
     #optimizing func
     f=-z #maximize
 
@@ -60,7 +64,7 @@ def __objfunc(x,**kwargs):
         g.append(computeExtremesFuncValuesInBall(fu,
                                                  computeBallFromDiametralPoints(e, x[nid][0:len(b)]), 
                                                  type='max',
-                                                 tolerance=tolerance)-threshold)
+                                                 tolerance=tolerance)-(threshold-1*(10**-(context.prec-1))))
      
     fail=0
     
@@ -246,10 +250,10 @@ if __name__=='__main__':
     c.prec=4
     tolerance=1e-3
        
-    bSet=[('n1', sp.array([ 8211.0174]), sp.array([ 3984.]), 8.622), ('n7', sp.array([ 0.0063]), sp.array([ 4000.]), 0.0)]
+    bSet=[('n2', sp.array([ 6300]), sp.array([ 6300.0]), 5.3), ('n1', sp.array([ 0.0063]), sp.array([ 10000]), 8.5)]
 
-    b=sp.array([3992.])
-    threshold=4*10**3
+    b=sp.array([8135])
+    threshold=1*10**4
     monFunc=lambda x:x[0]
     for i in bSet:
         print(i[0])
@@ -307,21 +311,23 @@ if __name__=='__main__':
 #     #print(res)
 #===============================================================================
  
-    c=decimal.getcontext()
-    c.prec=4
-    tolerance=1e-3
-     
-    d=pd.read_pickle('/home/ak/git/GM_Experiment/test/coordData.p')
-     
-    bset=d[1][1]
- 
-    bs=[tuple(i) for i in bset]
-    print(bs)
-    b=d[1][2]
-    print(b)
-    t=5000
-    print(t)
-    nwd={'n'+str(i):dec(1.0) for i in [0,1]}
- 
-    res=heuristicBalancer(None, bs, b, t, monFunc1D, nwd)
-    print(res)
+ #==============================================================================
+ #    c=decimal.getcontext()
+ #    c.prec=4
+ #    tolerance=1e-3
+ #     
+ #    d=pd.read_pickle('/home/ak/git/GM_Experiment/test/coordData.p')
+ #     
+ #    bset=d[1][1]
+ # 
+ #    bs=[tuple(i) for i in bset]
+ #    print(bs)
+ #    b=d[1][2]
+ #    print(b)
+ #    t=5000
+ #    print(t)
+ #    nwd={'n'+str(i):dec(1.0) for i in [0,1]}
+ # 
+ #    res=heuristicBalancer(None, bs, b, t, monFunc1D, nwd)
+ #    print(res)
+ #==============================================================================
