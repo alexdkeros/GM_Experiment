@@ -13,6 +13,7 @@ from Simulation.Nodes.CoordinatorNode import CoordinatorNode
 from Simulation.Balancer.ClassicBalancer import classicBalancer
 from Simulation.Utilities.ExperimentalResultsHandler import saveExpResults
 from Simulation.Utilities.Dec import *
+from Simulation.Utilities.Dec import prec
 from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 
 #===============================================================================
@@ -248,12 +249,14 @@ def monFunc10D(x):
 #===============================================================================
 if __name__=='__main__':
     #tolerance
-    tolerance=1e-7
+    tolerance=1e-6
+    
+    global prec
+    prec=5
     
     #global decimal context
     context=decimal.getcontext()
-    context.prec=6
-    context.rounding=getattr(decimal,'ROUND_HALF_EVEN')
+    context.rounding='ROUND_HALF_EVEN'
     
     #datasets Load
     datasetPath='/home/ak/git/GM_Experiment/Experiments/datasets/'
@@ -297,8 +300,8 @@ if __name__=='__main__':
     #classic_random_experiment('singleH_classic_random_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #classic_random_experiment('singleH_classic_random_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
             
-    #classic_random_experiment('singleH_classic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    #classic_random_experiment('singleH_classic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    classic_random_experiment('singleH_classic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    classic_random_experiment('singleH_classic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
             
     # classic_random_experiment('singleH_classic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     # classic_random_experiment('singleH_classic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
@@ -383,7 +386,7 @@ if __name__=='__main__':
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)

@@ -42,18 +42,17 @@ def monFunc10D(x):
     
 def test_enviroment():
     #tolerance
-    tolerance=1e-7
+    tolerance=1e-6
     
     #global decimal context
     context=decimal.getcontext()
-    context.prec=6
-    context.rounding=getattr(decimal,'ROUND_HALF_EVEN')
+    context.rounding='ROUND_HALF_EVEN'
     
     #number of nodes
     nodeNum=10
     
     #threshold
-    thresh=1*10**4
+    thresh=1*10**3
     
     #monFunc !!!x is always an sp.ndarray
     monFunc=monFunc1D

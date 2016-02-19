@@ -5,6 +5,8 @@ import decimal
 import scipy as sp
 import pandas as pd
 
+prec=5
+
 def dec(data):
     '''
     args:
@@ -25,8 +27,13 @@ def dec(data):
         return pd.Panel({i:dec(data[i]) for i in data})
     
     else:
-        return decimal.Decimal(str(data))
+        return decimal.Decimal('{:.{prec}f}'.format(data, prec=prec))
         
+        
+def quantizefunc(x):
+    return x.quantize(dec(1))
+
+vecquantize=sp.vectorize(quantizefunc)
 
 def deDec(data):
     '''
@@ -48,7 +55,7 @@ def deDec(data):
         return pd.Panel({i:deDec(data[i]) for i in data})
     else:
         if isinstance(data,decimal.Decimal):
-            return round(float(data),decimal.getcontext().prec)
+            return round(float(data),prec)
         else:
             return data
         
@@ -58,6 +65,9 @@ def deDec(data):
 #----------------------------------------------------------------------------
 
 if __name__=='__main__':
+    
+    context=decimal.getcontext()
+    context.prec=7
     td=213.2
     tdArray=[[3.2,4.5],[5.2,6.7,8]]
     print(str(td)+' '+str(type(td)))
@@ -113,3 +123,10 @@ if __name__=='__main__':
     print(type(deDec(dp)))
     print(type(deDec(dp).iloc[0,0,0]))
     
+    
+    
+    print([sp.array([234233]),sp.array([3242423.43214532])])
+    print(dec([sp.array([234233]),sp.array([3242423.43214532])]))
+    print(deDec(dec([sp.array([234233]),sp.array([3242423.43214532])])))
+    
+    print(dec(10))

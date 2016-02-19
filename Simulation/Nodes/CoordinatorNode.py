@@ -93,11 +93,11 @@ class CoordinatorNode(GenericNode):
             v=dec(dat[0])
             w=dec(dat[1])
             self.nodes[sender]=w    #append node weight to dictionary
-            self.e+=(w*v)   #compute estimate vector nominator
+            self.e+=vecquantize((w*v))   #compute estimate vector nominator
             self.sumW+=w    #compute estimate vector denominator, i.e. sum of weights
             if len(self.balancingSet)==len(self.nodes):
                 
-                self.e=self.e/self.sumW #compute estimate vector
+                self.e=vecquantize(self.e/self.sumW) #compute estimate vector
                 
                 self.balancingSet.clear()
                 self.newEst()   #dispach estimate vector
@@ -222,16 +222,14 @@ class CoordinatorNode(GenericNode):
             tl.append(u.unwrap())
             print(u.unwrap())
         
-        b=sum(u.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        
+        denom=sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
+        b=sum(vecquantize((u.unwrap()*self.nodes[i])/denom) for i,v,u,vel in self.balancingSet)
         
         #DBG
         print('original b:')
         print(b)
-        print('manual b:')
-        print(sp.mean(tl))
-        print('difference:')
-        print(dec(sp.mean(tl))-b)
-        
+    
         #EXP
         self.bLog.append((self.network.getIterationCount(), frozenset(self.balancingSet), hashable(b)))
         
@@ -243,11 +241,11 @@ class CoordinatorNode(GenericNode):
         funcMax=dec(funcMax)
         #DBG
         print('MAX FUNC VAL %10f:'%funcMax)
-        print('proceed to balancing:'+str(funcMax<self.threshold))
+        print('proceed to balancing:'+str(not funcMax>self.threshold))
         #print(type(funcMax))
         #print(type(self.threshold))
         
-        if funcMax>=self.threshold or len(self.balancingSet)<=1:
+        if funcMax>self.threshold or len(self.balancingSet)<=1:
             #===================================================================
             # FAILED BALANCING
             #===================================================================

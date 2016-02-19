@@ -64,7 +64,7 @@ def __objfunc(x,**kwargs):
         g.append(computeExtremesFuncValuesInBall(fu,
                                                  computeBallFromDiametralPoints(e, x[nid][0:len(b)]), 
                                                  type='max',
-                                                 tolerance=tolerance)-(threshold-1*(10**-(context.prec-1))))
+                                                 tolerance=tolerance)-threshold)
      
     fail=0
     
@@ -117,6 +117,12 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     
     for (nid,v,u,fvel) in balSet:
+        #DBG
+        print(nid)
+        print(v)
+        print(u)
+        print(fvel)
+        
         optProb.addVarGroup(nid,
                             (2 if len(b)<=1 else len(b)),   #add dummy variable in 1D case in order to handle sp.arrays
                             type='c',
@@ -189,10 +195,7 @@ if __name__=='__main__':
     # print('node weights:%s'%nodeWeightDict)
     # print('Ddeltas:%s'%res)
     #===========================================================================
-    #1D test
-    c=decimal.getcontext()
-    c.prec=4
-    tolerance=1e-3
+
     #===========================================================================
     # bSet=[
     #           ('n1',sp.array([21]), sp.array([21]), 1),
@@ -247,28 +250,46 @@ if __name__=='__main__':
     #2D test
        
     c=decimal.getcontext()
-    c.prec=4
-    tolerance=1e-3
+    c.prec=12
+    tolerance=1e-12
        
-    bSet=[('n2', sp.array([ 6300]), sp.array([ 6300.0]), 5.3), ('n1', sp.array([ 0.0063]), sp.array([ 10000]), 8.5)]
+    bSet=[('n2', sp.array([ 6300.423424233]), sp.array([ 6300.432325434542]), 5.3123435321), ('n1', sp.array([ 0.00634323]), sp.array([ 10000.43254354354]), 8.53212423432113)]
 
-    b=sp.array([8135])
+    b=sp.array([8135.4532245634564])
     threshold=1*10**4
     monFunc=lambda x:x[0]
     for i in bSet:
+        print('---dec----')
         print(i[0])
+        print(dec(i[1][0]))
+        print(dec(i[2][0]))
+        print(monFunc(dec(i[1])))
+        print('---dec end-')
+    
+    for i in bSet:
+        print('----float---')
+        print(i[0])
+        print(i[1])
+        print(i[2])
         print(monFunc(i[1]))
+        print('---float end----')
         
     nodeWeightDict={'n1':1.0, 'n2':1.0, 'n7':1.0}
         
         
     res=heuristicBalancer(None,bSet, b, threshold, monFunc, nodeWeightDict,tolerance=tolerance)
+    
+    for i in bSet:
+        print(i[0])
+        print(dec(i[1]))
+        print(dec(i[2]))
+        print(monFunc(dec(i[1])))
     print('--------------collected data--------------')
     print('Balancing set: %s'%bSet)
     print('Balancing vector: %s'%b)
     print('threshold: %s'%threshold)
     print('node weights:%s'%nodeWeightDict)
-    print('Ddeltas:%s'%res)
+    print('Ddeltas:%s'%res.values())
     
 #===============================================================================
 #     

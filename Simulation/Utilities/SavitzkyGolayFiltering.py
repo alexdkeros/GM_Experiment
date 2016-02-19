@@ -146,9 +146,10 @@ if __name__=='__main__':
     
     velTest=savitzky_golay(deDec(fTest),wl=200,wr=0,order=3,deriv=1)
     
-    plot2d(timeTrain, deDec(fTrain) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTrainN',showFlag=False)
-    plot2d(timeTrain, velTrain ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainN',showFlag=False)
-    
-    plot2d(timeTest, deDec(fTest) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTestN',showFlag=False)
-    plot2d(timeTest, velTest ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTestN',showFlag=False)
+    plot2d(timeTrain, deDec(fTrain) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTrainN',showFlag=True)
+    plot2d(timeTrain, velTrain2 ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainN',showFlag=True)
+    plot2d(timeTrain, velTrain ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainN',showFlag=True)
+
+    #plot2d(timeTest, deDec(fTest) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTestN',showFlag=False)
+    #plot2d(timeTest, velTest ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTestN',showFlag=False)
     

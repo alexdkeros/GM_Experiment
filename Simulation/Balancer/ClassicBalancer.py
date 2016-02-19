@@ -2,6 +2,7 @@
 @author: ak
 '''
 from Simulation.Utilities.ArrayOperations import hashable
+from Simulation.Utilities.Dec import *
 
 def classicBalancer(coordInstance,balSet, b, threshold, monFunc, nodeWeightDict,tolerance=None):
     '''

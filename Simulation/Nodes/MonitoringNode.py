@@ -64,7 +64,7 @@ class MonitoringNode(GenericNode):
         #EXP
         self.uLog=[(self.network.getIterationCount(),hashable(dec(sp.repeat([0.0],len(self.v)))))]
         self.vLog=[self.v]
-        self.monFuncVelLog=None
+        self.monFuncVelLog=[]
         
         #convert to decimals
         self.threshold=dec(self.threshold)
@@ -105,7 +105,7 @@ class MonitoringNode(GenericNode):
         
         self.delta+=dDelta  #adjusting current slack vector
         
-        self.u=self.u+(dDelta/self.weight)  #recalculate last drift vector value with new slack vector(needed in case of "req" msg before run is called
+        self.u=self.u+vecquantize((dDelta/self.weight))  #recalculate last drift vector value with new slack vector(needed in case of "req" msg before run is called
         
         #EXP
         self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
@@ -118,7 +118,7 @@ class MonitoringNode(GenericNode):
         '''
         self.e=dec(dat)
         self.vLast=self.v
-        self.delta=0
+        self.delta=dec(sp.repeat([0.0],len(self.v)))
         
     def globalViolation(self,dat,sender):
         '''
@@ -190,7 +190,7 @@ class MonitoringNode(GenericNode):
         '''
         
         #DBG
-        #print('--Check: Node: %s u:%s'%(self.id, self.u))
+        #print('--Check: Node: %s u:%.10f'%(self.id, self.u))
         
         #bounding sphere
         ball=computeBallFromDiametralPoints(self.e,self.u)
@@ -199,19 +199,13 @@ class MonitoringNode(GenericNode):
         funcMax=computeExtremesFuncValuesInBall(self.monFunc,(deDec(ball[0]),deDec(ball[1])),type='max',tolerance=self.tolerance)
                     
                     
-        #DBG            
-        #print(dec(funcMax)>=self.threshold)
+        #DBG         
+        #print(dec(funcMax)-self.threshold)
 
-        try:
-            if dec(funcMax)>=self.threshold:
+        if dec(funcMax)>self.threshold:
                 
-                self.rep()
-        except:
-            print(' ! ! ! ! Exception raised ! ! ! !')
-            print(funcMax)
-            print(dec(funcMax))
-            print(dec(funcMax)>=self.threshold)
-            raise
+            self.rep()
+
         
     def run(self):
         '''
@@ -224,13 +218,23 @@ class MonitoringNode(GenericNode):
         #EXP
         self.vLog.append(self.v)
         
-        self.u=self.e+(self.v-self.vLast)+(self.delta/self.weight)
+        self.u=self.e+(self.v-self.vLast)+vecquantize((self.delta/self.weight))
+        
+        #DBG
+        #print('--')
+        #print('NODE: %s ITER: %d'%(self.id, self.network.getIterationCount()))
+        #print('%.10f'%self.u[0])
+        #print('%.10f'%self.e[0])
+        #print('%.10f'%self.v[0])
+        #print('%.10f'%self.vLast[0])
+        #print('%.10f'%self.delta[0])
+
         
         #EXP
         self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
     
         #current velocity computation
-        self.monFuncVelLog=dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.wl, self.wr, self.approximationOrder))
+        self.monFuncVelLog.append(dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.wl, self.wr, self.approximationOrder)))
         
         #DBG
         #print('--Run: Node: %s u:%s'%(self.id, self.u))
