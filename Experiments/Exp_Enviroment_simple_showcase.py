@@ -249,10 +249,10 @@ def monFunc10D(x):
 #===============================================================================
 if __name__=='__main__':
     #tolerance
-    tolerance=1e-6
+    tolerance=1e-4
     
     global prec
-    prec=5
+    prec=3
     
     #global decimal context
     context=decimal.getcontext()
@@ -265,19 +265,19 @@ if __name__=='__main__':
     # train_dslinear1D2N,test_dslinear1D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear1D2N.p'))
     # train_dsrandom1D2N,test_dsrandom1D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random1D2N.p'))
     # 
+    # train_dslinear1D5N,test_dslinear1D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear1D5N.p'))
+    # train_dsrandom1D5N,test_dsrandom1D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random1D5N.p'))
+    #   
     #===========================================================================
-    train_dslinear1D5N,test_dslinear1D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear1D5N.p'))
-    train_dsrandom1D5N,test_dsrandom1D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random1D5N.p'))
-      
     train_dslinear1D10N,test_dslinear1D10N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear1D10N.p'))
     train_dsrandom1D10N,test_dsrandom1D10N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random1D10N.p'))
-    #   
-    # train_dslinear5D2N,test_dslinear5D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D2N.p'))
-    # train_dsrandom5D2N,test_dsrandom5D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D2N.p'))
-    #    
-    # train_dslinear5D5N,test_dslinear5D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D5N.p'))
-    # train_dsrandom5D5N,test_dsrandom5D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D5N.p'))
-    #    
+       
+    train_dslinear5D2N,test_dslinear5D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D2N.p'))
+    train_dsrandom5D2N,test_dsrandom5D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D2N.p'))
+        
+    train_dslinear5D5N,test_dslinear5D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D5N.p'))
+    train_dsrandom5D5N,test_dsrandom5D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D5N.p'))
+        
     # train_dslinear5D10N,test_dslinear5D10N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D10N.p'))
     # train_dsrandom5D10N,test_dsrandom5D10N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D10N.p'))
     #    
@@ -303,11 +303,11 @@ if __name__=='__main__':
     classic_random_experiment('singleH_classic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     classic_random_experiment('singleH_classic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
             
-    # classic_random_experiment('singleH_classic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    #         
-    # classic_random_experiment('singleH_classic_random_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    classic_random_experiment('singleH_classic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    classic_random_experiment('singleH_classic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+             
+    classic_random_experiment('singleH_classic_random_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    classic_random_experiment('singleH_classic_random_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #       
     # classic_random_experiment('singleH_classic_random_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     # classic_random_experiment('singleH_classic_random_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
@@ -386,15 +386,15 @@ if __name__=='__main__':
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    #     
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    #   
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+         
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+       
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #   

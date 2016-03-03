@@ -81,75 +81,45 @@ def savitzky_golay(y, wl, wr, order, deriv=0, rate=1):
     return np.convolve( m[::-1], y, mode='valid')
 
 if __name__=='__main__':
-    from Simulation.Utilities.DatasetHandler import createNormalsDataset
+
+    import scipy as sp
+    import scipy.signal as spsig
     from Simulation.Utilities.Plotter import *
-    from Simulation.Utilities.Dec import deDec
-    '''
-    l=100
-
-    time=sp.arange(l)
-    position=deDec(createNormalsDataset(loc=10, scale=0.0001, size=l, cumsum=True))
-    print('position array:')
-    print(position)
-    vel=smooth_causal(time,position.as_matrix(),size=2,order=2,deriv=1)
-    print('velocity array:')
-    print(vel)
     
-    print('simple computation:')
-    print([deDec(position.as_matrix()[i])/time[i] for i in range(len(position))])
+    wl=20
+    order=4
+    wr=0
+    
+    t=sp.arange(0,300)
+    
+    vel=5.0
+    linear_increasing=spsig.chirp(t, 1/20.0, 100, 1/100.0) #sp.array([vel*i for i in t])
     
     
-    plot2d(time, position.as_matrix(),title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/pos',showFlag=False)
-    plot2d(time, vel,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/vel',showFlag=False)
-    plot2d(time, [deDec(position.as_matrix()[i])/time[i] for i in range(len(position))],title='velocity naive', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/vel_n',showFlag=False)
-    '''
+    #complete sg
+    resComplete=savitzky_golay(linear_increasing, wl=wl, wr=wr, order=order, deriv=1)
     
     
-    import pandas as pd
-    from Simulation.Utilities.DatasetHandler import *
-    
-    monfunc1D=lambda x:x[0]
-    monfunc10D=lambda x:((x[0]-x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9])/10)**2
-    
-    node='n1'
-    
-    
-    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_random_1D2N/singleH_heuristic_distOptPair_random_1D2N_0/dataset_train.p')
-    
-    ds=ds.loc[:,:,:]
-    
-    dsTrain,dsTest=splitTrainTestDataset(ds,percentage=0.8)
-    
-    print(dsTrain)
-    print(len(dsTrain.major_axis))
-
-    
-    print(dsTest)
-    print(len(dsTest.major_axis))
-        
-    timeTrain=sp.arange(len(dsTrain.major_axis))
-    timeTest=sp.arange(len(dsTest.major_axis))
-    
-    fTrain=sp.array([monfunc1D(i) for i in dsTrain.loc[node,:,:].values])
-    fTest=sp.array([monfunc1D(i) for i in dsTest.loc[node,:,:].values])
-    
-    velTrain=savitzky_golay(deDec(fTrain),wl=10,wr=0,order=3,deriv=1)
-    velTrain2=savitzky_golay(deDec(fTrain),wl=200,wr=0,order=3,deriv=1)
-    
-    #print(velTrain[-50:-1])
-    print(sp.mean(velTrain2))
-    #print(velTrain[-50:-1]-velTrain2[-50:-1])
-
-    # sp.absolute(velTrain[100:500]-velTrain2), ,timeTrain[100:500]
-    #multiplePlots2d([timeTrain[100:500],timeTrain[100:500]], [velTrain[100:500],velTrain2] ,title='velocity',labels=['full','partial','diff'], saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainCompareN',showFlag=False)
-    multiplePlots2d([timeTrain[-50:-1], timeTrain[-50:-1]], [fTrain[-50:-1], velTrain2[-50:-1]], ['val','vel'],saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posveltrain', showFlag=False)
-    
-    velTest=savitzky_golay(deDec(fTest),wl=200,wr=0,order=3,deriv=1)
-    
-    plot2d(timeTrain, deDec(fTrain) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTrainN',showFlag=True)
-    plot2d(timeTrain, velTrain2 ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainN',showFlag=True)
-    plot2d(timeTrain, velTrain ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTrainN',showFlag=True)
-
-    #plot2d(timeTest, deDec(fTest) ,title='position', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/posTestN',showFlag=False)
-    #plot2d(timeTest, velTest ,title='velocity', saveFlag=True, filename='/home/ak/git/GM_Experiment/test/velTestN',showFlag=False)
-    
+    multiplePlots2d([t[15:27],t[15:27]], [linear_increasing[15:27],resComplete[15:27]], labels=['original', 'sg'],saveFlag=True,filename='/home/ak/git/GM_Experiment/sgtest',showFlag=False)
+     
+    #streaming sg
+    resIncremental=[]
+    for i in range(2,len(linear_increasing)):
+        sig=linear_increasing[0:i]
+        if wl>len(sig):
+            wlt=len(sig) if len(sig)%2==0 else len(sig)-1
+            if order+2>wlt+wr+1:
+                ordert=wlt+wr+1-2
+            else:
+                ordert=order
+        else:
+            wlt=wl
+        print('--left:%d right:%d order:%d'%(wlt,wr,ordert))
+        out=savitzky_golay(sig, wl=wlt , wr=wr, order=ordert, deriv=1)
+        resIncremental.append(out)
+     
+    for i in range(len(resIncremental)):
+        print(i)
+        print(resIncremental[i])
+     
+    multiplePlots2d([t[15:len(i)] for i in resIncremental[15:27]],resIncremental[15:27],saveFlag=True, filename='/home/ak/git/GM_Experiment/sgIncTest', showFlag=False)

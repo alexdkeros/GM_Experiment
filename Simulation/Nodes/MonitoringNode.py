@@ -140,7 +140,7 @@ class MonitoringNode(GenericNode):
             "rep" signal
             in classic balancing velocity is not used
         '''
-        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[-1])))
+        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[self.network.getIterationCount()-1])))
         
     
     '''
@@ -177,7 +177,15 @@ class MonitoringNode(GenericNode):
         
         data=sp.array(map(func, dataLog))
         
-        return savitzky_golay(deDec(data) ,wl=wl,wr=wr,order=order,deriv=1)
+        if wl>len(data):
+            wlt=len(data) if len(data)%2==0 else len(data)-1
+        else:
+            wlt=wl
+        if order+2>wlt+wr+1:
+            ordert=wlt+wr+1-2
+        else:
+            ordert=order
+        return savitzky_golay(deDec(data) ,wl=wlt,wr=wr,order=ordert,deriv=1) if len(data)>=3 else [(data[-1]-data[0])/len(data)]*len(data) 
     
     '''
     ----------------------------------------------------------------------
@@ -234,8 +242,12 @@ class MonitoringNode(GenericNode):
         self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
     
         #current velocity computation
-        self.monFuncVelLog.append(dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.wl, self.wr, self.approximationOrder)))
+        self.monFuncVelLog=vecquantize(dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.wl, self.wr, self.approximationOrder)))
         
         #DBG
+        print('iter count:%d'%self.network.getIterationCount())
+        print('node: %s'%str(self.id))
+        print(self.monFuncVelLog)
+        print(len(self.monFuncVelLog))
         #print('--Run: Node: %s u:%s'%(self.id, self.u))
         

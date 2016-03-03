@@ -49,17 +49,17 @@ def test_enviroment():
     context.rounding='ROUND_HALF_EVEN'
     
     #number of nodes
-    nodeNum=10
+    nodeNum=2
     
     #threshold
-    thresh=1*10**3
+    thresh=1*10**6
     
     #monFunc !!!x is always an sp.ndarray
-    monFunc=monFunc1D
+    monFunc=monFunc5D
     
     #create Dataset
     #ds=pd.Panel({'n'+str(i):createNormalsDataset(r.randint(0, 10), 0.01, [200,5], cumsum=True) for i in range(nodeNum)})
-    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/random1D10N.p')
+    ds=pd.read_pickle('/home/ak/git/GM_Experiment/Experiments/datasets/linear5D2N.p')
     
     #create node weight dictionary
     nWd={'n'+str(i):1.0 for i in range(nodeNum)}
@@ -81,7 +81,7 @@ def test_enviroment():
     ntw=SingleHandlingNetwork()
     
     #create nodes
-    nodes={'n'+str(i):MonitoringNode(ntw,test.loc['n'+str(i),:,:],thresh,monFunc,nid='n'+str(i),tolerance=tolerance) for i in range(nodeNum)}
+    nodes={'n'+str(i):MonitoringNode(ntw,test.loc['n'+str(i),:,:],thresh,monFunc,nid='n'+str(i),tolerance=tolerance, wl=6) for i in range(nodeNum)}
     
     #create coordinator node
     coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=thresh, monFunc=monFunc,tolerance=tolerance)
