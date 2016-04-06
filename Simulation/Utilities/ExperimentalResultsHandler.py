@@ -70,7 +70,8 @@ def saveExpResults(experimentName,
     wDict={node: nodes[node].getWeight() for node in nodes}
     uLogDict={node: unhash(nodes[node].getuLog()) for node in nodes}
     monFuncVelDict={node:nodes[node].getMonFuncVelLog() for node in nodes}
-    pickle.dump({'weightDict':wDict, 'uLogDict':uLogDict, 'monFuncVelDict':monFuncVelDict}, open(folderPath+'nodeData.p','wb'))
+    maxFuncValLog={node:nodes[node].getMaxFuncValLog() for node in nodes}
+    pickle.dump({'weightDict':wDict, 'uLogDict':uLogDict, 'monFuncVelDict':monFuncVelDict, 'maxFuncValLog':maxFuncValLog}, open(folderPath+'nodeData.p','wb'))
     
     #save coordData
     pickle.dump(unhash(coord.getbLog()),open(folderPath+'coordData.p','wb'))

@@ -81,7 +81,7 @@ def test_enviroment():
     ntw=SingleHandlingNetwork()
     
     #create nodes
-    nodes={'n'+str(i):MonitoringNode(ntw,test.loc['n'+str(i),:,:],thresh,monFunc,nid='n'+str(i),tolerance=tolerance, wl=10,order=1) for i in range(nodeNum)}
+    nodes={'n'+str(i):MonitoringNode(ntw,test.loc['n'+str(i),:,:],thresh,monFunc,nid='n'+str(i),tolerance=tolerance, wl=14,approximationOrder=1) for i in range(nodeNum)}
     
     #create coordinator node
     coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=thresh, monFunc=monFunc,tolerance=tolerance)

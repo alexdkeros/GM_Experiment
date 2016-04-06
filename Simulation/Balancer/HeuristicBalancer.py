@@ -58,20 +58,22 @@ def __objfunc(x,**kwargs):
         g.append((sum([nwd[nid]*x[nid][dim] for nid in keys])/len(keys))-b[dim])
     #min conds
     for (nid,v,u,fvel) in bS:
-        g.append(z-__optFunc(x[nid][0:len(b)],(nid,v,u,fvel),threshold,fu,tolerance))
+        g.append(z-__optFunc(x[nid][0:len(b)],(nid,v,u,fvel),threshold,e,fu,tolerance))
     #max val in balls conds
-    for (nid,v,u,fvel) in bS:
-        g.append(computeExtremesFuncValuesInBall(fu,
-                                                 computeBallFromDiametralPoints(e, x[nid][0:len(b)]), 
-                                                 type='max',
-                                                 tolerance=tolerance)-threshold)
-     
+    #===========================================================================
+    # for (nid,v,u,fvel) in bS:
+    #     g.append(computeExtremesFuncValuesInBall(fu,
+    #                                              computeBallFromDiametralPoints(e, x[nid][0:len(b)]), 
+    #                                              type='max',
+    #                                              tolerance=tolerance)-threshold)
+    #  
+    #===========================================================================
     fail=0
     
     return f,g,fail
     
     
-def __optFunc(var,(nid,v,u,fvel),threshold,monFunc,tolerance):
+def __optFunc(var,(nid,v,u,fvel),threshold,e,monFunc,tolerance):
     '''
     optimization function
     estimate time until next local violation
@@ -79,13 +81,18 @@ def __optFunc(var,(nid,v,u,fvel),threshold,monFunc,tolerance):
         @param var: oovar
         @param (nid,v,u,fvel): balancing set element containing (nodeId, update, drift, velocity of f(drift))
         @param threshold: monitoring threshold
+        @param e: estimate vector for ball computation
         @param monFunc: the monitoring function
     @return estimated time until next local violation, computed as 
             (T-f(var))
             ----------
             vel(f(u))
     '''
-    return (threshold-monFunc(var))/(fvel if fvel!=0.0 else tolerance)  
+    maxV=computeExtremesFuncValuesInBall(monFunc,
+                                                 computeBallFromDiametralPoints(e, var), 
+                                                 type='max',
+                                                 tolerance=tolerance)
+    return (threshold-maxV)/(fvel if fvel!=0.0 else tolerance)  
 
  
     
@@ -105,6 +112,14 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     NOTE: PAY ATTENTION TO DECIMALS, pyOpt and sp.average() do not accept them!
     '''
+    
+
+
+    #--------------------------------------------------------------------- TRIAL
+    if monFunc(b)<threshold-(5.0*threshold)/100.0:
+        threshold=threshold-(5.0*threshold)/100.0
+        
+        
     print('#######in heuristic ffunc##############')
     print(balSet)
     print(b)
@@ -136,7 +151,7 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     #constraints
     optProb.addConGroup('mean_cond',len(b),type='e')
     optProb.addConGroup('min_conds',len(balSet), type='i')
-    optProb.addConGroup('max_val_in_balls_conds', len(balSet), type='i',upper=0.0)
+    #optProb.addConGroup('max_val_in_balls_conds', len(balSet), type='i',upper=0.0)
 
     print(optProb)
     

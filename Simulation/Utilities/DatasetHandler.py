@@ -136,10 +136,10 @@ if __name__=='__main__':
     print(ds)
     print(ds.values)
     '''
-    n=2
-    d=10
-    loc=[10,2]
-    scale=[10,2]
+    n=3
+    d=5
+    loc=[10,2,-1]
+    scale=[10,5,1]
     ds=createNormalsDataset(loc=loc, scale=[0.001]*n, size=[n,3000,d], cumsum=True, items=['n'+str(i) for i in range(n)])
     saveDataset(ds, '/home/ak/git/GM_Experiment/Experiments/datasets/linear'+str(d)+'D'+str(n)+'N.p')
     ds=createNormalsDataset(loc=loc, scale=scale, size=[n,3000,d], cumsum=True, items=['n'+str(i) for i in range(n)])

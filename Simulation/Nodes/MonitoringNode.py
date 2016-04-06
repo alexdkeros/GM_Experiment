@@ -65,6 +65,7 @@ class MonitoringNode(GenericNode):
         self.uLog=[(self.network.getIterationCount(),hashable(dec(sp.repeat([0.0],len(self.v)))))]
         self.vLog=[self.v]
         self.monFuncVelLog=[]
+        self.maxFuncValLog=[]
         
         #convert to decimals
         self.threshold=dec(self.threshold)
@@ -156,6 +157,13 @@ class MonitoringNode(GenericNode):
         '''
         return self.monFuncVelLog
     
+    def getMaxFuncValLog(self):
+        '''
+            returns max function val log
+            @return: max func value array
+        '''
+        return self.maxFuncValLog
+    
     def getuLog(self):
         '''
             returns u's throught monitoring process
@@ -242,12 +250,15 @@ class MonitoringNode(GenericNode):
         self.uLog.append((self.network.getIterationCount(),hashable(self.u)))
     
         #current velocity computation
-        self.monFuncVelLog=vecquantize(dec(self.computeMonFuncVel(self.monFunc, self.vLog, self.wl, self.wr, self.approximationOrder)))
+        #velocity is max value in ball velocity
+        ballr=computeBallFromDiametralPoints(self.e, (self.v-self.vLast))
+        self.maxFuncValLog.append(computeExtremesFuncValuesInBall(self.monFunc,(deDec(ballr[0]),deDec(ballr[1])),type='max',tolerance=self.tolerance))
+        self.monFuncVelLog=vecquantize(dec(self.computeMonFuncVel(lambda x:x, self.maxFuncValLog, self.wl, self.wr, self.approximationOrder)))
         
         #DBG
-        print('iter count:%d'%self.network.getIterationCount())
-        print('node: %s'%str(self.id))
-        print(self.monFuncVelLog)
-        print(len(self.monFuncVelLog))
+        #print('iter count:%d'%self.network.getIterationCount())
+        #print('node: %s'%str(self.id))
+        #print(self.monFuncVelLog)
+        #print(len(self.monFuncVelLog))
         #print('--Run: Node: %s u:%s'%(self.id, self.u))
         

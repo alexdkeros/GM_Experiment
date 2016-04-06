@@ -61,9 +61,11 @@ def monFunc10D(x):
     
 if __name__=='__main__':
     
-    #filename='/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_linear_5D2N/singleH_heuristic_distOptPair_linear_5D2N_0/'
-    filename='/home/ak/git/GM_Experiment/test/'
-    bcheck(filename, monFunc5D)
+    filename=['/home/ak/git/GM_Experiment/Experiments/singleH_classic_random_linear_5D2N/singleH_classic_random_linear_5D2N_0/',
+              '/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_linear_5D2N/singleH_heuristic_distOptPair_linear_5D2N_0/']
+    #filename='/home/ak/git/GM_Experiment/test/'
+    for i in filename:
+        bcheck(i, monFunc5D)
     
     
     
