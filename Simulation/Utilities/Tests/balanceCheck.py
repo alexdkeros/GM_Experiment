@@ -6,6 +6,8 @@ Created on Feb 8, 2016
 import pandas as pd
 import scipy as sp
 from Simulation.Utilities.Plotter import multiplePlots2d
+from Simulation.Utilities.SavitzkyGolayFiltering import savitzky_golay
+from Simulation.Utilities.Dec import deDec
 
 def bcheck(filename,monfunc):
     
@@ -14,6 +16,7 @@ def bcheck(filename,monfunc):
     nt=[[nodedata['uLogDict'][node][i][0] for i in range(len(nodedata['uLogDict'][node]))] for node in nodedata['uLogDict']]
     nv=[[nodedata['uLogDict'][node][i][1] for i in range(len(nodedata['uLogDict'][node]))] for node in nodedata['uLogDict']]
     fnv=[[monfunc(nodedata['uLogDict'][node][i][1]) for i in range(len(nodedata['uLogDict'][node]))] for node in nodedata['uLogDict']]
+    vfnv=[savitzky_golay(deDec(sp.array(fu)), wl=4, wr=0, order=3, deriv=1) for fu in fnv]
     
     vt=[range(len(nodedata['monFuncVelDict'][node])) for node in nodedata['monFuncVelDict']]
     vv=[nodedata['monFuncVelDict'][node] for node in nodedata['monFuncVelDict']]
@@ -51,18 +54,24 @@ def monFunc1D(x):
         return x
     
 def monFunc5D(x):
-    nom=x[0]+x[4]+x[3]
-    denom=x[1]+x[2]
-    
-    return nom**2-denom
+    #===========================================================================
+    # nom=x[0]+x[4]+x[3]
+    # denom=x[1]+x[2]
+    # 
+    # return nom**2-denom
+    #===========================================================================
+    return x[0]+x[1]+x[2]+x[3]+x[4]
+
 
 def monFunc10D(x):
     return ((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2
     
 if __name__=='__main__':
     
-    filename=['/home/ak/git/GM_Experiment/Experiments/singleH_classic_random_linear_5D2N/singleH_classic_random_linear_5D2N_0/',
-              '/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_linear_5D2N/singleH_heuristic_distOptPair_linear_5D2N_0/']
+    filename=['/home/ak/git/GM_Experiment/Experiments/singleH_classic_random_linear_5D2N/singleH_classic_random_linear_5D2N_0/'
+              ,
+              '/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_linear_5D2N/singleH_heuristic_distOptPair_linear_5D2N_0/'
+              ]
     #filename='/home/ak/git/GM_Experiment/test/'
     for i in filename:
         bcheck(i, monFunc5D)

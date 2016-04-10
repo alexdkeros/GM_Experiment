@@ -112,14 +112,6 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     NOTE: PAY ATTENTION TO DECIMALS, pyOpt and sp.average() do not accept them!
     '''
-    
-
-
-    #--------------------------------------------------------------------- TRIAL
-    if monFunc(b)<threshold-(5.0*threshold)/100.0:
-        threshold=threshold-(5.0*threshold)/100.0
-        
-        
     print('#######in heuristic ffunc##############')
     print(balSet)
     print(b)
@@ -155,7 +147,7 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
 
     print(optProb)
     
-    opt=SLSQP()
+    opt=SLSQP(sens_type='CS')
 
     #solver options
     opt.setOption('ACC', tolerance)

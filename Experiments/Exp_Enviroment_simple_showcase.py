@@ -4,6 +4,8 @@
 import sys
 sys.path.append('/home/ak/git/GM_Experiment/')
 
+from sklearn.gaussian_process import GaussianProcess
+
 from Simulation.Utilities.DatasetHandler import splitTrainTestDataset
 from Simulation.OptimalPairer.RandomPairer import RandomPairer
 from Simulation.OptimalPairer.DistancePairer import DistancePairer
@@ -19,7 +21,7 @@ from Simulation.Balancer.HeuristicBalancer import heuristicBalancer
 #===============================================================================
 # CLASSIC RANDOM
 #===============================================================================
-def classic_random_experiment(expName,train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
+def classic_random_experiment(savePath,expName,train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
     
     for i in range(repeats):
         
@@ -64,13 +66,13 @@ def classic_random_experiment(expName,train, test,datasetName, monFunc,monFuncDe
               'wr':wr,
               'apporder':approxorder,
               'tol':tolerance}
-        saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, pairer, nodes, coord, ntw, train, test)
+        saveExpResults(expName+'_'+str(i), savePath+expName+'/', conf, pairer, nodes, coord, ntw, train, test)
 
 #===============================================================================
 # HEURISIC RANDOM
 #===============================================================================
 
-def heuristic_random_experiment(expName, train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
+def heuristic_random_experiment(savePath,expName, train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
     
     for i in range(repeats):
         
@@ -116,13 +118,13 @@ def heuristic_random_experiment(expName, train, test,datasetName, monFunc,monFun
               'wr':wr,
               'apporder':approxorder,
               'tol':tolerance}
-        saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, pairer, nodes, coord, ntw, train, test)
+        saveExpResults(expName+'_'+str(i), savePath+expName+'/', conf, pairer, nodes, coord, ntw, train, test)
 
 #===============================================================================
 # CLASSIC DISTANCE OPTPAIR
 #===============================================================================
 
-def classic_distOptPair_experiment(expName, train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
+def classic_distOptPair_experiment(savePath,expName, train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
     
     for i in range(repeats):
         
@@ -170,13 +172,13 @@ def classic_distOptPair_experiment(expName, train, test,datasetName, monFunc,mon
               'apporder':approxorder,
               'tol':tolerance}
         
-        saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, distPairer, nodes, coord, ntw, train, test)
+        saveExpResults(expName+'_'+str(i), savePath+expName+'/', conf, distPairer, nodes, coord, ntw, train, test)
 
 #===============================================================================
 # HEURISTIC DISTANCE OPTPAIR
 #===============================================================================
 
-def heuristic_distOptPair_experiment(expName,train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
+def heuristic_distOptPair_experiment(savePath,expName,train, test,datasetName, monFunc,monFuncDescription, threshold, repeats, wl, wr, approxorder, tolerance):
     
     for i in range(repeats):
         
@@ -187,7 +189,16 @@ def heuristic_distOptPair_experiment(expName,train, test,datasetName, monFunc,mo
            
         #create nodes
         nWd={nId: 1.0 for nId in test.items}
-        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,wl=wl,wr=wr,approximationOrder=approxorder,tolerance=tolerance) for nId in test.items}
+        
+        #create gaussian models
+        nGm={nId: GaussianProcess(theta0=[20.0]*5) for nId in test.items}
+        for nId in nGm:
+            nGm[nId].fit(sp.array([range(train.loc[nId].shape[0])]*train.loc[nId,:,:].shape[1]).T,deDec(train.loc[nId,:,:]))
+            
+        #DNG
+        print(nGm)
+        
+        nodes={nId:MonitoringNode(ntw,test.loc[nId,:,:],threshold,monFunc,nid=nId,wl=wl,wr=wr,approximationOrder=approxorder,tolerance=tolerance, gm=nGm[nId]) for nId in test.items}
         
         #create coordinator Node
         coord=CoordinatorNode(network=ntw, nodes=nodes.keys(), threshold=threshold,monFunc=monFunc,tolerance=tolerance)
@@ -224,7 +235,7 @@ def heuristic_distOptPair_experiment(expName,train, test,datasetName, monFunc,mo
               'apporder':approxorder,
               'tol':tolerance}
         
-        saveExpResults(expName+'_'+str(i), '/home/ak/git/GM_Experiment/Experiments/'+expName+'/', conf, distPairer, nodes, coord, ntw, train, test)
+        saveExpResults(expName+'_'+str(i), savePath+expName+'/', conf, distPairer, nodes, coord, ntw, train, test)
 
 #===============================================================================
 # MONITORING FUNCTIONS
@@ -237,10 +248,13 @@ def monFunc1D(x):
         return x
     
 def monFunc5D(x):
-    nom=x[0]+x[4]+x[3]
-    denom=x[1]+x[2]
-    
-    return nom**2-denom
+    #===========================================================================
+    # nom=x[0]+x[4]+x[3]
+    # denom=x[1]+x[2]
+    # 
+    # return nom**2-denom
+    #===========================================================================
+    return x[0]+x[1]+x[2]+x[3]+x[4]
 
 def monFunc10D(x):
     return ((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2
@@ -260,6 +274,7 @@ if __name__=='__main__':
     
     #datasets Load
     datasetPath='/home/ak/git/GM_Experiment/Experiments/datasets/'
+    savePath='/home/ak/git/GM_Experiment/Experiments/'
     
     #===========================================================================
     # train_dslinear1D2N,test_dslinear1D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear1D2N.p'))
@@ -275,8 +290,8 @@ if __name__=='__main__':
     train_dslinear5D2N,test_dslinear5D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D2N.p'))
     train_dsrandom5D2N,test_dsrandom5D2N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D2N.p'))
     
-    train_dslinear5D3N,test_dslinear5D3N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D3N.p'))
-    train_dsrandom5D3N,test_dsrandom5D3N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D3N.p'))
+    #train_dslinear5D3N,test_dslinear5D3N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D3N.p'))
+    #train_dsrandom5D3N,test_dsrandom5D3N=splitTrainTestDataset(pd.read_pickle(datasetPath+'random5D3N.p'))
           
     #===========================================================================
     # train_dslinear5D5N,test_dslinear5D5N=splitTrainTestDataset(pd.read_pickle(datasetPath+'linear5D5N.p'))
@@ -299,131 +314,134 @@ if __name__=='__main__':
     #===========================================================================
     #  
     # #classic random experiments
-    # classic_random_experiment('singleH_classic_random_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #       
-    #classic_random_experiment('singleH_classic_random_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    #classic_random_experiment('singleH_classic_random_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    #classic_random_experiment(savePath,'singleH_classic_random_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    #classic_random_experiment(savePath,'singleH_classic_random_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
             
     #===========================================================================
-    # classic_random_experiment('singleH_classic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #         
     #===========================================================================
-    classic_random_experiment('singleH_classic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
-    classic_random_experiment('singleH_classic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
-    
-    classic_random_experiment('singleH_classic_random_linear_5D3N', train_dslinear5D3N,test_dslinear5D3N, 'linear5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
-    classic_random_experiment('singleH_classic_random_random_5D3N', train_dsrandom5D3N,test_dsrandom5D3N, 'random5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
-             
+    #classic_random_experiment(savePath,'singleH_classic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**3, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
+    #classic_random_experiment(savePath,'singleH_classic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**3, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
+     
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_5D3N', train_dslinear5D3N,test_dslinear5D3N, 'linear5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_5D3N', train_dsrandom5D3N,test_dsrandom5D3N, 'random5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=16, wr=0, approxorder=1,tolerance=tolerance)
+    #          
     #===========================================================================
-    # classic_random_experiment('singleH_classic_random_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    #===========================================================================
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     # #       
     #===========================================================================
-    # classic_random_experiment('singleH_classic_random_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #       
-    # classic_random_experiment('singleH_classic_random_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #        
-    # classic_random_experiment('singleH_classic_random_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #        
-    # classic_random_experiment('singleH_classic_random_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_random_experiment('singleH_classic_random_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_random_experiment(savePath,'singleH_classic_random_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #      
     # #heuristic random experiments
-    # heuristic_random_experiment('singleH_heuristic_random_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #         
-    # heuristic_random_experiment('singleH_heuristic_random_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #        
-    # heuristic_random_experiment('singleH_heuristic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #       
-    # heuristic_random_experiment('singleH_heuristic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #       
-    # heuristic_random_experiment('singleH_heuristic_random_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #   
-    # heuristic_random_experiment('singleH_heuristic_random_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
-    # heuristic_random_experiment('singleH_heuristic_random_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #      
-    # heuristic_random_experiment('singleH_heuristic_random_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # heuristic_random_experiment('singleH_heuristic_random_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_random_experiment('singleH_heuristic_random_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_random_experiment(savePath,'singleH_heuristic_random_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
     # #classic optpair experiments
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #      
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # classic_distOptPair_experiment('singleH_classic_distOptPair_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # classic_distOptPair_experiment(savePath,'singleH_classic_distOptPair_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
     # #heuristic optpair experiments
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_1D2N', train_dslinear1D2N,test_dslinear1D2N, 'linear1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_1D2N', train_dsrandom1D2N,test_dsrandom1D2N, 'random1D2N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #===========================================================================
        
     #===========================================================================
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_1D5N', train_dslinear1D5N,test_dslinear1D5N, 'linear1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_1D5N', train_dsrandom1D5N,test_dsrandom1D5N, 'random1D5N', monFunc1D, 'x', 1*10**4, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
     #===========================================================================
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_1D10N', train_dslinear1D10N,test_dslinear1D10N, 'linear1D10N', monFunc1D, 'x', 1*10**4, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_1D10N', train_dsrandom1D10N,test_dsrandom1D10N, 'random1D10N', monFunc1D, 'x', 1*10**4, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #     
     #===========================================================================
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=40, wr=0, approxorder=3,tolerance=tolerance)
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=40, wr=0, approxorder=3,tolerance=tolerance)
+    heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_5D2N', train_dslinear5D2N,test_dslinear5D2N, 'linear5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**3, repeats=1, wl=10, wr=0, approxorder=2,tolerance=tolerance)
+    #heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_5D2N', train_dsrandom5D2N,test_dsrandom5D2N, 'random5D2N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**3, repeats=1, wl=40, wr=0, approxorder=1,tolerance=tolerance)
     
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D3N', train_dslinear5D3N,test_dslinear5D3N, 'linear5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=40, wr=0, approxorder=3,tolerance=tolerance)
-    heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D3N', train_dsrandom5D3N,test_dsrandom5D3N, 'random5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=40, wr=0, approxorder=3,tolerance=tolerance)
-         
     #===========================================================================
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_5D3N', train_dslinear5D3N,test_dslinear5D3N, 'linear5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=1, wl=40, wr=0, approxorder=1,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_5D3N', train_dsrandom5D3N,test_dsrandom5D3N, 'random5D3N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=1, wl=40, wr=0, approxorder=1,tolerance=tolerance)
+    #      
+    #===========================================================================
+    #===========================================================================
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_5D5N', train_dslinear5D5N,test_dslinear5D5N, 'linear5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_5D5N', train_dsrandom5D5N,test_dsrandom5D5N, 'random5D5N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=3, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
     #===========================================================================
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_5D10N', train_dslinear5D10N,test_dslinear5D10N, 'linear5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_5D10N', train_dsrandom5D10N,test_dsrandom5D10N, 'random5D10N', monFunc5D, 'sq(x_0+x_4+x_3)-(x[1]+x[2])', 1*10**7, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #   
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_10D2N', train_dslinear10D2N,test_dslinear10D2N, 'linear10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_10D2N', train_dsrandom10D2N,test_dsrandom10D2N, 'random10D2N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_10D5N', train_dslinear10D5N,test_dslinear10D5N, 'linear10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_10D5N', train_dsrandom10D5N,test_dsrandom10D5N, 'random10D5N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #    
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
-    # heuristic_distOptPair_experiment('singleH_heuristic_distOptPair_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_linear_10D10N', train_dslinear10D10N,test_dslinear10D10N, 'linear10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
+    # heuristic_distOptPair_experiment(savePath,'singleH_heuristic_distOptPair_random_10D10N', train_dsrandom10D10N,test_dsrandom10D10N, 'random10D10N', monFunc10D, '((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2', 1*10**8, repeats=5, wl=200, wr=0, approxorder=3,tolerance=tolerance)
     #  
     #===========================================================================

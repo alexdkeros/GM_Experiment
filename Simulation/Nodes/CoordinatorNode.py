@@ -45,6 +45,8 @@ class CoordinatorNode(GenericNode):
         
         self.nodes=dict(zip(nodes,len(nodes)*[0])) #{'id':weight,}
         
+        self.vLast={}
+        
         self.balancingSet=set() #set containing tuples (nodeId,v,u,monFuncVel)
         self.pendingReps=0  #keeps track of pending reports produced by Coordinator request
         self.autoBalance=autoBalance
@@ -93,6 +95,7 @@ class CoordinatorNode(GenericNode):
             v=dec(dat[0])
             w=dec(dat[1])
             self.nodes[sender]=w    #append node weight to dictionary
+            self.vLast[sender]=v
             self.e+=vecquantize((w*v))   #compute estimate vector nominator
             self.sumW+=w    #compute estimate vector denominator, i.e. sum of weights
             if len(self.balancingSet)==len(self.nodes):

@@ -136,7 +136,7 @@ if __name__=='__main__':
     print(ds)
     print(ds.values)
     '''
-    n=3
+    n=2
     d=5
     loc=[10,2,-1]
     scale=[10,5,1]

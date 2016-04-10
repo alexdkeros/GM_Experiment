@@ -3,6 +3,7 @@
 '''
 import uuid
 import scipy as sp
+from sklearn.metrics import mean_squared_error
 from Simulation.Nodes.GenericNode import GenericNode
 from Simulation.Utilities.GeometryFunctions import *
 from Simulation.Utilities.Dec import *
@@ -24,7 +25,8 @@ class MonitoringNode(GenericNode):
                  wl=200,
                  wr=0,
                  approximationOrder=3,
-                 tolerance=1e-7):
+                 tolerance=1e-7,
+                 gm=None):
         '''
         Constructor
         args:
@@ -41,6 +43,9 @@ class MonitoringNode(GenericNode):
             ------velocity computation params
             @param windowSize: sliding window size
             @param approximationOrder: order of velocity curve
+            
+            ------prediction params
+            @param gm: gaussian model fitted to training data
         '''
         GenericNode.__init__(self, network, dataset, nid=nid, weight=weight,tolerance=tolerance)
         
@@ -60,6 +65,9 @@ class MonitoringNode(GenericNode):
         self.wl=wl
         self.wr=wr
         self.approximationOrder=approximationOrder
+        
+        #prediction params
+        self.gm=gm
         
         #EXP
         self.uLog=[(self.network.getIterationCount(),hashable(dec(sp.repeat([0.0],len(self.v)))))]
@@ -141,7 +149,37 @@ class MonitoringNode(GenericNode):
             "rep" signal
             in classic balancing velocity is not used
         '''
-        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[self.network.getIterationCount()-1])))
+        
+        #DBG
+        print(self.network.getIterationCount())
+
+        print(self.gm)
+
+        
+        print(mean_squared_error(sp.array(self.vLog)[-(self.wl+self.wr):,:], \
+                                   self.gm.predict(sp.array([sp.arange(self.network.getIterationCount()-(self.wl+self.wr), self.network.getIterationCount())]*sp.array(self.vLog).shape[1]).T )))
+       
+        print('actual and pred after fit:')
+        print(sp.array(self.vLog)[-(self.wl+self.wr):,:])
+        print(sp.array(self.gm.predict(sp.array([sp.arange(self.network.getIterationCount()-(self.wl+self.wr), self.network.getIterationCount())]*sp.array(self.vLog).shape[1]).T)))
+
+        
+        
+        #check if model is off, then refit
+        if self.gm:
+            if mean_squared_error(sp.array(self.vLog)[-(self.wl+self.wr):,:], \
+                                   self.gm.predict(sp.array([sp.arange(self.network.getIterationCount()-(self.wl+self.wr), self.network.getIterationCount())]*sp.array(self.vLog).shape[1]).T ))> 2.0:
+                
+                self.gm.fit(sp.array([range(self.network.getIterationCount()+1)]*sp.array(self.vLog).shape[1]).T, deDec(sp.array(self.vLog)))
+                
+                print(sp.array([range(self.network.getIterationCount()+1)]*sp.array(self.vLog).shape[1]).T)
+                print(sp.array([sp.arange(self.network.getIterationCount()+1, self.network.getIterationCount()+1+(self.wl+self.wr))]*sp.array(self.vLog).shape[1]).T)
+                #prediction
+                pred=self.gm.predict(sp.array([sp.arange(self.network.getIterationCount()+1, self.network.getIterationCount()+1+(self.wl+self.wr))]*sp.array(self.vLog).shape[1]).T)
+       
+                print('pred after fit:')
+                print(pred)
+        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[self.network.getIterationCount()-2])))
         
     
     '''
@@ -252,6 +290,7 @@ class MonitoringNode(GenericNode):
         #current velocity computation
         #velocity is max value in ball velocity
         ballr=computeBallFromDiametralPoints(self.e, (self.v-self.vLast))
+            
         self.maxFuncValLog.append(computeExtremesFuncValuesInBall(self.monFunc,(deDec(ballr[0]),deDec(ballr[1])),type='max',tolerance=self.tolerance))
         self.monFuncVelLog=vecquantize(dec(self.computeMonFuncVel(lambda x:x, self.maxFuncValLog, self.wl, self.wr, self.approximationOrder)))
         
