@@ -57,8 +57,8 @@ def __objfunc(x,**kwargs):
     for dim in range(len(b)):
         g.append((sum([nwd[nid]*x[nid][dim] for nid in keys])/len(keys))-b[dim])
     #min conds
-    for (nid,v,u,fvel) in bS:
-        g.append(z-__optFunc(x[nid][0:len(b)],(nid,v,u,fvel),threshold,e,fu,tolerance))
+    for (nid,v,u,fvel,acc) in bS:
+        g.append(z-__optFunc(x[nid][0:len(b)],(nid,v,u,fvel,acc),threshold,e,fu,tolerance))
     #max val in balls conds
     #===========================================================================
     # for (nid,v,u,fvel) in bS:
@@ -73,7 +73,7 @@ def __objfunc(x,**kwargs):
     return f,g,fail
     
     
-def __optFunc(var,(nid,v,u,fvel),threshold,e,monFunc,tolerance):
+def __optFunc(var,(nid,v,u,fvel,acc),threshold,e,monFunc,tolerance):
     '''
     optimization function
     estimate time until next local violation
@@ -92,8 +92,14 @@ def __optFunc(var,(nid,v,u,fvel),threshold,e,monFunc,tolerance):
                                                  computeBallFromDiametralPoints(e, var), 
                                                  type='max',
                                                  tolerance=tolerance)
-    return (threshold-maxV)/(fvel if fvel!=0.0 else tolerance)  
-
+    print('hey->')
+    print(acc)
+    #===========================================================================
+    # return (threshold-maxV)/(fvel if fvel!=0.0 else tolerance)  
+    #===========================================================================
+    nom=2*(threshold-maxV)
+    denom=(fvel+sp.sqrt(2*(threshold-maxV)*acc+fvel**2))
+    return nom/(denom if denom!=0.0 else tolerance) 
  
     
 def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDict,tolerance=1e-7):
@@ -131,12 +137,13 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     optProb.addVar('z',type='c',lower=0.0)
     
     
-    for (nid,v,u,fvel) in balSet:
+    for (nid,v,u,fvel,acc) in balSet:
         #DBG
         print(nid)
         print(v)
         print(u)
         print(fvel)
+        print(acc)
         
         optProb.addVarGroup(nid,
                             (2 if len(b)<=1 else len(b)),   #add dummy variable in 1D case in order to handle sp.arrays
@@ -175,13 +182,13 @@ def heuristicBalancer(coordInstance, balSet, b, threshold, monFunc, nodeWeightDi
     
     points={}
     for i in optProb.getVarGroups():
-        if any([nid==optProb.getVarGroups()[i]['name'] for (nid,v,u,fvel) in balSet]):
+        if any([nid==optProb.getVarGroups()[i]['name'] for (nid,v,u,fvel,acc) in balSet]):
             respectiveIds=optProb.getVarGroups()[i]['ids'].values()
             respectiveIds.sort()
             points[optProb.getVarGroups()[i]['name']]=sp.array([optProb._solutions[0].getVar(j).value for j in respectiveIds[0:len(b)]]) 
             
     print(optProb._solutions[0]) 
-    return {nid:(nodeWeightDict[nid]*points[nid]-nodeWeightDict[nid]*u) for (nid,v,u,vel) in balSet}
+    return {nid:(nodeWeightDict[nid]*points[nid]-nodeWeightDict[nid]*u) for (nid,v,u,vel,acc) in balSet}
 
 #----------------------------------------------------------------------------
 #---------------------------------TEST-OK------------------------------------

@@ -53,16 +53,19 @@ def monFunc1D(x):
 def monFunc5D(x):
     nom=x[0]+x[4]+x[3]
     denom=x[1]+x[2]
-    
+     
     return nom**2-denom
+    #===========================================================================
+    # return x[0]+x[1]+x[2]+x[3]+x[4]
+    #===========================================================================
 
 def monFunc10D(x):
     return ((x[0]+x[1]+x[2]-x[3]+x[4]-x[5]+x[6]-x[7]+x[8]-x[9]))**2
     
 if __name__=='__main__':
     
-    filename=['/home/ak/git/GM_Experiment/Experiments/singleH_classic_random_linear_5D2N/singleH_classic_random_linear_5D2N_0/',
-              '/home/ak/git/GM_Experiment/Experiments/singleH_heuristic_distOptPair_linear_5D2N/singleH_heuristic_distOptPair_linear_5D2N_0/']
+    filename=['/home/ak/workspace/GM_Experiment/Experiments/singleH_classic_random_linear_5D3N/singleH_classic_random_linear_5D3N_0/',
+              '/home/ak/workspace/GM_Experiment/Experiments/singleH_heuristic_distOptPair_linear_5D3N/singleH_heuristic_distOptPair_linear_5D3N_0/']
     #filename='/home/ak/git/GM_Experiment/test/'
     for i in filename:
         bcheck(i, monFunc5D)

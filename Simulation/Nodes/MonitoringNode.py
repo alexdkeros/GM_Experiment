@@ -141,7 +141,7 @@ class MonitoringNode(GenericNode):
             "rep" signal
             in classic balancing velocity is not used
         '''
-        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[self.network.getIterationCount()-2])))
+        self.send(self.network.getCoordId(), "rep", (hashable(self.v),hashable(self.u),sp.mean(self.monFuncVelLog[self.network.getIterationCount()-2]),sp.mean(self.monFuncAccLog[self.network.getIterationCount()-2])))
         
     
     '''
@@ -195,6 +195,28 @@ class MonitoringNode(GenericNode):
             ordert=order
         return savitzky_golay(deDec(data) ,wl=wlt,wr=wr,order=ordert,deriv=1) if len(data)>=3 else [(data[-1]-data[0])/len(data)]*len(data) 
     
+    def computeMonFuncAcc(self,func,dataLog, wl,wr, order):
+        '''
+            computes monitoring function acceleration for heuristic optimization
+            args:
+                @param func: the monitoring function
+                @param dataLog: log of vectors
+                @param windowSize: window size
+                @param order: approximation order
+            @return monitoring function acceleration array
+        ''' 
+        
+        data=sp.array(map(func, dataLog))
+        
+        if wl>len(data):
+            wlt=len(data) if len(data)%2==0 else len(data)-1
+        else:
+            wlt=wl
+        if order+2>wlt+wr+1:
+            ordert=wlt+wr+1-2
+        else:
+            ordert=order
+        return savitzky_golay(deDec(data) ,wl=wlt,wr=wr,order=2,deriv=2) if len(data)>=4 else [(self.monFuncVelLog[-1]-self.monFuncVelLog[0])/len(self.monFuncVelLog)]*len(self.monFuncVelLog) 
     '''
     ----------------------------------------------------------------------
     monitoring operation
@@ -254,7 +276,7 @@ class MonitoringNode(GenericNode):
         ballr=computeBallFromDiametralPoints(self.e, (self.v-self.vLast))
         self.maxFuncValLog.append(computeExtremesFuncValuesInBall(self.monFunc,(deDec(ballr[0]),deDec(ballr[1])),type='max',tolerance=self.tolerance))
         self.monFuncVelLog=vecquantize(dec(self.computeMonFuncVel(lambda x:x, self.maxFuncValLog, self.wl, self.wr, self.approximationOrder)))
-        
+        self.monFuncAccLog=vecquantize(dec(self.computeMonFuncAcc(lambda x:x, self.maxFuncValLog, self.wl, self.wr, self.approximationOrder)))
         #DBG
         #print('iter count:%d'%self.network.getIterationCount())
         #print('node: %s'%str(self.id))

@@ -217,14 +217,14 @@ class CoordinatorNode(GenericNode):
         print('===========================================================================================================')
         print('iter: %d'%self.network.getIterationCount())
         tl=[]
-        for i,v,u,vel in self.balancingSet:
+        for i,v,u,vel,acc in self.balancingSet:
             print(i)
             tl.append(u.unwrap())
             print(u.unwrap())
         
         
-        denom=sum(self.nodes[i] for i,v,u,vel in self.balancingSet)
-        b=sum(vecquantize((u.unwrap()*self.nodes[i])/denom) for i,v,u,vel in self.balancingSet)
+        denom=sum(self.nodes[i] for i,v,u,vel,acc in self.balancingSet)
+        b=sum(vecquantize((u.unwrap()*self.nodes[i])/denom) for i,v,u,vel,acc in self.balancingSet)
         
         #DBG
         print('original b:')
@@ -269,8 +269,8 @@ class CoordinatorNode(GenericNode):
                 # FAILED BALANCING - GLOBAL VIOLATION
                 #===============================================================
                 
-                vGl=sum(v.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector
-                uGl=sum(u.unwrap()*self.nodes[i] for i,v,u,vel in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
+                vGl=sum(v.unwrap()*self.nodes[i] for i,v,u,vel,acc in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel,acc in self.balancingSet)   #global stats vector
+                uGl=sum(u.unwrap()*self.nodes[i] for i,v,u,vel,acc in self.balancingSet)/sum(self.nodes[i] for i,v,u,vel,acc in self.balancingSet)   #global stats vector (via drift vectors *convexity property*)
                 
                 #new Estimate
                 self.e=vGl
@@ -289,7 +289,7 @@ class CoordinatorNode(GenericNode):
             print('===============================================BALANCE=====================================================')
             print('===========================================================================================================')
             
-            dDeltaDict=self.balancer([(nid,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel)) for (nid,v,u,fvel) in self.balancingSet],
+            dDeltaDict=self.balancer([(nid,deDec(v.unwrap()),deDec(u.unwrap()),deDec(fvel),deDec(acc)) for (nid,v,u,fvel,acc) in self.balancingSet],
                                     deDec(b),
                                     deDec(self.threshold), 
                                     self.monFunc, 
