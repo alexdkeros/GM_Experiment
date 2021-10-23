@@ -4,6 +4,7 @@ Scaling Geometric Monitoring over Distributed Streams
 Implemetation for my undergraduate thesis at the Technical University of Crete, under the supervision of Dr. Samoladas.
 The submitted thesis can be found [here](https://dias.library.tuc.gr/view/65984).
 The latex files are [here](https://github.com/alexdkeros/GM_Thesis_latex).
+
 Abstract
 --------
 
